@@ -70,6 +70,25 @@ Es importante destacar que estas etiquetas no fueron establecidas por profesiona
 
 Este enfoque proporciona un nivel de fiabilidad adecuado en las anotaciones obtenidas. Aun así, la ausencia de anotadores profesionales implica que las etiquetas deben interpretarse como indicadores de riesgo y no como diagnósticos clínicos. Por ello, futuros trabajos podrían beneficiarse de corpus anotados por especialistas en salud mental para aumentar aún más su fiabilidad.
 
+A continuación, se presenta una exploración inicial del corpus \textit{MentalRiskES} con el objetivo de entender su distribución de usuarios y el balance entre clases para cada trastorno. Para ello se generó un pequeño script en Python que permitió extraer estos resultados:
+
+\begin{itemize}
+	\item En el caso de los trastornos de la conducta alimentaria (ED), el corpus contiene 335 sujetos, de los cuales 192 pertenecen a la clase control y 143 a la clase \textit{suffer}. Aunque existe cierto desbalance, la diferencia entre clases es moderada.
+	
+	\item En depresión, la proporción está más desequilibrada. De los 499 sujetos presentes en esta partición, 166 son control y 333 se agrupan dentro de las distintas subcategorías de \textit{suffer}, lo que supone aproximadamente el doble de sujetos positivos respecto a negativos.
+	
+	\item La partición correspondiente a ansiedad presenta el desbalance más pronunciado: solo 57 sujetos pertenecen a la clase control, frente a 443 que han sido anotados como \textit{suffer}. Este desequilibrio debe tenerse en cuenta en las fases de entrenamiento y evaluación del modelo, ya que puede afectar al rendimiento y a la sensibilidad del sistema.
+\end{itemize}
+
+Para visualizar estas diferencias, se incluye a continuación un diagrama de barras agrupadas que muestra la distribución de clases en cada uno de los tres trastornos:
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{distribucion_clases_mentalriskes.png}
+	\caption{Distribución de clases en los tres trastornos del corpus \textit{MentalRiskES}.}
+	\label{fig:dist_clases_mentalriskes}
+\end{figure}
+
 
 \subsection{Preparación de datos}
 Blah, blah, blah\ldots
