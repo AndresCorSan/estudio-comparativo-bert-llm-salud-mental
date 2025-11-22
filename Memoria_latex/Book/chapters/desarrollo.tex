@@ -1,0 +1,96 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Generic template for TFC/TFM/TFG/Tesis
+%
+% $Id: desarrollo.tex,v 1.4 2015/06/05 00:05:18 macias Exp $
+%
+% By:
+%  + Javier Macías-Guarasa.
+%    Departamento de Electrónica
+%    Universidad de Alcalá
+%  + Roberto Barra-Chicote.
+%    Departamento de Ingeniería Electrónica
+%    Universidad Politécnica de Madrid
+% 
+% Based on original sources by Roberto Barra, Manuel Ocaña, Jesús Nuevo, Pedro Revenga, Fernando Herránz and Noelia Hernández. Thanks a lot to all of them, and to the many anonymous contributors found (thanks to google) that provided help in setting all this up.
+%
+% See also the additionalContributors.txt file to check the name of additional contributors to this work.
+%
+% If you think you can add pieces of relevant/useful examples, improvements, please contact us at (macias@depeca.uah.es)
+%
+% You can freely use this template and please contribute with comments or suggestions!!!
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Desarrollo}
+\label{cha:desarrollo}
+
+
+\begin{FraseCelebre}
+  \begin{Frase}
+    A fuerza de construir bien, se llega a buen arquitecto\footnote{Tomado de ejemplos del proyecto \texis{}.}.
+  \end{Frase}
+  \begin{Fuente}
+    Aristóteles
+  \end{Fuente}
+\end{FraseCelebre}
+
+
+\section{Introducción}
+\label{sec:introduccion-desarrollo}
+
+En este capítulo se incluirá la descripción del desarrollo del trabajo.
+
+El capítulo se estructura en n apartados....
+
+
+\section{Dataset empleado}
+\label{sec:desarr-del-sist}
+
+La elección del dataset constituye una parte fundamental en el desarrollo de este trabajo, ya que condiciona tanto la metodología empleada como la validez de los resultados obtenidos. Inicialmente, el objetivo del TFG se centraba en la detección de ansiedad y depresión a partir de texto, pero pronto se observó que encontrar corpus adecuados para este propósito resultaba especialmente complejo. La mayoría de datasets públicos disponibles incluían únicamente casos de depresión, ofrecían información limitada sobre la calidad del etiquetado o no contaban con un proceso de anotación suficientemente fiable.
+
+Tras estudiar distintas alternativas, se seleccionó finalmente el dataset \textit{MentalRiskES}, creado por investigadores de la Universidad de Jaén junto con colaboradores internacionales. Este corpus proporciona anotaciones realizadas por múltiples evaluadores y presenta un mayor grado de consistencia que otros datasets disponibles. Además, MentalRiskES no solo incluye datos sobre ansiedad y depresión, sino también sobre trastornos de la conducta alimentaria, por lo que se decidió ampliar el alcance del trabajo para incorporar la detección de este tercer trastorno. 
+
+Un aspecto especialmente relevante es que MentalRiskES está compuesto íntegramente por texto en español, lo que permite desarrollar un estudio que se aleja de la tendencia dominante en la literatura, centrada mayoritariamente en corpus en lengua inglesa.
+
+
+\subsection{Análisis del dataset MentalRiskES}
+
+MentalRiskES constituye un corpus en español diseñado para la detección temprana de tres trastornos mentales: depresión, ansiedad y trastornos de la conducta alimentaria (Eating Disorders, ED). Los datos que componen el corpus provienen de grupos públicos de Telegram, seleccionados específicamente por su naturaleza temática relacionada con uno de los tres trastornos mencionados.
+
+La unidad básica del dataset es el sujeto (usuario). Para cada usuario se incluye un identificador anonimizado y una secuencia cronológica de mensajes publicados dentro de un grupo concreto. El dataset conserva los mensajes originales, aunque después de un proceso de curación que incluyó la eliminación de mensajes extremadamente breves, la conversión de emojis a texto, el etiquetado de URLs y hashtags y la anonimización de nombres propios, alias y números de teléfono.
+
+El dataset está organizado en tres carpetas, una por cada trastorno. En cada una de ellas se encuentra un archivo \texttt{JSON} por sujeto, que contiene todos sus mensajes ordenados cronológicamente, junto con un archivo \texttt{CSV} que recoge el identificador del sujeto y dos etiquetas:
+\begin{itemize}
+	\item \textbf{bs (binary suffer):} indica si los mensajes publicados por el sujeto presentan señales de sufrir el trastorno (1) o no (0).
+	\item \textbf{bc (binary control):} indica si el sujeto debe considerarse control (1) o no (0). Se entiende por control a aquellos usuarios que no muestran señales asociadas al trastorno en cuestión.
+\end{itemize}
+
+Es importante destacar que estas etiquetas no fueron establecidas por profesionales de la salud mental. El proceso de anotación fue realizado por diez anotadores independientes por sujeto, quienes, aunque no eran especialistas clínicos, cumplían criterios estrictos de selección (ser nativos en español y poseer estudios universitarios) y trabajaron siguiendo guías detalladas basadas en definiciones oficiales y procedimientos estandarizados. La etiqueta final asignada a cada sujeto se determina seleccionando la que aparece con mayor frecuencia entre los diez anotadores y, en caso de empate, se considera que el usuario sí presenta indicios del trastorno correspondiente.
+
+Este enfoque proporciona un nivel de fiabilidad adecuado en las anotaciones obtenidas. Aun así, la ausencia de anotadores profesionales implica que las etiquetas deben interpretarse como indicadores de riesgo y no como diagnósticos clínicos. Por ello, futuros trabajos podrían beneficiarse de corpus anotados por especialistas en salud mental para aumentar aún más su fiabilidad.
+
+
+\subsection{Preparación de datos}
+Blah, blah, blah\ldots
+
+\section{Planteamiento matemático}
+\label{sec:libr-desarr}
+
+También resulta útil poder introducir ecuaciones que se encuentran tanto en línea con el texto (como por ejemplo $\sigma=0.75$), como en un párrafo aparte (como en la ecuación \ref{eq:eq1}). Al igual que ocurre con las figuras, también se pueden referenciar las ecuaciones.
+
+\begin{equation}
+  \label{eq:eq1}
+  p[q_t=\sigma_t|q_{t-1}=\sigma_{t-1}]
+\end{equation}
+
+\section{Conclusiones}
+\label{sec:conclusiones-desarrollo}
+
+Blah, blah, blah\ldots
+
+
+
+%%% Local Variables:
+%%% TeX-master: "../book"
+%%% End:
