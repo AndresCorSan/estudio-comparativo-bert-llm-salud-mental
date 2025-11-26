@@ -56,31 +56,32 @@ Un aspecto especialmente relevante es que MentalRiskES está compuesto íntegram
 
 \subsection{Análisis del dataset MentalRiskES}
 
+\subsubsection{Descripción y estructura general del corpus}
 MentalRiskES constituye un corpus en español diseñado para la detección temprana de tres trastornos mentales: depresión, ansiedad y trastornos de la conducta alimentaria (Eating Disorders, ED). Los datos que componen el corpus provienen de grupos públicos de Telegram, seleccionados específicamente por su naturaleza temática relacionada con uno de los tres trastornos mencionados.
 
-La unidad básica del dataset es el sujeto (usuario). Para cada usuario se incluye un identificador anonimizado y una secuencia cronológica de mensajes publicados dentro de un grupo concreto. El dataset conserva los mensajes originales, aunque después de un proceso de curación que incluyó la eliminación de mensajes extremadamente breves, la conversión de emojis a texto, el etiquetado de URLs y hashtags y la anonimización de nombres propios, alias y números de teléfono.
+La unidad básica del dataset es el sujeto (usuario). Para cada usuario se incluye un identificador anonimizado y una secuencia cronológica de mensajes publicados dentro de un grupo concreto. El dataset conserva los mensajes originales tras un proceso de curación que incluyó la eliminación de mensajes extremadamente breves, la conversión de emojis a texto, el etiquetado de URLs y hashtags y la anonimización de nombres propios, alias y números de teléfono.
 
-El dataset está organizado en tres carpetas, una por cada trastorno. En cada una de ellas se encuentra un archivo \texttt{JSON} por sujeto, que contiene todos sus mensajes ordenados cronológicamente, junto con un archivo \texttt{CSV} que recoge el identificador del sujeto y dos etiquetas:
+El dataset está organizado en tres carpetas, una por cada trastorno. En cada una se encuentra un archivo \texttt{JSON} por sujeto, que contiene todos sus mensajes ordenados cronológicamente, junto con un archivo \texttt{CSV} que recoge el identificador del sujeto y dos etiquetas:
 \begin{itemize}
 	\item \textbf{bs (binary suffer):} indica si los mensajes publicados por el sujeto presentan señales de sufrir el trastorno (1) o no (0).
 	\item \textbf{bc (binary control):} indica si el sujeto debe considerarse control (1) o no (0). Se entiende por control a aquellos usuarios que no muestran señales asociadas al trastorno en cuestión.
 \end{itemize}
 
+\subsubsection{Proceso de anotación}
 Es importante destacar que estas etiquetas no fueron establecidas por profesionales de la salud mental. El proceso de anotación fue realizado por diez anotadores independientes por sujeto, quienes, aunque no eran especialistas clínicos, cumplían criterios estrictos de selección (ser nativos en español y poseer estudios universitarios) y trabajaron siguiendo guías detalladas basadas en definiciones oficiales y procedimientos estandarizados. La etiqueta final asignada a cada sujeto se determina seleccionando la que aparece con mayor frecuencia entre los diez anotadores y, en caso de empate, se considera que el usuario sí presenta indicios del trastorno correspondiente.
 
-Este enfoque proporciona un nivel de fiabilidad adecuado en las anotaciones obtenidas. Aun así, la ausencia de anotadores profesionales implica que las etiquetas deben interpretarse como indicadores de riesgo y no como diagnósticos clínicos. Por ello, futuros trabajos podrían beneficiarse de corpus anotados por especialistas en salud mental para aumentar aún más su fiabilidad.
+Este enfoque proporciona un nivel de fiabilidad adecuado en las anotaciones obtenidas. No obstante, la ausencia de anotadores profesionales implica que las etiquetas deben interpretarse como indicadores de riesgo y no como diagnósticos clínicos. Por ello, futuros trabajos podrían beneficiarse de corpus anotados por especialistas en salud mental para aumentar aún más su fiabilidad.
 
-A continuación, se presenta una exploración inicial del corpus \textit{MentalRiskES} con el objetivo de entender su distribución de usuarios y el balance entre clases para cada trastorno. Para ello se generó un pequeño script en Python que permitió extraer estos resultados:
+\subsubsection{Exploración del dataset}
+A continuación, se presenta una exploración inicial del corpus \textit{MentalRiskES} con el objetivo de entender su distribución de usuarios, mensajes y palabras, así como el balance entre clases para cada trastorno. Para ello se generó un pequeño script en Python que permitió extraer los siguientes resultados:
 
 \begin{itemize}
-	\item En el caso de los trastornos de la conducta alimentaria (ED), el corpus contiene 335 sujetos, de los cuales 192 pertenecen a la clase control y 143 a la clase \textit{suffer}. Aunque existe cierto desbalance, la diferencia entre clases es moderada.
-	
+	\item En los trastornos de la conducta alimentaria (ED), el corpus contiene 335 sujetos, de los cuales 192 pertenecen a la clase control y 143 a la clase \textit{suffer}. Aunque existe cierto desbalance, la diferencia entre clases es moderada.
 	\item En depresión, la proporción está más desequilibrada. De los 499 sujetos presentes en esta partición, 166 son control y 333 se agrupan dentro de las distintas subcategorías de \textit{suffer}, lo que supone aproximadamente el doble de sujetos positivos respecto a negativos.
-	
-	\item La partición correspondiente a ansiedad presenta el desbalance más pronunciado: solo 57 sujetos pertenecen a la clase control, frente a 443 que han sido anotados como \textit{suffer}. Este desequilibrio debe tenerse en cuenta en las fases de entrenamiento y evaluación del modelo, ya que puede afectar al rendimiento y a la sensibilidad del sistema.
+	\item La partición correspondiente a ansiedad presenta el desbalance más pronunciado: solo 57 sujetos pertenecen a la clase control, frente a 443 que han sido anotados como \textit{suffer}. Este desequilibrio debe tenerse en cuenta en fases posteriores, ya que puede afectar al rendimiento y a la sensibilidad del modelo.
 \end{itemize}
 
-Para visualizar estas diferencias, se incluye a continuación un diagrama de barras agrupadas que muestra la distribución de clases en cada uno de los tres trastornos:
+Para visualizar estas diferencias, la Figura~\ref{fig:dist_clases_mentalriskes} muestra un diagrama de barras agrupadas con la distribución de clases en los tres trastornos del corpus.
 
 \begin{figure}[H]
 	\centering
@@ -88,6 +89,57 @@ Para visualizar estas diferencias, se incluye a continuación un diagrama de bar
 	\caption{Distribución de clases en los tres trastornos del corpus \textit{MentalRiskES}.}
 	\label{fig:dist_clases_mentalriskes}
 \end{figure}
+
+Otro factor importante a tener en cuenta es el número de mensajes y de palabras que aporta cada usuario, ya que determina la cantidad de información textual disponible para los modelos de clasificación. Para analizar esta cuestión, se calculó, para cada trastorno y clase, el número total de mensajes y palabras, así como sus medias por usuario. Los resultados se resumen en la Tabla~\ref{tab:resumen_trastornos}.
+
+\begin{table}[H]
+	\centering
+	\caption{Resumen de estadísticas por trastorno y clase en el corpus MentalRiskES.}
+	\renewcommand{\arraystretch}{1.2}
+	\setlength{\tabcolsep}{6pt}
+	\resizebox{\textwidth}{!}{
+		\begin{tabular}{|l|ccc|ccc|ccc|}
+			\hline
+			& \multicolumn{3}{c|}{\textbf{Ansiedad}} 
+			& \multicolumn{3}{c|}{\textbf{Depresión}} 
+			& \multicolumn{3}{c|}{\textbf{ED}} \\
+			\textbf{Métrica} 
+			& \textbf{Control} & \textbf{Suffer} & \textbf{Total}
+			& \textbf{Control} & \textbf{Suffer} & \textbf{Total}
+			& \textbf{Control} & \textbf{Suffer} & \textbf{Total} \\
+			\hline
+			\textbf{Nº sujetos}      
+			& 57  & 443 & 500
+			& 166 & 333 & 499
+			& 192 & 143 & 335 \\
+			\hline
+			\textbf{Nº mensajes}     
+			& 2\,222  & 16\,293 & 18\,515
+			& 6\,287  & 11\,083 & 17\,370
+			& 6\,586  & 3\,913  & 10\,499 \\
+			\textbf{Media mensajes}   
+			& 38.98 & 36.78 & 37.03
+			& 37.87 & 33.28 & 34.81
+			& 34.30 & 27.36 & 31.34 \\
+			\hline
+			\textbf{Nº palabras}     
+			& 31\,248  & 276\,853 & 308\,101
+			& 84\,435  & 159\,868 & 244\,303
+			& 93\,614  & 64\,667  & 158\,281 \\
+			\textbf{Media palabras}   
+			& 548.21 & 624.95 & 616.20
+			& 508.64 & 480.08 & 489.59
+			& 487.57 & 452.22 & 472.48 \\
+			\hline
+		\end{tabular}
+	}
+	\label{tab:resumen_trastornos}
+\end{table}
+
+El análisis del número de mensajes y palabras revela diferencias relevantes entre los tres trastornos. Ansiedad es el conjunto con mayor volumen total de mensajes y palabras, seguido de depresión y, finalmente, ED. Si se comparan las medias por usuario, en ansiedad y depresión los usuarios de la clase control tienden a escribir ligeramente más mensajes que los usuarios \textit{suffer}, mientras que en ED ocurre lo contrario. En cuanto al número de palabras, en ansiedad los usuarios \textit{suffer} producen mensajes más extensos de media, en depresión sucede lo contrario, y en ED ambas clases presentan valores muy similares.
+
+\subsubsection{Conclusión del análisis del dataset}
+En conjunto, los resultados muestran diferencias claras tanto en el desbalance entre clases como en la cantidad de texto disponible por trastorno. Ansiedad es el conjunto más desequilibrado, mientras que depresión y ED presentan distribuciones más homogéneas. Asimismo, ansiedad y depresión ofrecen un volumen textual mayor que ED, lo que implica que los modelos dispondrán de más información lingüística en estos dos casos. Estas variaciones son relevantes porque afectan tanto a la dificultad del aprendizaje como a la capacidad de generalización, por lo que deben tenerse en cuenta tanto en el proceso de entrenamiento del modelo BERT como en la evaluación posterior, tanto de BERT como de los modelos LLM preentrenados.
 
 
 \subsection{Preparación de datos}
