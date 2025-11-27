@@ -57,7 +57,7 @@ Un aspecto especialmente relevante es que MentalRiskES está compuesto íntegram
 \subsection{Análisis del dataset MentalRiskES}
 
 \subsubsection{Descripción y estructura general del corpus}
-MentalRiskES constituye un corpus en español diseñado para la detección temprana de tres trastornos mentales: depresión, ansiedad y trastornos de la conducta alimentaria (Eating Disorders, ED). Los datos que componen el corpus provienen de grupos públicos de Telegram, seleccionados específicamente por su naturaleza temática relacionada con uno de los tres trastornos mencionados.
+MentalRiskES constituye un corpus en español diseñado para la detección temprana de tres trastornos mentales: depresión, ansiedad y trastornos de la conducta alimentaria (Eating Disorders, ED). Los datos que componen el corpus provienen de grupos públicos de Telegram, seleccionados específicamente por su naturaleza temática relacionada con cada uno de los trastornos.
 
 La unidad básica del dataset es el sujeto (usuario). Para cada usuario se incluye un identificador anonimizado y una secuencia cronológica de mensajes publicados dentro de un grupo concreto. El dataset conserva los mensajes originales tras un proceso de curación que incluyó la eliminación de mensajes extremadamente breves, la conversión de emojis a texto, el etiquetado de URLs y hashtags y la anonimización de nombres propios, alias y números de teléfono.
 
@@ -143,7 +143,17 @@ En conjunto, los resultados muestran diferencias claras tanto en el desbalance e
 
 
 \subsection{Preparación de datos}
-Blah, blah, blah\ldots
+Una vez analizado el dataset, el siguiente paso consistió en preparar los datos para su uso en los modelos de clasificación. Para ello se empleó de nuevo Python junto con la librería \texttt{pandas}. Dado que el dataset \textit{MentalRiskES} está estructurado a nivel de usuario y las etiquetas asignadas corresponden al sujeto en su conjunto, se decidió mantener esta unidad de análisis durante todo el proceso. Así, los mensajes asociados a cada usuario se concatenaron en un único texto, preservando la información contextual completa que aporta el corpus.
+
+El proceso comenzó con la carga de los ficheros \texttt{JSON} de cada trastorno, a partir de los cuales se extrajo la lista de mensajes correspondiente a cada usuario. Estos mensajes fueron filtrados para eliminar entradas vacías y posteriormente concatenados en un solo texto. Paralelamente, se incorporó la etiqueta binaria \texttt{bs} asociada a cada sujeto, generando un \textit{dataframe} final por trastorno con las columnas \texttt{user\_id}, \texttt{texto} y \texttt{bs}.
+
+A continuación, se prepararon estos datos para el entrenamiento del modelo BERT. Para este tipo de modelos es necesario dividir cada dataset en tres subconjuntos: entrenamiento (70\%), validación (15\%) y prueba (15\%). El conjunto de entrenamiento se emplea para ajustar los pesos del modelo, el de validación para seleccionar hiperparámetros y prevenir el sobreajuste, y el de prueba para evaluar el rendimiento final.
+
+Dado que, tal como se observó en el análisis del subapartado 3.2.1.3, las clases \textit{suffer} y \textit{control} presentan un desbalance significativo (especialmente en el caso del trastorno de ansiedad), la división se realizó mediante estratificación. De este modo, se garantiza que la proporción entre ambas clases se mantenga en los subconjuntos de entrenamiento, validación y prueba, reflejando fielmente la distribución del corpus original. Los subconjuntos generados se almacenaron en ficheros CSV para su posterior uso en el proceso de entrenamiento de BERT.
+
+Finalmente, se prepararon también los datos para la evaluación de los modelos LLM. En este caso el proceso es más simple, puesto que los LLM no requieren entrenamiento adicional. Por ello, no es necesario generar subconjuntos de entrenamiento ni validación, sino únicamente un conjunto de evaluación para cada trastorno. Dado que los conjuntos de prueba obtenidos en la división anterior resultan demasiado pequeños y presentan un fuerte desbalance, especialmente en ansiedad, se decidió emplear el conjunto completo de usuarios de cada trastorno, ya con sus mensajes unificados, como conjunto de evaluación para los LLM.
+
+De este modo, el modelo BERT se entrena y evalúa exclusivamente con los subconjuntos estratificados \textit{train}, \textit{validation} y \textit{test}, mientras que los modelos LLM se evalúan sobre el dataset completo ya preprocesado, sin aplicar división alguna, dado que no requieren entrenamiento previo.
 
 \section{Planteamiento matemático}
 \label{sec:libr-desarr}
