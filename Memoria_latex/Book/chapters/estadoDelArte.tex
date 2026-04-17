@@ -1,0 +1,44 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Generic template for TFC/TFM/TFG/Tesis
+%
+% $Id: estudioTeorico.tex,v 1.5 2015/06/05 00:05:19 macias Exp $
+%
+% By:
+%  + Javier Macías-Guarasa.
+%    Departamento de Electrónica
+%    Universidad de Alcalá
+%  + Roberto Barra-Chicote.
+%    Departamento de Ingeniería Electrónica
+%    Universidad Politécnica de Madrid
+% 
+% Based on original sources by Roberto Barra, Manuel Ocaña, Jesús Nuevo, Pedro Revenga, Fernando Herránz and Noelia Hernández. Thanks a lot to all of them, and to the many anonymous contributors found (thanks to google) that provided help in setting all this up.
+%
+% See also the additionalContributors.txt file to check the name of additional contributors to this work.
+%
+% If you think you can add pieces of relevant/useful examples, improvements, please contact us at (macias@depeca.uah.es)
+%
+% You can freely use this template and please contribute with comments or suggestions!!!
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Estado del arte}
+\label{cha:estado-del-arte}
+
+En el contexto descrito anteriormente, donde el lenguaje se plantea como una posible fuente de información para la detección de indicadores de salud mental, el procesamiento del lenguaje natural (PLN) se posiciona como la disciplina encargada de abordar este tipo de problemas. A lo largo de las últimas décadas, el PLN ha experimentado una evolución significativa, pasando de enfoques basados en representaciones simples a grandes modelos capaces de capturar relaciones semánticas complejas en el texto.
+
+En sus primeras etapas, técnicas como \textit{bag-of-words} \cite{harris_distributional_1954} o TF-IDF \cite{sparck_jones_statistical_1972} permitían representar documentos mediante vectores numéricos, aunque sin tener en cuenta el orden ni el contexto de las palabras. Posteriormente, la introducción de modelos neuronales, como las redes recurrentes (RNN) \cite{rumelhart_learning_1986} y sus variantes LSTM \cite{hochreiter_long_1997}, permitió modelar dependencias secuenciales, mejorando el rendimiento en tareas como la traducción automática o el análisis de sentimientos \cite{socher_recursive_2013}, aunque con limitaciones relacionadas con el procesamiento secuencial y la dificultad para capturar dependencias a largo plazo.
+
+La aparición de la arquitectura \textit{transformer}, introducida en el trabajo \textit{Attention is All You Need} \cite{vaswani_attention_2017}, supuso un cambio significativo en este ámbito, al reemplazar los enfoques secuenciales tradicionales por mecanismos de atención capaces de modelar relaciones entre palabras de forma global y procesar secuencias de manera paralela. A partir de esta arquitectura surgieron modelos como BERT \cite{devlin_bert_2019}, que introdujo un enfoque bidireccional para la representación del lenguaje y ha sido ampliamente utilizado en tareas de clasificación de texto mediante técnicas de \textit{fine-tuning}. Asimismo, han surgido múltiples variantes que buscan mejorar su rendimiento o adaptarse a distintos escenarios, como RoBERTa \cite{liu_roberta_2019} o DistilBERT \cite{sanh_distilbert_2020}, manteniendo el enfoque basado en \textit{transformers}.
+
+Más recientemente, los grandes modelos de lenguaje (LLMs) han ampliado las capacidades del PLN, especialmente a partir del paradigma de preentrenamiento generativo introducido por la familia de modelos GPT desarrollada por OpenAI \cite{radford_improving_2018} y consolidado con modelos de gran escala como GPT-3, que demostraron la capacidad de resolver tareas en escenarios \textit{zero-shot} y \textit{few-shot} sin necesidad de entrenamiento específico \cite{brown_language_2020}. Estos modelos destacan por su capacidad de generalización y por su flexibilidad para adaptarse a diferentes tareas a partir de instrucciones en lenguaje natural, lo que los convierte en una alternativa a los enfoques tradicionales basados en \textit{fine-tuning} sobre conjuntos de datos etiquetados. Además, técnicas de \textit{prompting} han permitido explotar mejor estas capacidades, mejorando el razonamiento y la alineación con instrucciones humanas \cite{wei_chain_thought_2022}.
+
+En paralelo a estos avances, el uso del PLN en el ámbito de la salud mental ha cobrado relevancia en los últimos años. Diversos trabajos han explorado la detección de trastornos como la depresión a partir de textos publicados en redes sociales o foros, abordando el problema como una tarea de clasificación \cite{coppersmith_clpsych_2015}. En este contexto, se han empleado tanto enfoques tradicionales basados en características lingüísticas como modelos más recientes basados en \textit{transformers} \cite{matero_suicide_2019}, obteniendo resultados prometedores. Más recientemente, algunos estudios han comenzado a explorar el uso de grandes modelos de lenguaje en este ámbito. Por ejemplo, Danner et al. \cite{danner_advancing_2023} proponen métodos basados en modelos tipo GPT para la detección de depresión, mostrando mejoras respecto a enfoques tradicionales, mientras que Liu et al. \cite{liu_enhanced_2025} presentan un enfoque basado en LLMs optimizados para el cribado de depresión y ansiedad, evidenciando mejoras en sensibilidad y capacidad de interpretación. No obstante, la mayoría de estas investigaciones se centran principalmente en la depresión, mientras que otros trastornos, como la ansiedad o los trastornos de la conducta alimentaria, han recibido menor atención.
+
+Asimismo, una parte significativa de los trabajos existentes se basa en datasets en inglés, lo que limita la aplicabilidad de los resultados a otros contextos lingüísticos. A esto se suma la falta de estudios que comparen de manera sistemática diferentes enfoques, especialmente en lo que respecta a la comparación entre modelos tradicionales basados en \textit{fine-tuning} y grandes modelos de lenguaje aplicados mediante \textit{prompting}. Aunque los LLMs han comenzado a utilizarse en este ámbito, su uso sigue siendo relativamente reciente y todavía existen incertidumbres sobre su rendimiento y sus limitaciones en tareas específicas de detección de trastornos.
+
+En este contexto, el presente trabajo se plantea como una contribución orientada a analizar y comparar distintos enfoques de procesamiento del lenguaje natural aplicados a la detección de ansiedad, depresión y trastornos de la conducta alimentaria en textos escritos en español, con el objetivo de aportar una evaluación comparativa de su rendimiento y analizar su aplicabilidad en este contexto.
+
+%%% Local Variables:
+%%% TeX-master: "../book"
+%%% End:
