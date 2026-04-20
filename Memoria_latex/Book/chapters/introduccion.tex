@@ -446,36 +446,36 @@ Para incluir gráficos, la compilación que utilizamos permite usar ficheros \te
 
 En la figura \ref{fig:fig_clobj} se muestra un ejemplo de gráfico generado automáticamente a partir de un fichero \texttt{.dia}\footnote{Tomadas de los proyectos fin de carrera de David Casillas y Manuel Villaverde.}: \texttt{diagrams/Esquema\_objetos.dia} (podéis generalizar su generación en el \texttt{Makefile}).
 
-\begin{figure}[tphb]
-  \centering \includegraphics{Esquema_objetos}
-  \caption{Clasificación de los objetos para la gramática (aquí también se pueden poner acrónimos como \acs{ETTS} y símbolos como \ac{xidet})}
-  \label{fig:fig_clobj}
-\end{figure}
-
-
-\subsection{Definición y uso de acrónimos (aquí también se pueden poner acrónimos como \acs{ETTS})}
-\label{sec:uso-de-acronimos}
-
-El uso del paquete \texttt{glossaries} permite definir los acrónimos y el sistema automáticamente gestiona su inclusión completa la primera vez que se usa. Los acrónimos de ejemplo están en el fichero \texttt{acronyms/defacronymsgl.tex} (con opciones adicionales de configuración en \texttt{acronyms/acronymsgl.tex}).
-
-Así, si nos referimos a \ac{ETTS} o bien a \ac{EMODB}, veremos como aparecen expandidas la primera vez. A partir de ahí, sólo se usará el acrónimo como puede verse al volver a hablar de \ac{ETTS} y \ac{EMODB}.
-
-Tiene también soporte para resetear todos los acrónimos como si no estuvieran usados. Vuelvo a incluir el párrafo anterior tras un reset (que se hace con un \texttt{\textbackslash{}glsresetall[acronym]}):
-
-\glsresetall[acronym]
-
-El uso del paquete acronym permite definir los acrónimos y el sistema automáticamente gestiona su inclusión completa la primera vez que se usa. Así, si nos referimos a \ac{ETTS} o bien a \ac{EMODB}, veremos como aparecen expandidas de nuevo (como si fuera la primera vez que se usan). A partir de ahí, sólo se usará el acrónimo como puede verse al volver a hablar de \ac{ETTS} y \ac{EMODB}.
-
-Y permite también forzar que se vuelva a citar completo aunque ya se haya utilizado (con el acrónimo entre paréntesis), como puede verse en \acl{ETTS} (equivalente a \glsdesc{ETTS} que vale para cualquier glosario), y también a usar forzosamente el acrónimo. Primero reseteamos de nuevo.
-
-\glsresetall[acronym]
-
-Y ahora forzamos el acrónimo: \acs{EMODB} (equivalente a \glsname{EMODB} que vale para cualquier glosario). También podemos forzar a que lo ponga todo, con \acf{EMODB}.
-
-
-Podemos seguir definiendo entradas de acrónimos, referirnos a \ac{DBN} por primera vez, y las siguientes aparecerá como \ac{DBN}. Pongo ahora el resto de acrónimos \ac{SQ}, \ac{EIR}, \ac{SIR} y \ac{ES}. Finalmente los repito para que se vea el efecto: \ac{SQ}, \ac{EIR}, \ac{SIR} y \ac{ES}.
-
-Y gestiona bien los plurales, ponemos el plural como \acp{SOC} la primera vez, y luego la segunda como \acp{SOC}. Y podemos volver al singular con \ac{SOC}.
+%\begin{figure}[tphb]
+%  \centering \includegraphics{Esquema_objetos}
+%  \caption{Clasificación de los objetos para la gramática (aquí también se pueden poner acrónimos como \acs{ETTS} y símbolos como \ac{xidet})}
+%  \label{fig:fig_clobj}
+%\end{figure}
+%
+%
+%\subsection{Definición y uso de acrónimos (aquí también se pueden poner acrónimos como \acs{ETTS})}
+%\label{sec:uso-de-acronimos}
+%
+%El uso del paquete \texttt{glossaries} permite definir los acrónimos y el sistema automáticamente gestiona su inclusión completa la primera vez que se usa. Los acrónimos de ejemplo están en el fichero \texttt{acronyms/defacronymsgl.tex} (con opciones adicionales de configuración en \texttt{acronyms/acronymsgl.tex}).
+%
+%Así, si nos referimos a \ac{ETTS} o bien a \ac{EMODB}, veremos como aparecen expandidas la primera vez. A partir de ahí, sólo se usará el acrónimo como puede verse al volver a hablar de \ac{ETTS} y \ac{EMODB}.
+%
+%Tiene también soporte para resetear todos los acrónimos como si no estuvieran usados. Vuelvo a incluir el párrafo anterior tras un reset (que se hace con un \texttt{\textbackslash{}glsresetall[acronym]}):
+%
+%\glsresetall[acronym]
+%
+%El uso del paquete acronym permite definir los acrónimos y el sistema automáticamente gestiona su inclusión completa la primera vez que se usa. Así, si nos referimos a \ac{ETTS} o bien a \ac{EMODB}, veremos como aparecen expandidas de nuevo (como si fuera la primera vez que se usan). A partir de ahí, sólo se usará el acrónimo como puede verse al volver a hablar de \ac{ETTS} y \ac{EMODB}.
+%
+%Y permite también forzar que se vuelva a citar completo aunque ya se haya utilizado (con el acrónimo entre paréntesis), como puede verse en \acl{ETTS} (equivalente a \glsdesc{ETTS} que vale para cualquier glosario), y también a usar forzosamente el acrónimo. Primero reseteamos de nuevo.
+%
+%\glsresetall[acronym]
+%
+%Y ahora forzamos el acrónimo: \acs{EMODB} (equivalente a \glsname{EMODB} que vale para cualquier glosario). También podemos forzar a que lo ponga todo, con \acf{EMODB}.
+%
+%
+%Podemos seguir definiendo entradas de acrónimos, referirnos a \ac{DBN} por primera vez, y las siguientes aparecerá como \ac{DBN}. Pongo ahora el resto de acrónimos \ac{SQ}, \ac{EIR}, \ac{SIR} y \ac{ES}. Finalmente los repito para que se vea el efecto: \ac{SQ}, \ac{EIR}, \ac{SIR} y \ac{ES}.
+%
+%Y gestiona bien los plurales, ponemos el plural como \acp{SOC} la primera vez, y luego la segunda como \acp{SOC}. Y podemos volver al singular con \ac{SOC}.
 
 
 \subsection{Definición y uso de símbolos (aquí también se pueden símbolos como \ac{xidet})}

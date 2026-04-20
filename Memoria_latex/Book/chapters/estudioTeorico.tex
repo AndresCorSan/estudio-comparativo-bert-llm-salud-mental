@@ -25,16 +25,384 @@
 \chapter{Estudio teórico}
 \label{cha:estudio-teorico}
 
-\begin{FraseCelebre}
-  \begin{Frase}
-    Y así, del mucho leer y del poco dormir, se le secó el cerebro de manera que vino a perder el juicio\footnote{Tomado de ejemplos del proyecto \texis{}.}.
-  \end{Frase}
-  \begin{Fuente}
-    Miguel de Cervantes Saavedra
-  \end{Fuente}
-\end{FraseCelebre}
+
+\section{Inteligencia Artificial}
+
+La \ac{IA} engloba el conjunto de técnicas y sistemas capaces de realizar tareas que tradicionalmente requieren capacidades asociadas a la inteligencia humana, como el razonamiento, el aprendizaje, la toma de decisiones o el reconocimiento de patrones. Su objetivo principal es desarrollar sistemas capaces de procesar información, adaptarse a diferentes situaciones y ofrecer respuestas o predicciones de forma automatizada. En la actualidad, la \ac{IA} se ha consolidado como una de las áreas más relevantes dentro de la informática, con aplicaciones en ámbitos como la medicina, la industria o la educación.
+
+Dentro de la inteligencia artificial, el aprendizaje automático (\textit{Machine Learning}) constituye una de sus ramas más importantes, permitiendo a los sistemas aprender a partir de datos sin necesidad de ser programados explícitamente para cada tarea. A su vez, el aprendizaje profundo (\textit{Deep Learning}) representa una evolución de este enfoque mediante el uso de redes neuronales profundas capaces de modelar relaciones complejas en grandes volúmenes de información. Estos avances han impulsado mejoras significativas en tareas como la visión por computador, el reconocimiento de voz y el procesamiento del lenguaje natural, ámbito en el que se enmarca el presente trabajo.
 
 
+\section{Procesamiento del Lenguaje Natural}
+
+\subsection{Concepto y objetivos}
+
+El \ac{PLN} es una rama de la inteligencia artificial centrada en el desarrollo de sistemas capaces de comprender, interpretar y generar lenguaje humano de forma automática. Se sitúa en la intersección entre la informática, la lingüística y el aprendizaje automático, combinando técnicas de análisis lingüístico con modelos computacionales que permiten extraer información útil a partir de datos textuales.
+
+El principal objetivo de este campo es reducir la distancia existente entre la forma en que los humanos se comunican y la forma en que los sistemas informáticos procesan la información. Mientras que las personas utilizan lenguaje natural, ambiguo y dependiente del contexto, los modelos computacionales trabajan con representaciones numéricas y estructuras formales. Por ello, uno de los principales desafíos del \ac{PLN} consiste en transformar el texto en una representación que preserve su significado semántico y permita su procesamiento automático.
+
+Esta dificultad se debe a múltiples factores inherentes al lenguaje humano, como la ambigüedad léxica y sintáctica, la dependencia del contexto, la variabilidad lingüística o la existencia de conocimiento implícito no expresado de forma directa. Expresiones con significados distintos según el contexto o frases cuya interpretación depende del conocimiento previo del lector muestran la complejidad de esta tarea y justifican la necesidad de modelos cada vez más sofisticados.
+
+Entre las tareas más habituales del \ac{PLN} se encuentran la clasificación de texto, la traducción automática, el resumen de documentos y los asistentes conversacionales (\textit{chatbots}). Tradicionalmente, muchas de estas tareas requerían el entrenamiento o ajuste de modelos específicos para cada problema, como ocurre en tareas de clasificación mediante modelos basados en \acs{BERT}. Sin embargo, en los últimos años, los \acp{LLM} han permitido abordar múltiples tareas utilizando una única arquitectura general, mejorando significativamente los resultados obtenidos en numerosos dominios.
+
+
+\subsection{Representación del texto}
+
+Como se ha mencionado en el apartado anterior, los modelos de \ac{PLN} no procesan directamente texto en lenguaje natural, sino representaciones numéricas. Por ello, uno de los pasos fundamentales consiste en transformar el texto en una forma estructurada que pueda ser utilizada como entrada por los modelos de aprendizaje.
+
+De forma general, este proceso sigue un flujo compuesto por varias etapas: el texto original se divide primero en unidades más pequeñas llamadas \textit{tokens}, posteriormente estos tokens se transforman en representaciones vectoriales mediante técnicas de \textit{embedding}, y finalmente dichos vectores son utilizados como entrada de un modelo capaz de generar una salida, como una clasificación o una predicción. Este \textit{pipeline} constituye la base de la mayoría de sistemas modernos de \ac{PLN}, como se muestra en la Figura~\ref{fig:pipeline_pln}.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.55\textwidth]{pipeline_pln.png}
+	\caption{Proceso general de representación del texto en sistemas de \ac{PLN}.}
+	\label{fig:pipeline_pln}
+\end{figure}
+
+\subsubsection{Tokenización}
+
+La tokenización es, por tanto, el primer paso fundamental en este proceso y consiste en dividir el texto en unidades mínimas de análisis denominadas tokens. Estas unidades pueden definirse con distintos niveles de granularidad: a nivel de carácter, de palabra o de subpalabra. Por ejemplo, la frase “El gato duerme” puede dividirse en palabras individuales, en caracteres o en fragmentos subléxicos más pequeños, tal y como se ilustra en la Figura~\ref{fig:niveles_tok}.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.5\textwidth]{niveles_tok.png}
+	\caption{Ejemplo de tokenización con distintos niveles de granularidad.}
+	\label{fig:niveles_tok}
+\end{figure}
+
+La tokenización basada en palabras fue durante un tiempo la aproximación más habitual por su simplicidad e interpretabilidad. Sin embargo, presenta limitaciones importantes, como el problema de las palabras fuera de vocabulario (\textit{Out Of Vocabulary}, OOV), es decir, términos que no aparecen en el vocabulario del modelo y no pueden representarse correctamente. Además, requiere vocabularios muy grandes para cubrir la gran variedad léxica del lenguaje y no captura adecuadamente relaciones morfológicas entre palabras derivadas de una misma raíz, como “correr”, “corriendo” o “corrí”.
+
+Por otro lado, la tokenización a nivel de caracteres elimina el problema del vocabulario cerrado, ya que cualquier palabra puede representarse como una secuencia de caracteres. Sin embargo, genera secuencias más largas, dificulta la captura del significado y aumenta el coste computacional. Como solución intermedia surgió la tokenización por subpalabras (\textit{subword tokenization}), que combina las ventajas de ambos enfoques al representar palabras frecuentes completas y dividir las menos comunes en fragmentos más pequeños, convirtiéndose en la estrategia más utilizada en los modelos actuales.
+
+\subsubsection*{Algoritmos de tokenización por subpalabras}
+
+Entre los algoritmos más utilizados para este tipo de tokenización destacan \ac{BPE} y WordPiece. Ambos parten de una idea común: construir un vocabulario de subpalabras a partir de unidades más pequeñas, normalmente caracteres, combinándolas progresivamente hasta formar fragmentos más frecuentes y útiles para el modelo.
+
+En el caso de \ac{BPE} \cite{sennrich_neural_2016}, el algoritmo comienza con un vocabulario inicial formado por caracteres individuales y analiza un corpus de texto para identificar los pares de tokens adyacentes que aparecen con mayor frecuencia. En cada iteración, el par más frecuente se fusiona en un nuevo token, repitiendo este proceso hasta alcanzar el tamaño de vocabulario deseado. Como se observa en la Figura~\ref{fig:bpe_example}, secuencias frecuentes como “ll” o “am” pueden combinarse progresivamente hasta formar unidades más completas como “llama”, mientras que palabras menos frecuentes continúan representándose mediante fragmentos más pequeños.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth]{bpe_example.png}
+	\caption{Ejemplo simplificado del funcionamiento de \ac{BPE}. Adaptado de \cite{herrmannova_byte-pair_2025}.}
+	\label{fig:bpe_example}
+\end{figure}
+
+Una vez construido este vocabulario, durante la inferencia cualquier nuevo texto se segmenta utilizando únicamente esas subpalabras aprendidas. Para ello, \ac{BPE} no almacena únicamente el vocabulario final, sino también la lista ordenada de fusiones aprendidas. Para tokenizar una nueva palabra, primero se divide en caracteres individuales y posteriormente se aplican las fusiones en el mismo orden en que fueron aprendidas durante el entrenamiento.
+
+WordPiece \cite{schuster_japanese_2012} sigue una idea similar a \ac{BPE}, pero en lugar de seleccionar fusiones únicamente por frecuencia bruta, utiliza una medida de asociación entre tokens que prioriza combinaciones más informativas. Concretamente, selecciona el par con mayor puntuación según la relación entre la frecuencia conjunta y la frecuencia individual de cada token:
+\begin{equation*}
+	score(x,y)=\frac{freq(xy)}{freq(x)\cdot freq(y)}
+\end{equation*}
+De esta forma, se favorecen combinaciones que coocurren más de lo esperado y no únicamente las más frecuentes. A diferencia de \ac{BPE}, durante la inferencia WordPiece no guarda la lista de fusiones aprendidas, sino únicamente el vocabulario final. Para tokenizar una nueva entrada, busca de forma iterativa el subtoken más largo presente en dicho vocabulario (\textit{greedy longest-match-first}).
+
+Ambos enfoques permiten reducir el problema \acs{OOV}, mejorar la generalización y mantener un tamaño de vocabulario manejable, por lo que se han convertido en el estándar de los modelos basados en \textit{transformers}. Mientras que WordPiece es característico de modelos como \acs{BERT} o DistilBERT, variantes de \ac{BPE} son ampliamente utilizadas en modelos generativos como \acs{GPT} o LLaMA. En este trabajo, esta diferencia resulta especialmente relevante, ya que tanto los modelos \acs{BERT} como los \acp{LLM} evaluados utilizan este tipo de tokenización basada en subpalabras.
+
+\subsubsection{Embeddings}
+
+Tras la tokenización, cada token debe transformarse en una representación numérica que permita al modelo trabajar con él. Las primeras aproximaciones utilizaron técnicas como \textit{one-hot encoding}, \ac{BOW} o \ac{TFIDF}, donde cada palabra se representaba mediante vectores dispersos y de alta dimensión. Aunque estos métodos resultaban sencillos de implementar, presentaban limitaciones importantes, como la incapacidad para capturar relaciones semánticas entre palabras. Por ejemplo, términos como “gato” y “perro” podían considerarse tan diferentes como “gato” y “avión”, a pesar de su evidente cercanía semántica .
+
+Para superar este problema surgieron los \textit{embeddings}, cuyo objetivo es representar palabras mediante vectores densos de baja dimensión en los que la proximidad geométrica refleje similitud semántica. Esta idea se apoya en la hipótesis distribucional de Firth \cite{firth_synopsis_1957}, resumida en la expresión “You shall know a word by the company it keeps”, según la cual palabras que aparecen en contextos similares tienden a tener significados similares. De este modo, palabras como “gato” y “perro” tienden a ocupar posiciones cercanas en el espacio vectorial, mientras que términos semánticamente lejanos aparecen más separados. 
+Entre los métodos más influyentes para aprender estas representaciones destacan Word2Vec y GloVe.
+
+\subsubsection*{Word2Vec}
+
+Word2Vec, propuesto por Mikolov et al. \cite{mikolov_efficient_2013}, aprende embeddings entrenando una red neuronal sencilla sobre tareas de predicción de contexto. Su funcionamiento parte de una palabra codificada mediante \textit{one-hot encoding}, que atraviesa una capa oculta de menor dimensión; los pesos aprendidos en esta capa constituyen finalmente los embeddings de cada palabra.
+
+Existen dos variantes principales. En el modelo \textit{Skip-gram}, el objetivo es predecir las palabras del contexto a partir de una palabra central. Por ejemplo, dada la palabra “negro” en la frase “El gato negro duerme tranquilo”, el modelo intenta predecir palabras cercanas como “gato” o “duerme”. En cambio, el modelo \ac{CBOW} realiza el proceso inverso: utiliza las palabras del contexto para predecir la palabra central. Mientras \ac{CBOW} suele ser más rápido y funciona bien con palabras frecuentes, Skip-gram suele ofrecer mejores resultados para palabras menos comunes. La comparación entre ambos enfoques puede observarse en la Figura~\ref{fig:cbow_skipgram}, donde se representa la diferencia entre predecir el contexto o predecir la palabra objetivo.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=1\textwidth]{cbow_skipgram.png}
+	\caption{Comparación entre los enfoques \acs{CBOW} y Skip-gram. Adaptado de \cite{po_evolution_2026}.}
+	\label{fig:cbow_skipgram}
+\end{figure}
+
+\subsubsection*{\ac{GloVe}}
+
+Por su parte, \ac{GloVe} \cite{pennington_glove_2014} utiliza un enfoque diferente basado en estadísticas globales de coocurrencia. En lugar de predecir palabras vecinas de forma local, construye una matriz que refleja cuántas veces aparecen juntas distintas palabras dentro de un corpus y aprende vectores a partir de esa información global. Como se aprecia en la Figura~\ref{fig:glove_matrix}, cada celda de la matriz indica la frecuencia con la que dos palabras aparecen en contextos similares; por ejemplo, términos como ``love'' y ``programming'' presentan una alta coocurrencia dentro del corpus analizado. A partir de esta información, el modelo genera embeddings en los que palabras con patrones de aparición semejantes terminan ocupando posiciones cercanas en el espacio vectorial.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{glove_matrix.png}
+	\caption{Ejemplo simplificado de matriz de coocurrencia utilizada por \acs{GloVe}. Adaptado de \cite{jain_glove_2025}.}
+	\label{fig:glove_matrix}
+\end{figure}
+
+En la práctica, tanto Word2Vec como \ac{GloVe} ofrecen resultados similares en muchas tareas, aunque parten de enfoques conceptualmente distintos: predictivo en Word2Vec y basado en coocurrencia global en \ac{GloVe}. Ambos supusieron un avance importante frente a las representaciones clásicas, ya que permitieron capturar relaciones semánticas entre palabras mediante vectores densos de baja dimensión.
+
+Estos embeddings presentan propiedades interesantes, como la formación de agrupaciones semánticas o incluso relaciones vectoriales capaces de capturar analogías lingüísticas. Sin embargo, también comparten una limitación importante: son embeddings estáticos, lo que significa que cada palabra tiene siempre la misma representación independientemente del contexto en el que aparezca. Esto resulta problemático en palabras polisémicas como “banco”, cuyo significado cambia en frases como “me senté en el banco del parque” y “fui al banco a sacar dinero”.
+
+\subsubsection*{Embeddings contextuales}
+
+Para superar la principal limitación de los embeddings estáticos surgieron los embeddings contextuales, en los que la representación vectorial de una palabra depende del contexto en el que aparece dentro de la frase. De este modo, una misma palabra puede tener vectores distintos según su significado en cada oración. Por ejemplo, el término ``banco'' no tendrá la misma representación en ``me senté en el banco del parque'' que en ``fui al banco a sacar dinero'', permitiendo una interpretación semántica mucho más precisa.
+
+Uno de los primeros modelos relevantes en este enfoque fue \ac{ELMo} \cite{peters_deep_2018}, propuesto en 2018, que utilizó redes \ac{LSTM} bidireccionales para generar representaciones dependientes del contexto. A diferencia de Word2Vec o \ac{GloVe}, \ac{ELMo} no asigna un único vector fijo por palabra, sino que calcula su representación teniendo en cuenta las palabras que la rodean dentro de la secuencia, convirtiéndose en un precedente directo de modelos posteriores como \acs{BERT}.
+
+Con la llegada de los modelos basados en \textit{transformers}, esta idea se consolidó y pasó a formar parte de la arquitectura principal de modelos como \acs{BERT} y, posteriormente, de los grandes modelos de lenguaje (\acp{LLM}). En estos modelos, la primera capa de la red corresponde a una capa de embeddings que transforma los identificadores de los tokens (\textit{token IDs}) en vectores densos de alta dimensión. Como se ilustra en la Figura~\ref{fig:llm_embedding_layer}, cada token del vocabulario se asocia a una fila dentro de una gran matriz de embeddings, funcionando como una tabla de consulta (\textit{lookup table}) que permite recuperar rápidamente su representación vectorial.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.9\textwidth]{llm_embedding_layer.png}
+	\caption{Esquema simplificado de la capa de embeddings en un \ac{LLM}. Fuente \cite{pasanen_network_2025}.}
+	\label{fig:llm_embedding_layer}
+\end{figure}
+
+A diferencia de los embeddings clásicos entrenados de forma independiente, en los \acp{LLM} estos embeddings se aprenden conjuntamente con el resto del modelo durante la fase de preentrenamiento\footnote{El preentrenamiento es la fase inicial en la que el modelo aprende a partir de grandes cantidades de texto sin supervisión, antes de especializarse en tareas concretas.}. Esta evolución supuso un cambio fundamental en el \ac{PLN} moderno, ya que permitió mejorar significativamente la comprensión contextual del lenguaje y aumentar el rendimiento en tareas complejas como la clasificación de texto, la generación de lenguaje o la detección de información implícita en los textos.
+
+
+\section{Evolución hacia los modelos Transformer}
+
+\subsection{Contexto histórico: de las RNN al Transformer}
+
+Antes de la aparición de los modelos basados en \textit{transformers}, el procesamiento de secuencias en \ac{PLN} se abordaba principalmente mediante redes neuronales recurrentes (\acp{RNN}). Estas arquitecturas estaban diseñadas para procesar texto de forma secuencial, token por token, manteniendo un estado oculto interno que actuaba como memoria del contexto previo. Como se observa en la Figura~\ref{fig:rnn_seq}, en cada paso, dicho estado $h_t$ se actualizaba en función del token de entrada $x_t$ y del estado anterior $h_{t-1}$, permitiendo que el modelo conserve información del contexto a lo largo de la secuencia.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.65\textwidth]{rnn_secuencial.png}
+	\caption{Procesamiento secuencial en una \ac{RNN}. Fuente: \cite{borges_deep_2018}}
+	\label{fig:rnn_seq}
+\end{figure}
+
+Este enfoque resultó especialmente útil en tareas como traducción automática, resumen de texto o modelado de lenguaje, donde el orden de las palabras es fundamental. Posteriormente, variantes como \ac{LSTM} y \ac{GRU} mejoraron el comportamiento de las \acp{RNN} tradicionales al mitigar parcialmente el problema del desvanecimiento del gradiente (\textit{vanishing gradient})\footnote{El \textit{vanishing gradient} es un problema que aparece durante el entrenamiento de redes profundas o recurrentes, cuando los gradientes se vuelven extremadamente pequeños al propagarse hacia atrás. Esto dificulta la actualización de los primeros estados de la secuencia y limita la capacidad del modelo para aprender dependencias a largo plazo.}, facilitando el aprendizaje de dependencias a más largo plazo.
+
+\subsubsection{Limitaciones de RNN y LSTM}
+
+A pesar de estas mejoras, estas arquitecturas presentaban limitaciones importantes. En primer lugar, el procesamiento secuencial impedía paralelizar completamente el entrenamiento, ya que cada estado oculto dependía del anterior. Esto incrementaba significativamente el coste computacional y dificultaba el manejo de secuencias largas. Además, la capacidad del estado oculto era limitada: la información relevante podía diluirse o sobrescribirse con el paso del tiempo, dificultando la conservación del contexto lejano incluso en modelos \ac{LSTM}.
+
+Estas limitaciones se hacían aún más evidentes en las arquitecturas \textit{encoder-decoder} (\textit{seq2seq}), ampliamente utilizadas en traducción automática. Tal y como se puede observar en la Figura~\ref{fig:seq2seq}, en este esquema, el encoder debía comprimir toda la secuencia de entrada en un único vector de contexto, que posteriormente era utilizado por el decoder para generar la salida. 
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.65\textwidth]{seq2seq.png}
+	\caption{Esquema general de una arquitectura encoder-decoder (\textit{seq2seq}). Adaptado de \cite{noauthor_seq2seq_nodate}.}
+	\label{fig:seq2seq}
+\end{figure}
+
+Este cuello de botella resultaba problemático cuando las secuencias eran largas o contenían información compleja, ya que gran parte del contexto podía perderse durante la compresión.
+
+\subsubsection{Mecanismo de atención}
+
+Como respuesta a las limitaciones mencionadas anteriormente surgió el mecanismo de atención propuesto por Bahdanau et al. \cite{bahdanau_neural_2016}, que permitió al decoder acceder directamente a todos los estados del encoder en cada paso de generación, en lugar de depender de un único vector fijo. Como se observa en la Figura~\ref{fig:bahdanau_attention}, el módulo de atención actúa como un puente entre encoder y decoder, calculando en cada instante qué partes de la secuencia de entrada son más relevantes para generar la siguiente salida. Para ello, se obtiene una puntuación de relevancia entre el estado actual del decoder y cada posición de la secuencia de entrada, transformando posteriormente estas puntuaciones en pesos mediante una función \textit{softmax}. El resultado es un vector de contexto dinámico que permite al modelo centrarse en la información más importante en cada paso de generación.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.7\textwidth]{bahdanau_attention.png}
+	\caption{Mecanismo de atención en una arquitectura encoder-decoder.}
+	\label{fig:bahdanau_attention}
+\end{figure}
+
+Este mecanismo supuso un cambio fundamental, ya que introdujo la idea de que el modelo podía “prestar atención” selectivamente a distintas partes del texto según la tarea. Esta idea se convirtió en el precursor directo de la \textit{self-attention}, que posteriormente daría lugar a la arquitectura Transformer.
+
+\subsection{Arquitectura Transformer}
+
+\subsubsection{Estructura general del Transformer}
+
+Aunque el mecanismo de atención supuso una mejora importante respecto a las arquitecturas \ac{RNN} tradicionales, no resolvía por completo sus principales limitaciones. El encoder seguía siendo una red recurrente y, por tanto, mantenía el procesamiento secuencial token a token, lo que impedía paralelizar completamente el entrenamiento y aumentaba significativamente el coste computacional. Además, incluso con variantes como \ac{LSTM} y con mecanismos de atención, la modelización de dependencias a largo plazo seguía presentando dificultades, ya que la información tendía a degradarse conforme aumentaba la distancia entre tokens.
+
+Esta situación planteó una cuestión clave en la evolución del \ac{PLN}: ¿era posible procesar toda la secuencia en paralelo manteniendo la capacidad de modelar relaciones complejas entre palabras? La respuesta llegó en 2017 con la arquitectura Transformer propuesta por Vaswani et al. en el trabajo \textit{Attention Is All You Need} \cite{vaswani_attention_2017}, que eliminó completamente la recurrencia y basó el modelado de secuencias exclusivamente en mecanismos de atención.
+
+Frente a las arquitecturas \ac{RNN} y \ac{LSTM}, donde los tokens debían procesarse de forma secuencial, el Transformer permite procesar toda la secuencia de entrada en paralelo, mejorando significativamente la eficiencia del entrenamiento y aprovechando mejor el uso de hardware especializado como \ac{GPU} y \ac{TPU}.
+
+La idea central consiste en que cualquier token de la secuencia puede relacionarse directamente con cualquier otro, independientemente de la distancia que los separe dentro del texto. Esto permite modelar dependencias de largo alcance sin la degradación de información que aparecía en arquitecturas recurrentes. Además, al eliminar la necesidad de mantener un estado oculto secuencial, se reduce el problema de propagación de información a través de largas cadenas temporales.
+
+La arquitectura original está compuesta por dos bloques principales: un encoder y un decoder, ambos formados por la repetición de varias capas idénticas apiladas. Como se observa en la Figura~\ref{fig:transformer_architecture}, el encoder recibe la secuencia de entrada y genera representaciones contextualizadas de cada token, mientras que el decoder utiliza dicha información para producir la secuencia de salida de forma autoregresiva. Cada capa del encoder incluye un bloque de self-attention y una red feed-forward, mientras que en el decoder se añade además una capa de masked self-attention que impide acceder a tokens futuros durante la generación.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.4\textwidth]{transformer_architecture.png}
+	\caption{Arquitectura original del Transformer propuesta por Vaswani et al. \cite{vaswani_attention_2017}.}
+	\label{fig:transformer_architecture}
+\end{figure}
+
+\subsubsection{Capa de embeddings y positional encoding}
+
+Antes de aplicar los mecanismos de atención, los tokens obtenidos durante la tokenización deben transformarse en representaciones vectoriales continuas. Para ello, el Transformer utiliza una capa de embeddings aprendida, similar a la mostrada previamente en la Figura~\ref{fig:llm_embedding_layer}, que actúa como una tabla de consulta (\textit{lookup table}) donde cada identificador de token (\textit{token ID}) se asocia a un vector denso de dimensión fija.
+
+Formalmente, esta capa puede representarse como una matriz: $E \in \mathbb{R}^{|V| \times d_{model}}$, donde $|V|$ representa el tamaño del vocabulario y $d_{model}$ la dimensión de los embeddings. Cada fila de esta matriz corresponde al vector aprendido para un token concreto. Así, cuando el modelo recibe una secuencia de entrada, simplemente recupera los vectores correspondientes a sus tokens y los utiliza como representación inicial.
+
+Sin embargo, a diferencia de las \acp{RNN}, el mecanismo de atención no procesa los tokens de forma seccuencial, sino simultánea, por lo que no dispone de información explícita sobre el orden de las palabras. Esto genera un problema importante: frases como ``el gato persigue al perro'' y ``el perro persigue al gato'' contienen los mismos tokens, pero su significado es completamente distinto debido al orden en el que aparecen.
+
+Para resolver esta limitación se introduce el \textit{positional encoding}, un mecanismo que añade información posicional a cada embedding para que el modelo pueda distinguir el orden de aparición de los tokens. En el Transformer original, esta codificación se realiza mediante funciones sinusoidales:
+
+\begin{equation*}
+	PE_{(pos,2i)} =
+	\sin\left(
+	\frac{pos}{10000^{\frac{2i}{d_{model}}}}
+	\right)
+\end{equation*}
+
+\begin{equation*}
+	PE_{(pos,2i+1)} =
+	\cos\left(
+	\frac{pos}{10000^{\frac{2i}{d_{model}}}}
+	\right)
+\end{equation*}
+
+donde $pos$ indica la posición del token en la secuencia e $i$ representa la dimensión del embedding. De este modo, cada posición obtiene una representación única y el modelo puede aprender tanto posiciones absolutas como relaciones relativas entre tokens.
+
+Aunque muchos modelos actuales utilizan variantes embeddings posicionales aprendidos o codificaciones relativas más avanzadas, esta formulación original sigue siendo la base conceptual del positional encoding en arquitecturas Transformer.
+
+\subsubsection{Self-Attention}
+
+El mecanismo central de la arquitectura Transformer es la \textit{self-attention}, que permite que cada token de una secuencia pueda relacionarse directamente con todos los demás tokens, incluido él mismo . A diferencia de las RNN, donde la información se transmite de forma progresiva a través de estados ocultos, la self-attention permite capturar dependencias globales en una única operación, independientemente de la distancia entre palabras.
+
+Una forma intuitiva de entender este mecanismo es mediante la analogía de una base de datos. Cada token genera tres representaciones distintas: una \textit{query} ($Q$), que representa lo que el token está buscando; una \textit{key} ($K$), que actúa como una etiqueta que indica qué información contiene; y una \textit{value} ($V$), que representa el contenido que puede aportarse. Estas tres representaciones se obtienen mediante proyecciones lineales aprendidas a partir del embedding original de cada token:
+
+\begin{equation*}
+	Q = XW^Q \hspace{2em} K = XW^K \hspace{2em} V = XW^V
+\end{equation*}
+
+donde $X$ representa la matriz de embeddings de entrada y $W^Q$, $W^K$ y $W^V$ son matrices de pesos aprendidas durante el entrenamiento.
+
+El proceso de atención consiste en comparar cada \textit{query} con todas las \textit{keys} mediante productos escalares, obteniendo una medida de relevancia entre tokens. Estas puntuaciones se normalizan posteriormente mediante una función \textit{softmax}, generando pesos de atención que indican qué palabras deben recibir mayor importancia. Finalmente, dichos pesos se utilizan para combinar los valores (\textit{values}) y producir una nueva representación contextualizada para cada token.
+
+Formalmente, este proceso se expresa mediante la operación de \textit{Scaled Dot-Product Attention}:
+
+\begin{equation*}
+	\text{Attention}(Q,K,V) =
+	\text{softmax}
+	\left(
+	\frac{QK^T}{\sqrt{d_k}}
+	\right)V
+\end{equation*}
+
+donde $d_k$ representa la dimensión de los vectores \textit{key}. La división por $\sqrt{d_k}$ evita que los productos escalares crezcan excesivamente cuando aumenta la dimensionalidad, lo que podría saturar la función \textit{softmax} y dificultar el entrenamiento.
+
+Como se ilustra en la Figura~\ref{fig:self_attention_example}, este mecanismo permite que el modelo utilice el contexto completo para interpretar correctamente cada palabra. Por ejemplo, en la frase ``El banco está cerca del río'', el token ``banco'' puede prestar mayor atención a la palabra ``río'', lo que ayuda al modelo a inferir que se trata de un accidente geográfico y no de una entidad financiera.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.5\textwidth]{self_attention_example.png}
+	\caption{Ejemplo de self-attention.}
+	\label{fig:self_attention_example}
+\end{figure}
+
+De este modo, cada posición de la secuencia obtiene una representación enriquecida por el contexto global, lo que constituye la base del funcionamiento de modelos como \acs{BERT} y los grandes modelos de lenguaje.
+
+\subsubsection{Multi-Head Attention}
+
+Aunque una única operación de atención permite capturar relaciones entre palabras, resulta limitada porque obliga al modelo a concentrar toda la información en una sola “perspectiva”. Esto puede provocar la pérdida de relaciones específicas, especialmente cuando diferentes tipos de dependencias deben modelarse simultáneamente, como relaciones sintácticas, semánticas o posicionales.
+
+Para resolver esta limitación, el Transformer utiliza \textit{Multi-Head Attention}, que consiste en ejecutar varias operaciones de atención en paralelo, denominadas cabezas (\textit{heads}). Cada cabeza aprende sus propias proyecciones de $Q$, $K$ y $V$, permitiendo que distintas partes del modelo se especialicen en diferentes patrones lingüísticos.
+
+Formalmente, cada cabeza se calcula como:
+
+\begin{equation*}
+	head_i =
+	\text{Attention}
+	\left(
+	QW_i^Q, 
+	KW_i^K, 
+	VW_i^V
+	\right)
+\end{equation*}
+
+donde cada cabeza utiliza sus propias matrices de proyección. Posteriormente, los resultados de todas las cabezas se concatenan y se proyectan nuevamente:
+
+\begin{equation*}
+	\text{MultiHead}(Q,K,V) =
+	\text{Concat}(head_1,\dots,head_h)W^O
+\end{equation*}
+
+Esto permite que distintas cabezas puedan aprender relaciones complementarias. Algunas pueden centrarse en dependencias sintácticas, como sujeto-verbo; otras en relaciones semánticas, como sinónimos o entidades relacionadas; y otras en relaciones de posición o correferencia, como pronombres y sus antecedentes .
+
+Como puede observarse en la Figura~\ref{fig:multihead_attention}, las múltiples cabezas procesan la misma entrada de forma paralela, generando distintas representaciones que posteriormente se combinan para producir una salida más rica y expresiva que la obtenida con una única atención.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.82\textwidth]{multihead_attention.png}
+	\caption{Esquema general de Multi-Head Attention.}
+	\label{fig:multihead_attention}
+\end{figure}
+
+En modelos como BERT-base, por ejemplo, se utilizan habitualmente 12 cabezas de atención con una dimensión total de embedding de 768, lo que permite que cada cabeza trabaje sobre una subrepresentación específica del espacio vectorial manteniendo un coste computacional controlado.
+
+\subsubsection{Feed Forward Network (FFN)}
+
+Después del bloque de atención, cada embedding pasa por una red neuronal completamente conectada denominada \ac{FFN}, cuya función es transformar de forma no lineal la información obtenida tras la atención. Mientras que la self-attention se encarga de relacionar distintos tokens entre sí y capturar dependencias contextuales, la \ac{FFN} permite refinar individualmente la representación de cada posición. Formalmente, su funcionamiento puede expresarse como:
+
+\begin{equation*}
+	\text{FFN}(x) =
+	\text{ReLU}(xW_1 + b_1)W_2 + b_2
+\end{equation*}
+
+donde \(W_1\) y \(W_2\) son matrices de pesos aprendidas y \(b_1\), \(b_2\) son términos de sesgo. Como se aprecia en la Figura~\ref{fig:ffn_transformer}, la primera proyección expande la dimensionalidad desde \(d_{model}\) hasta una dimensión interna mayor \(d_{ff}\), mientras que la segunda la reduce nuevamente al tamaño original, siguiendo el esquema \(d_{model} \rightarrow d_{ff} \rightarrow d_{model}\). Habitualmente, esta dimensión intermedia cumple \(d_{ff} \approx 4 \times d_{model}\)
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth]{ffn_transformer.png}
+	\caption{Esquema de la Feed-Forward Network en una capa Transformer.}
+	\label{fig:ffn_transformer}
+\end{figure}
+
+Desde un punto de vista funcional, la atención mezcla información entre tokens, pero sigue siendo una operación esencialmente lineal. La \ac{FFN} introduce la no linealidad necesaria para enriquecer estas representaciones y capturar patrones más complejos. Puede entenderse como una especie de memoria de conocimiento general del modelo, mientras que la atención actúa como un mecanismo de razonamiento contextual que decide qué información es relevante en cada situación concreta. De hecho, una gran parte de los parámetros totales del Transformer reside precisamente en estas capas \ac{FFN}.
+
+\subsubsection{Layer Normalization y conexiones residuales}
+
+El entrenamiento de arquitecturas profundas como Transformer puede verse dificultado por la aparición de activaciones con magnitudes muy diferentes entre capas, lo que genera inestabilidad y dificulta la propagación del gradiente. Para mitigar este problema, cada subcapa del Transformer incorpora mecanismos de normalización y conexiones residuales.
+
+La \textit{Layer Normalization} normaliza cada vector de activación para que tenga media 0 y varianza 1, utilizando para ello la media y desviación estándar de sus propios componentes. Esto permite mantener distribuciones más estables durante el entrenamiento y facilita la optimización de redes profundas. Su formulación general es:
+
+\begin{equation*}
+	\text{LayerNorm}(x) =
+	\gamma
+	\cdot
+	\frac{x - \mu}{\sigma + \epsilon}
+	+
+	\beta
+\end{equation*}
+
+donde \(\mu\) y \(\sigma\) representan la media y desviación estándar del vector \(x\), mientras que \(\gamma\) y \(\beta\) son parámetros aprendidos de escala y sesgo que permiten al modelo reajustar posteriormente la distribución normalizada. El término \(\epsilon\) es una constante pequeña que evita divisiones por cero.
+
+Junto a ello, el Transformer utiliza conexiones residuales (\textit{residual connections}), que consisten en sumar la entrada original de una subcapa con su salida transformada. De forma simplificada:
+
+\begin{equation*}
+	\text{output} =
+	\text{LayerNorm}
+	\left(
+	x + \text{Sublayer}(x)
+	\right)
+\end{equation*}
+
+Como se observa en la Figura~\ref{fig:add_norm_transformer}, este patrón conocido como \textit{Add} \& \textit{Norm} aparece tanto después del bloque de Multi-Head Attention como tras la FFN. Su principal ventaja es facilitar el flujo de gradientes durante el entrenamiento, permitir redes más profundas y evitar que el modelo pierda información útil en transformaciones sucesivas. 
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.2\textwidth]{add_norm_transformer.png}
+	\caption{Bloques \textit{Add} \& \textit{Norm} dentro de una capa Transformer.}
+	\label{fig:add_norm_transformer}
+\end{figure}
+
+Aunque el Transformer original utilizaba una variante conocida como \textit{Post-LN}, donde la normalización se aplicaba después de la subcapa, la mayoría de los \acp{LLM} modernos emplean \textit{Pre-LN}, aplicando la normalización antes de la transformación, ya que ofrece una mayor estabilidad durante el preentrenamiento de modelos de gran escala.
+
+\subsubsection{Encoder y Decoder}
+
+La arquitectura Transformer original está compuesta por dos bloques principales: encoder y decoder. Los componentes descritos en los apartados anteriores forman la base de ambos bloques, aunque su disposición y objetivo final difieren según se trate de comprensión o generación de texto.
+
+El encoder procesa la secuencia de entrada de forma bidireccional, permitiendo que cada token atienda a todos los demás tokens de la frase. Esto resulta especialmente útil en tareas de comprensión, como clasificación de texto, análisis de sentimientos o reconocimiento de entidades, donde es necesario interpretar el contexto completo. Modelos como \acs{BERT} o y sus variantes siguen esta arquitectura \textit{encoder-only}.
+
+Por su parte, el decoder genera la secuencia de salida de forma autoregresiva, token a token. Para ello utiliza \textit{masked self-attention}, un mecanismo que impide que cada posición pueda acceder a tokens futuros durante la generación. De esta forma, al predecir una palabra, el modelo solo puede utilizar la información generada hasta ese momento.
+
+Formalmente, esta restricción se implementa añadiendo una máscara causal antes de aplicar la función \textit{softmax}:
+
+\begin{equation*}
+	\text{softmax}
+	\left(
+	\frac{QK^T}{\sqrt{d_k}}
+	+
+	\text{Mask}
+	\right)
+\end{equation*}
+
+Esto garantiza que durante la generación no exista fuga de información futura, algo esencial en tareas de generación de texto. Modelos como GPT o LLaMA utilizan esta arquitectura \textit{decoder-only}.
+
+Además, en arquitecturas encoder-decoder completas, el decoder incorpora una capa adicional denominada \textit{cross-attention}, donde las \textit{queries} proceden del decoder, mientras que las \textit{keys} y \textit{values} provienen del encoder. Esto permite que el modelo consulte dinámicamente la secuencia de entrada mientras genera la salida, siendo especialmente útil en tareas como traducción automática o resumen.
+
+Actualmente pueden distinguirse tres grandes familias de modelos Transformer: encoder-only (BERT), decoder-only (GPT) y encoder-decoder (T5 o BART), cada una optimizada para distintos tipos de tareas. No obstante, en los últimos años los modelos \textit{decoder-only} se han convertido en el enfoque predominante, especialmente en el desarrollo de grandes modelos de lenguaje. Esto se debe, por un lado, a que su arquitectura autoregresiva resulta más simple al basarse únicamente en la predicción del siguiente token utilizando el contexto previo y, por otro, a que un único modelo puede adaptarse a múltiples tareas mediante prompting, sin necesidad de diseñar arquitecturas específicas para cada problema.
+
+
+
+% Ejemplo ==================================================================================================
 \section{Introducción}
 \label{sec:introduccion-teoria}
 
