@@ -369,13 +369,14 @@ Como se observa en la Figura~\ref{fig:add_norm_transformer}, este patrón conoci
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.2\textwidth]{add_norm_transformer.png}
-	\caption{Bloques \textit{Add} \& \textit{Norm} dentro de una capa Transformer.}
+	\caption{Bloques \textit{Add} \& \textit{Norm} dentro de una capa Transformer. Adaptado de \cite{vaswani_attention_2017}}
 	\label{fig:add_norm_transformer}
 \end{figure}
 
 Aunque el Transformer original utilizaba una variante conocida como \textit{Post-LN}, donde la normalización se aplicaba después de la subcapa, la mayoría de los \acp{LLM} modernos emplean \textit{Pre-LN}, aplicando la normalización antes de la transformación, ya que ofrece una mayor estabilidad durante el preentrenamiento de modelos de gran escala.
 
 \subsubsection{Encoder y Decoder}
+\label{sec:encoder_decoder}
 
 La arquitectura Transformer original está compuesta por dos bloques principales: encoder y decoder. Los componentes descritos en los apartados anteriores forman la base de ambos bloques, aunque su disposición y objetivo final difieren según se trate de comprensión o generación de texto.
 
@@ -384,7 +385,6 @@ El encoder procesa la secuencia de entrada de forma bidireccional, permitiendo q
 Por su parte, el decoder genera la secuencia de salida de forma autoregresiva, token a token. Para ello utiliza \textit{masked self-attention}, un mecanismo que impide que cada posición pueda acceder a tokens futuros durante la generación. De esta forma, al predecir una palabra, el modelo solo puede utilizar la información generada hasta ese momento.
 
 Formalmente, esta restricción se implementa añadiendo una máscara causal antes de aplicar la función \textit{softmax}:
-
 \begin{equation*}
 	\text{softmax}
 	\left(
@@ -394,81 +394,363 @@ Formalmente, esta restricción se implementa añadiendo una máscara causal ante
 	\right)
 \end{equation*}
 
-Esto garantiza que durante la generación no exista fuga de información futura, algo esencial en tareas de generación de texto. Modelos como GPT o LLaMA utilizan esta arquitectura \textit{decoder-only}.
+Esto garantiza que durante la generación no exista fuga de información futura, algo esencial en tareas de generación de texto. Modelos como \ac{GPT} o LLaMA utilizan esta arquitectura \textit{decoder-only}.
 
-Además, en arquitecturas encoder-decoder completas, el decoder incorpora una capa adicional denominada \textit{cross-attention}, donde las \textit{queries} proceden del decoder, mientras que las \textit{keys} y \textit{values} provienen del encoder. Esto permite que el modelo consulte dinámicamente la secuencia de entrada mientras genera la salida, siendo especialmente útil en tareas como traducción automática o resumen.
+Además, en arquitecturas encoder-decoder completas, como BART \cite{lewis_bart_2019} o T5 \cite{raffel_exploring_2020}, el decoder incorpora una capa adicional denominada \textit{cross-attention}, donde las \textit{queries} proceden del decoder, mientras que las \textit{keys} y \textit{values} provienen del encoder. Esto permite que el modelo consulte dinámicamente la secuencia de entrada mientras genera la salida, siendo especialmente útil en tareas como traducción automática o resumen.
 
-Actualmente pueden distinguirse tres grandes familias de modelos Transformer: encoder-only (BERT), decoder-only (GPT) y encoder-decoder (T5 o BART), cada una optimizada para distintos tipos de tareas. No obstante, en los últimos años los modelos \textit{decoder-only} se han convertido en el enfoque predominante, especialmente en el desarrollo de grandes modelos de lenguaje. Esto se debe, por un lado, a que su arquitectura autoregresiva resulta más simple al basarse únicamente en la predicción del siguiente token utilizando el contexto previo y, por otro, a que un único modelo puede adaptarse a múltiples tareas mediante prompting, sin necesidad de diseñar arquitecturas específicas para cada problema.
-
-
-
-% Ejemplo ==================================================================================================
-\section{Introducción}
-\label{sec:introduccion-teoria}
-
-En este capítulo se cuenta tal y tal.
-
-El capítulo se estructura en $n$ apartados\ldots
+Actualmente pueden distinguirse tres grandes familias de modelos Transformer: encoder-only (\acs{BERT}), decoder-only (\ac{GPT}) y encoder-decoder (T5), cada una optimizada para distintos tipos de tareas. No obstante, en los últimos años los modelos \textit{decoder-only} se han convertido en el enfoque predominante, especialmente en el desarrollo de grandes modelos de lenguaje. Esto se debe, por un lado, a que su arquitectura autoregresiva resulta más simple al basarse únicamente en la predicción del siguiente token utilizando el contexto previo y, por otro, a que un único modelo puede adaptarse a múltiples tareas mediante prompting, sin necesidad de diseñar arquitecturas específicas para cada problema.
 
 
-\section{Estado del Arte}
-\label{sec:estadoarte}
+\section{Modelos BERT}
 
-En el estado del arte se enumeran los trabajos más relevantes de otros grupos de investigación. A continuación se muestra un ejemplo del uso de viñetas que nos proporciona \texttt{itemize}:
+\subsection{Introducción a BERT}
 
-\begin{itemize}
-  \item En el trabajo .....
-  \item En el siguiente trabajo.....
-\end{itemize}
+Como se explicó en la sección anterior, \ac{BERT} pertenece a la familia de modelos \textit{encoder-only} basados en la arquitectura Transformer. Fue propuesto por Devlin et al. en 2018 y supuso uno de los avances más relevantes en el procesamiento del lenguaje natural moderno, al demostrar que un modelo preentrenado de forma masiva podía adaptarse posteriormente a múltiples tareas mediante un proceso de ajuste fino (\textit{fine-tuning}) \cite{devlin_bert_2019}.
 
-O citas en un párrafo real: Sin embargo, hay entornos acústicos donde las tasas de error conseguidas son todavía demasiado altas. En concreto, las aplicaciones en las que la captura de la señal de habla se hace usando micrófonos alejados del locutor (típicamente para distancias superiores a un metro) muestran una fuerte sensibilidad a los problemas de reverberación, ruido aditivo y baja relación señal a ruido (\cite{gelbart02},\cite{kochkin02}). En estos entornos, se ha propuesto el uso de arrays de micrófonos como un método para mejorar la calidad del habla capturada \cite{seltzer03}\cite{herbordt05}.
+A diferencia de los modelos autoregresivos como \ac{GPT}, que procesan el texto de izquierda a derecha prediciendo el siguiente token, \ac{BERT} utiliza una representación profundamente bidireccional. Esto significa que cada palabra se interpreta teniendo en cuenta simultáneamente el contexto anterior y posterior dentro de la secuencia, lo que permite capturar relaciones semánticas más ricas y una mejor comprensión del significado global del texto.
 
-Existen múltiples formas de insertar figuras en Latex. A continuación, se muestra un ejemplo del uso de \texttt{figure}. Como se puede ver en la Figura \ref{fig:fig1} también se pueden poner referencias a las figuras por medio de \texttt{ref} y la etiqueta \texttt{label} de la figura en particular.
+Por ejemplo, en una frase como ``El banco está junto al río'', \ac{BERT} puede utilizar tanto las palabras anteriores como posteriores al término ``banco'' para desambiguar su significado, algo que resulta especialmente útil en tareas de clasificación semántica o análisis contextual. Esta bidireccionalidad constituye una de sus principales diferencias respecto a modelos generativos tradicionales.
 
-\begin{figure}[h] %el especificador [h] indica que ponga la figura aqui si es posible
-  \centering \includegraphics[width=4.7in]{Figure1}
-  % where an .eps filename suffix will be assumed under latex, and a .pdf suffix will be assumed for pdflatex
-  \caption{Departamento de Electrónica.}
-  \label{fig:fig1}
+\subsubsection{Arquitectura general de BERT}
+
+La arquitectura interna de \ac{BERT} se basa exclusivamente en el bloque encoder del Transformer, compuesto por múltiples capas apiladas de self-attention, multi-head attention, redes \ac{FFN}, normalización y conexiones residuales, descritas en la sección anterior. A diferencia de los modelos autoregresivos basados en decoder, esta estructura permite que cada token atienda simultáneamente a todo el contexto de entrada, generando representaciones profundamente bidireccionales. Sobre esta base, el modelo aprende representaciones contextuales profundas a partir de grandes volúmenes de texto no etiquetado durante una fase de preentrenamiento.
+
+La representación de entrada en \ac{BERT} no se construye únicamente a partir del embedding de cada token, sino como la suma de tres componentes: los \textit{token embeddings}, que representan el significado léxico de cada palabra o subpalabra; los \textit{segment embeddings}, que permiten distinguir si un token pertenece a la primera o segunda secuencia de entrada\footnote{Esto resulta útil en tareas que requieren procesar dos textos simultáneamente, como inferencia entre oraciones o respuesta a preguntas, donde \ac{BERT} recibe ambas secuencias concatenadas y necesita identificar a cuál pertenece cada token.}; y los \textit{position embeddings}, que incorporan la información sobre la posición de cada token dentro de la secuencia. Esta combinación permite al modelo conservar tanto el contenido semántico como la estructura de la entrada.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.82\textwidth]{bert_input.png}
+	\caption{Representación de una entrada de texto en BERT. Fuente: \cite{devlin_bert_2019}.}
+	\label{fig:bert_input}
 \end{figure}
 
-Y ahora un ejemplo en el que ponemos el \texttt{caption} en el lateral:
+Además, \ac{BERT} introduce tokens especiales que permiten estructurar mejor la entrada. En la arquitectura representada en la Figura~\ref{fig:bert_input}, el token \texttt{[CLS]} se añade al inicio de cada secuencia como un token artificial de clasificación. Aunque no corresponde a ninguna palabra real del texto, atraviesa todas las capas del encoder junto al resto de tokens y su representación final acumula información contextual de toda la secuencia, por lo que suele utilizarse como resumen global del texto en tareas de clasificación. Por su parte, el token \texttt{[SEP]} actúa como separador entre frases o segmentos distintos, especialmente en tareas que requieren procesar pares de oraciones.
 
-\begin{SCfigure}
-  \centering \includegraphics[width=0.5\textwidth]{Figure1}
-  \caption{Departamento de Electrónica en el lateral.}
-\end{SCfigure}
+Gracias a este diseño, \ac{BERT} se convirtió en la base de numerosos modelos posteriores y en un estándar para tareas de comprensión del lenguaje, especialmente en escenarios donde se dispone de conjuntos de datos etiquetados sobre los que aplicar fine-tuning supervisado.
+
+\subsection{Preentrenamiento: MLM y NSP}
+
+Una de las principales aportaciones de \ac{BERT} fue su estrategia de preentrenamiento, diseñada para aprender representaciones profundas del lenguaje a partir de grandes volúmenes de texto no etiquetado antes de realizar el ajuste fino en tareas específicas. Este proceso permite que el modelo adquiera conocimiento lingüístico general, relaciones semánticas y dependencias sintácticas que posteriormente pueden reutilizarse en múltiples aplicaciones.
+
+Para ello, \ac{BERT} combina dos objetivos de entrenamiento complementarios: \ac{MLM} y \ac{NSP}. Ambos permiten aprovechar el contexto bidireccional del encoder y constituyen una diferencia fundamental respecto a modelos autoregresivos tradicionales. En la Figura~\ref{fig:bert_pretraining}, la parte izquierda representa esta fase de preentrenamiento (\textit{pre-training}), basada en \ac{MLM} y \ac{NSP}, mientras que la parte derecha corresponde al proceso de fine-tuning sobre tareas específicas, que se abordará en el siguiente apartado.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=1\textwidth]{bert_pretraining.png}
+	\caption{Proceso general de preentrenamiento y fine-tuning en BERT. Fuente: \cite{devlin_bert_2019}.}
+	\label{fig:bert_pretraining}
+\end{figure}
+
+\subsubsection{Masked Language Modeling (MLM)}
+
+El objetivo principal es el \textit{Masked Language Modeling}. A diferencia del modelado clásico de lenguaje, donde se predice el siguiente token, BERT selecciona aleatoriamente un porcentaje de palabras de la secuencia de entrada y las sustituye por el token especial \texttt{[MASK]}. El modelo debe predecir cuál era la palabra original utilizando tanto el contexto izquierdo como el derecho, lo que fuerza una comprensión bidireccional del texto.
+
+En el trabajo original, aproximadamente el 15\% de los tokens se seleccionan para esta tarea. De ellos, el 80\% se reemplaza por \texttt{[MASK]}, el 10\% por una palabra aleatoria y el 10\% restante se mantiene sin cambios. Esta estrategia evita que el modelo dependa excesivamente del token \texttt{[MASK]} y mejora su capacidad de generalización durante el fine-tuning.
+
+\subsubsection{Next Sentence Prediction (NSP)}
+
+El segundo objetivo es \textit{Next Sentence Prediction}, una tarea orientada a modelar relaciones entre pares de oraciones. En este caso, el modelo recibe dos secuencias separadas mediante el token \texttt{[SEP]} y debe predecir si la segunda oración aparece realmente a continuación de la primera en el corpus original. Durante el entrenamiento, el 50\% de los pares corresponde a oraciones consecutivas reales y el otro 50\% se construye de forma aleatoria.
+
+Esta tarea resulta especialmente útil en problemas donde la relación entre frases es importante, como inferencia textual, respuesta a preguntas o clasificación de pares de oraciones. Para realizar esta predicción, \ac{BERT} utiliza la representación final del token \texttt{[CLS]}, que actúa como resumen global de la secuencia completa.
+
+Posteriormente, trabajos como \acs{RoBERTa} cuestionaron la utilidad real de \ac{NSP} y demostraron que era posible obtener mejores resultados eliminando esta tarea y aumentando la escala del preentrenamiento. Aun así, \ac{MLM} sigue siendo el núcleo fundamental del aprendizaje en \ac{BERT} y el principal responsable de su capacidad de comprensión contextual bidireccional.
+
+\subsection{Fine-tuning para clasificación de texto}
+
+Una vez finalizada la fase de preentrenamiento, \ac{BERT} puede adaptarse a tareas específicas mediante un proceso de ajuste fino (\textit{fine-tuning}) supervisado. En esta etapa no se entrena un modelo desde cero, sino que se parte de un \ac{BERT} ya preentrenado sobre grandes volúmenes de texto y se reutilizan sus pesos como punto de partida. Sobre esta base, se añade una capa de salida sencilla adaptada a la tarea objetivo, por ejemplo una capa de clasificación para predecir etiquetas.
+
+Una vez finalizada la fase de preentrenamiento, \ac{BERT} puede adaptarse a tareas específicas mediante un proceso de ajuste fino (\textit{fine-tuning}) supervisado. En esta etapa no se entrena un modelo desde cero, sino que se parte de un \ac{BERT} ya preentrenado sobre grandes volúmenes de texto y se reutilizan sus pesos como punto de partida. Sobre esta base, se añade una capa de salida específica adaptada a la tarea objetivo, por ejemplo una capa de clasificación para predecir etiquetas. Como se mostró anteriormente en la Figura~\ref{fig:bert_pretraining}, la parte derecha representa esta fase de fine-tuning, donde el modelo preentrenado se adapta a tareas supervisadas específicas mediante una capa de salida adicional.
+
+En tareas de clasificación de texto, como las abordadas en este trabajo, la estrategia habitual consiste en introducir la secuencia de entrada tokenizada en el modelo y utilizar la representación final del token especial \texttt{[CLS]} como resumen global del texto completo. Este vector contiene información contextual de toda la secuencia y actúa como entrada de una capa lineal final (\textit{classification head}), encargada de predecir la clase correspondiente.
+
+Formalmente, si \(h_{[CLS]}\) representa la salida final del token \texttt{[CLS]}, la predicción puede expresarse como:
+\begin{equation*}
+	\hat{y} = \text{softmax}(Wh_{[CLS]} + b)
+\end{equation*}
+
+donde \(W\) y \(b\) son los parámetros aprendidos de la capa de clasificación y \(\hat{y}\) representa la distribución de probabilidad sobre las clases posibles.
+
+Durante el entrenamiento, esta predicción se compara con la etiqueta real del conjunto de datos mediante una función de pérdida, habitualmente entropía cruzada (\textit{cross-entropy loss}). A partir de este error, se actualizan no solo los pesos de la nueva capa de clasificación, sino también los parámetros internos de \ac{BERT} mediante retropropagación (\textit{backpropagation}). De este modo, el modelo ajusta sus representaciones internas para especializarse progresivamente en la tarea concreta.
+
+Este proceso permite aprovechar el conocimiento lingüístico aprendido durante el preentrenamiento y adaptarlo a dominios específicos, reduciendo significativamente la cantidad de datos etiquetados necesaria en comparación con entrenar un modelo completamente desde cero.
+
+\subsection{Variantes y modelos BERT utilizados en este trabajo}
+
+Aunque \ac{BERT} supuso un avance fundamental en tareas de comprensión del lenguaje, posteriormente surgieron múltiples variantes orientadas a mejorar aspectos concretos como la eficiencia computacional, el rendimiento, el tratamiento multilingüe o el manejo de secuencias largas. En este trabajo se seleccionan cuatro modelos representativos dentro de esta familia: \acs{DistilBETO}, \acs{RoBERTa}, \acs{mDeBERTa} y Longformer, cada uno con características específicas que permiten analizar distintos enfoques dentro de los modelos \textit{encoder-only}.
+
+La elección de estos modelos responde tanto a criterios de rendimiento como de adecuación al problema planteado. Dado que el objetivo es la clasificación de textos en español relacionados con ansiedad, depresión y trastornos de la conducta alimentaria, resulta especialmente relevante considerar modelos optimizados para español, variantes más eficientes computacionalmente y arquitecturas capaces de manejar secuencias de mayor longitud cuando el contexto textual así lo requiere. La Tabla~\ref{tab:bert_models_comparison} sintetiza estas diferencias y resume las principales características de los modelos seleccionados.
+
+\begin{table}[H]
+	\centering
+	\caption{Comparación de los modelos BERT utilizados en este trabajo}
+	\label{tab:bert_models_comparison}
+	\begin{tabular}{|l|l|l|}
+		\hline
+		\textbf{Modelo} & \textbf{Motivación principal} & \textbf{Ventaja destacada} \\ \hline
+		\acs{DistilBETO} & Eficiencia + español & Menor coste computacional \\ \hline
+		\acs{RoBERTa} & Optimización de BERT & Mejor rendimiento general \\ \hline
+		\acs{mDeBERTa} & Mejora del mecanismo de atención & Mayor comprensión contextual \\ \hline
+		Longformer & Manejo de secuencias largas & Mayor contexto de entrada \\ \hline
+	\end{tabular}
+\end{table}
+
+\subsubsection{DistilBETO}
+
+\ac{DistilBETO} combina dos ideas especialmente útiles en este contexto: por un lado, BETO, una adaptación de \ac{BERT} preentrenada específicamente sobre grandes corpus en español \cite{canete_spanish_2023}; y por otro, la destilación de conocimiento propuesta en \ac{DistilBERT} \cite{sanh_distilbert_2020}, que permite reducir el tamaño del modelo manteniendo gran parte de su rendimiento. Como resultado, \ac{DistilBETO} ofrece una alternativa más ligera y rápida que \ac{BERT} tradicional, con menor coste computacional y una buena adaptación al dominio lingüístico del trabajo.
+
+\subsubsection{RoBERTa}
+
+\ac{RoBERTa} fue propuesto por Liu et al. \cite{liu_roberta_2019} como una versión optimizada de \ac{BERT}. Su principal diferencia consiste en eliminar la tarea de \textit{Next Sentence Prediction} (NSP), aumentar significativamente la cantidad de datos de preentrenamiento, utilizar enmascarado dinámico\footnote{En \ac{BERT} original, los tokens enmascarados se seleccionan una única vez durante la preparación del conjunto de entrenamiento. En cambio, en \ac{RoBERTa} el enmascarado se realiza de forma dinámica en cada época, de modo que una misma secuencia puede presentar diferentes tokens ocultos a lo largo del entrenamiento, aumentando la diversidad de ejemplos y mejorando la capacidad de generalización del modelo.} y prolongar el entrenamiento durante más iteraciones. Estas modificaciones permitieron mejorar de forma consistente el rendimiento respecto a \ac{BERT} original sin alterar su arquitectura encoder-only.
+
+\subsubsection{mDeBERTa}
+
+\ac{mDeBERTa} introduce mejoras más profundas en el mecanismo de atención mediante el uso de \textit{disentangled attention}, una estrategia que separa explícitamente la información de contenido y la información posicional de cada token \cite{he_deberta_2021}. Esta separación permite modelar relaciones contextuales más precisas y mejorar la comprensión semántica del texto. Además, su carácter multilingüe facilita su aplicación en diferentes idiomas, incluido el español, manteniendo un alto rendimiento en tareas de clasificación.
+
+\subsubsection{Longformer}
+
+Por último, Longformer fue propuesto por Beltagy et al. \cite{beltagy_longformer_2020} para abordar una de las principales limitaciones de \ac{BERT}: el elevado coste computacional de la self-attention en secuencias largas. Mientras que la atención estándar tiene complejidad cuadrática respecto al número de tokens, Longformer sustituye este mecanismo por una atención local deslizante (\textit{sliding window attention}) combinada con atención global en posiciones específicas. Esto permite procesar documentos mucho más extensos sin un crecimiento prohibitivo del coste computacional, resultando especialmente útil cuando la información relevante se distribuye a lo largo de textos largos.
+
+Esta diversidad de enfoques permite realizar una comparación más completa entre distintas estrategias dentro de la familia \ac{BERT}, analizando no solo el rendimiento predictivo, sino también aspectos prácticos como el coste computacional, la capacidad de generalización y la adecuación al procesamiento de textos en español.
 
 
+\section{Grandes Modelos de Lenguaje (LLMs)}
 
-\section{Técnicas utilizadas}
-\label{sec:tecnicas-utilizadas}
+\subsection{Definición y características principales}
 
-Aquí vamos a probar todos los niveles de sección disponibles, para evaluar la asignación de \texttt{tocdepth}...
+Los grandes modelos de lenguaje (\acp{LLM}) constituyen una evolución de los modelos basados en la arquitectura Transformer, caracterizados principalmente por su gran escala en términos de número de parámetros, volumen de datos de entrenamiento y capacidad computacional. Aunque los primeros modelos autoregresivos como GPT \cite{radford_improving_2018} ya exploraban esta dirección, fue especialmente a partir de GPT-3 \cite{brown_language_2020} cuando los \acp{LLM} se consolidaron como un nuevo paradigma en el \ac{PLN}.
 
-Blah, blah, blah\ldots
+De forma general, un \ac{LLM} es un modelo neuronal entrenado sobre cantidades masivas de texto con el objetivo de predecir la siguiente palabra o token de una secuencia. Esta tarea aparentemente simple permite que el modelo aprenda de forma implícita conocimiento lingüístico, relaciones semánticas, razonamiento contextual e incluso cierta capacidad de generalización a tareas no vistas explícitamente durante el entrenamiento. La Figura~\ref{fig:next_token_prediction} ilustra este proceso de predicción autoregresiva, donde cada nuevo token se genera a partir del contexto previo.
+
+A diferencia de modelos como \ac{BERT}, orientados principalmente a tareas de comprensión y que requieren fine-tuning supervisado para cada problema específico, los \acp{LLM} modernos suelen basarse en arquitecturas \textit{decoder-only} autoregresivas, como \ac{GPT} o LLaMA. Esto les permite generar texto de forma secuencial y adaptarse a múltiples tareas mediante instrucciones en lenguaje natural (\textit{prompts}), sin necesidad de modificar los pesos del modelo para cada caso.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{next_token_prediction.png}
+	\caption[Predicción autoregresiva del siguiente token en un LLM. Fuente: \cite{phd_art_2025}]{Predicción autoregresiva del siguiente token en un LLM. A partir del contexto previo, el modelo estima una distribución de probabilidad sobre el siguiente token posible y selecciona la opción más probable. Fuente: \cite{phd_art_2025}.}
+	\label{fig:next_token_prediction}
+\end{figure}
+
+Otra característica fundamental de los \acp{LLM} es que su rendimiento mejora de forma sistemática al aumentar conjuntamente el número de parámetros, la cantidad de datos de entrenamiento y la capacidad computacional, fenómeno conocido como \textit{scaling laws} \cite{kaplan_scaling_2020}. A partir de cierto nivel de escala, además, aparecen las denominadas capacidades emergentes (\textit{emergent abilities}), es decir, comportamientos que no se observan en modelos pequeños pero que surgen en modelos de mayor tamaño. Entre ellas se encuentran la resolución de problemas complejos, la capacidad de seguir instrucciones, el razonamiento paso a paso o la generalización \textit{zero-shot} y \textit{few-shot} en tareas no vistas previamente.
+
+En los últimos años, esta combinación de escalado masivo y preentrenamiento autoregresivo ha convertido a los \acp{LLM} en el paradigma dominante del \ac{PLN} moderno. Modelos como \ac{GPT}, Claude, Gemini, DeepSeek o LLaMA han demostrado resultados competitivos en tareas de clasificación, generación, resumen, traducción y \textit{chatbots}, consolidando un cambio de paradigma respecto al enfoque tradicional basado en modelos especializados para cada tarea.
+
+\subsection{Pipeline de entrenamiento de los LLMs}
+
+Como se ha mencionado anteriormente, los \acp{LLM} actuales suelen basarse en arquitecturas \textit{decoder-only} entrenadas mediante predicción autoregresiva del siguiente token. Sin embargo, un modelo únicamente preentrenado no constituye todavía un asistente conversacional útil, ya que su comportamiento natural consiste simplemente en continuar texto a partir del contexto previo.
+
+Para convertir este modelo base en un sistema capaz de seguir instrucciones, mantener conversaciones y generar respuestas alineadas con las preferencias humanas, es necesario un proceso de entrenamiento adicional compuesto por varias fases sucesivas. Cada una de ellas aporta capacidades específicas que transforman progresivamente el modelo base en un modelo conversacional o \textit{chat model}. La Figura~\ref{fig:llm_training_pipeline} resume este proceso completo, desde el preentrenamiento inicial hasta la obtención de un modelo conversacional alineado.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.95\textwidth]{llm_training_pipeline.png}
+	\caption{Pipeline general de entrenamiento de un LLM.}
+	\label{fig:llm_training_pipeline}
+\end{figure}
+
+\subsubsection{Fase 1: Pre-entrenamiento autoregresivo}
+
+La primera etapa en el entrenamiento de un \ac{LLM} consiste en el pre-entrenamiento autoregresivo (\textit{pre-training}), cuyo objetivo es aprender un modelo base capaz de predecir el siguiente token de una secuencia. A diferencia de \ac{BERT}, que utiliza \textit{Masked Language Modeling}, los \acp{LLM} basados en arquitecturas \textit{decoder-only} se entrenan mediante predicción causal, donde cada token se genera únicamente a partir del contexto previo.
+
+Formalmente, el modelo aprende a maximizar la probabilidad condicional de cada token dado su contexto anterior:
+
+\begin{equation*}
+	\mathcal{L}
+	=
+	-
+	\sum_{i=1}^{N}
+	\log
+	P(x_i \mid x_1, \ldots, x_{i-1}; \theta)
+\end{equation*}
+
+donde \(x_i\) representa el token actual, \(x_1, \ldots, x_{i-1}\) corresponden a los tokens anteriores de la secuencia y \(\theta\) son los parámetros del modelo.
+
+Este proceso es auto-supervisado, ya que no requiere etiquetas humanas: el propio texto actúa como señal de entrenamiento. Gracias a ello, es posible utilizar corpus masivos de billones de tokens procedentes de páginas web, libros, artículos científicos, código fuente y otras fuentes textuales. El resultado de esta fase es un modelo base capaz de completar texto de forma coherente, pero que todavía no está optimizado para seguir instrucciones o mantener conversaciones.
+
+El coste computacional de esta etapa es extremadamente elevado, requiriendo habitualmente cientos o miles de \acp{GPU} especializadas durante semanas o incluso meses de entrenamiento. Para hacer viable este proceso se emplean técnicas de paralelismo como \textit{data parallelism}, \textit{tensor parallelism} o \textit{pipeline parallelism}, además de optimizaciones de memoria como \ac{ZeRO}. Por ello, el preentrenamiento completo suele estar limitado a grandes organizaciones con acceso a infraestructura de alto rendimiento.
+
+\subsubsection{Fase 2: Supervised Fine-Tuning (SFT)}
+
+Tras el preentrenamiento, el modelo base es capaz de continuar texto, pero no necesariamente de seguir instrucciones de forma útil para el usuario. Por ejemplo, ante una pregunta como “¿Cuál es la capital de Francia?”, un modelo base puede continuar generando más preguntas similares en lugar de responder directamente.
+
+Para convertir este modelo base en un modelo \textit{instruct} o conversacional, se aplica una segunda fase denominada \ac{SFT}. En esta etapa, el modelo se entrena sobre conversaciones en formato chat, donde cada entrada contiene instrucciones del usuario y respuestas esperadas del asistente. Este enfoque fue ampliamente popularizado por trabajos como InstructGPT \cite{ouyang_training_2022}, que demostraron que el ajuste supervisado combinado con etapas posteriores de alineación permitía transformar un modelo base en un asistente mucho más útil, seguro y capaz de seguir instrucciones.
+
+Un ejemplo simplificado sería:
+
+\begin{lstlisting}[language=json,firstnumber=1]
+{"role": "user", "content": "Explica qué es la inteligencia artificial"}
+{"role": "assistant", "content": "La inteligencia artificial es..."}
+\end{lstlisting}
+
+Durante este proceso, el modelo aprende no solo contenido lingüístico, sino también el formato esperado de interacción: responder preguntas, seguir instrucciones, resumir información o realizar tareas específicas bajo petición explícita.
+
+Los datos utilizados en \ac{SFT} suelen proceder de anotadores humanos que redactan respuestas de alta calidad, así como de técnicas de destilación a partir de modelos más avanzados. Aunque el volumen de datos es mucho menor que en el preentrenamiento, esta fase resulta crítica para transformar un modelo base en un asistente útil y utilizable en escenarios reales.
+
+\subsubsection{Fase 3: Alineación mediante preferencias}
+
+Después del \ac{SFT}, el modelo ya puede seguir instrucciones, pero todavía puede generar respuestas poco útiles, inseguras o inconsistentes con las preferencias humanas. Por ello, se introduce una tercera fase orientada a la alineación del comportamiento del modelo.
+
+\subsubsection*{Preference Optimization (PO)}
+
+Esta etapa suele realizarse mediante técnicas de \ac{PO}, donde el modelo aprende a distinguir entre respuestas mejores y peores para una misma instrucción. En lugar de utilizar únicamente ejemplos correctos, se emplean pares de respuestas comparadas por evaluadores humanos o generadas automáticamente, indicando cuál resulta preferible.
+
+En los enfoques clásicos de \ac{RLHF}, estas preferencias se utilizan primero para entrenar un modelo de recompensa (\textit{reward model}), cuya función es estimar qué tan buena es una respuesta según criterios humanos de utilidad, seguridad o calidad. Posteriormente, este modelo guía el ajuste del \ac{LLM} mediante aprendizaje por refuerzo.
+
+Métodos más recientes como \ac{DPO} \cite{rafailov_direct_2023} permiten optimizar directamente estas preferencias sin necesidad de entrenar explícitamente este modelo de recompensa intermedio, simplificando considerablemente el proceso. El objetivo final es obtener un modelo más útil, seguro y alineado con el comportamiento esperado por el usuario.
+
+\subsubsection*{Reinforcement Learning (opcional)}
+
+Además, algunos sistemas incorporan una cuarta fase opcional basada en aprendizaje por refuerzo (\textit{Reinforcement Learning}), especialmente útil en tareas con recompensas verificables como matemáticas, razonamiento formal o generación de código. En estos casos, el modelo puede optimizarse utilizando señales objetivas de corrección, mejorando su rendimiento en tareas donde la respuesta correcta puede evaluarse automáticamente.
 
 
-\subsection{Subsección}
-\label{sec:subseccion}
+\subsection{Prompting como mecanismo de inferencia sin fine-tuning}
+
+Como se ha explicado en el apartado anterior, tras las fases de preentrenamiento, \ac{SFT} y alineación mediante preferencias, el modelo deja de comportarse como un simple generador de texto y pasa a actuar como un asistente capaz de seguir instrucciones en lenguaje natural. Esta transformación permite utilizar los \acp{LLM} de una forma distinta a los modelos tradicionales como \ac{BERT}: en lugar de requerir fine-tuning supervisado para cada tarea específica, pueden resolver múltiples problemas directamente durante la inferencia sin necesidad de modificar sus parámetros internos.
+
+Este enfoque se conoce como \textit{prompting} y consiste en proporcionar al modelo una entrada cuidadosamente diseñada (\textit{prompt}) que describe la tarea que debe realizar. El modelo interpreta esta instrucción dentro del contexto de generación autoregresiva y produce una respuesta acorde al objetivo solicitado. De este modo, una misma arquitectura puede utilizarse para clasificación, resumen, traducción, razonamiento o generación de texto sin necesidad de entrenar una versión distinta para cada tarea.
+
+Por ejemplo, una tarea de clasificación de texto puede reformularse como una instrucción explícita:
+
+\begin{lstlisting}[
+	language=json,
+	firstnumber=1,
+	breaklines=true
+]
+{
+"role": "user",
+"content": "Clasifica el siguiente texto como ansiedad, depresión o TCA:
+	    Me siento constantemente agotado y sin motivación para hacer nada."
+}
+\end{lstlisting}
+
+En este caso, el modelo no recibe una etiqueta numérica como en \ac{BERT}, sino una instrucción en lenguaje natural que debe interpretar correctamente. La calidad del resultado depende en gran medida del diseño del prompt, incluyendo la claridad de la instrucción, el contexto proporcionado y el formato esperado de la respuesta.
+
+\subsubsection{Zero-shot, One-shot y Few-shot}
+
+Según la cantidad de ejemplos incluidos en el prompt, pueden distinguirse varios escenarios \cite{brown_language_2020}. En \textit{zero-shot}, el modelo recibe únicamente la instrucción; en \textit{one-shot} se añade un ejemplo resuelto; y en \textit{few-shot} se proporcionan varios ejemplos que sirven como guía para la tarea. La Figura~\ref{fig:prompting_strategies} ilustra estas diferencias y permite observar cómo varía la cantidad de contexto proporcionado al modelo en cada caso. Esta capacidad de generalización sin reentrenamiento constituye una de las principales ventajas de los \acp{LLM} frente a los enfoques clásicos de fine-tuning.
+
+En este trabajo, la inferencia con \acp{LLM} se realiza mediante \textit{zero-shot} prompting, proporcionando únicamente la instrucción de clasificación sin ejemplos previos, con el objetivo de evaluar su capacidad de clasificación sin adaptación explícita al conjunto de datos.
+
+\begin{figure}[H]
+	\centering
+	
+	\begin{subfigure}[b]{0.18\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{zero_shot.png}
+		\caption{Zero-shot}
+	\end{subfigure}
+	\hspace{0.08\textwidth}
+	\begin{subfigure}[b]{0.18\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{one_shot.png}
+		\caption{One-shot}
+	\end{subfigure}
+	\hspace{0.08\textwidth}
+	\begin{subfigure}[b]{0.18\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{few_shot.png}
+		\caption{Few-shot}
+	\end{subfigure}
+	
+	\caption{Comparación entre estrategias de prompting. Fuente: \cite{noauthor_day_nodate}}
+	\label{fig:prompting_strategies}
+\end{figure}
+
+Además, técnicas como \ac{CoT} \cite{wei_chain--thought_2022} permiten mejorar el rendimiento en tareas complejas solicitando explícitamente al modelo que razone paso a paso antes de responder. Aunque este enfoque resulta especialmente útil en problemas matemáticos o de razonamiento lógico, también puede aportar mayor consistencia en tareas de clasificación ambigua o análisis semántico complejo.
+
+\subsection{Modelos utilizados en este trabajo}
+
+En el contexto actual de los \acp{LLM}, puede distinguirse entre modelos propietarios y modelos abiertos. Los modelos propietarios son desarrollados y mantenidos por empresas que no publican completamente sus pesos ni su proceso de entrenamiento, ofreciendo el acceso principalmente a través de servicios en la nube y \acp{API} comerciales. Este enfoque permite utilizar modelos de muy alto rendimiento, aunque limita la reproducibilidad completa de los experimentos y reduce el control sobre aspectos internos como la configuración exacta del modelo o futuras actualizaciones.
+
+Por el contrario, los modelos abiertos publican sus pesos y permiten su ejecución local o en infraestructuras propias, facilitando una mayor transparencia, reproducibilidad y control experimental. Además, permiten ajustar parámetros internos, realizar fine-tuning adicional o desplegar sistemas sin dependencia directa de proveedores externos. Sin embargo, suelen requerir una mayor capacidad computacional local y, en algunos casos, presentan un rendimiento inferior frente a los modelos propietarios más avanzados.
+
+En este trabajo se utilizan ambos enfoques: GPT-5.2, Claude Sonnet 4.6 y Gemini 3.1 Pro como modelos propietarios de referencia; y DeepSeek-V3.2, GPT-OSS-20B y Llama 3.1 8B como alternativas abiertas para comparación. Esta selección permite analizar no solo el rendimiento en clasificación, sino también las diferencias prácticas en coste, acceso, reproducibilidad y control sobre la inferencia entre ambos enfoques.
+
+\subsubsection{Descripción de los modelos seleccionados}
+
+La selección de modelos utilizada en este trabajo busca comparar dos grandes grupos dentro del panorama actual de los \acp{LLM}. Por un lado, se incluyen tres modelos propietarios de referencia, que permiten analizar posibles diferencias entre los modelos comerciales de mayor rendimiento. Por otro lado, se seleccionan tres modelos abiertos de distintos niveles de capacidad, con el objetivo de evaluar hasta qué punto las alternativas abiertas pueden competir frente a los modelos propietarios más avanzados.
+
+De este modo, no solo se compara el rendimiento absoluto de cada modelo, sino también la relación entre coste y beneficio, buscando identificar el punto óptimo a partir del cual un mayor gasto computacional o económico deja de traducirse en mejoras significativas de rendimiento.
+
+\subsubsection*{Modelos propietarios de referencia}
+
+GPT-5.2 \cite{singh_openai_2025}, Claude Sonnet 4.6 \cite{noauthor_introducing_nodate} y Gemini 3.1 Pro \cite{noauthor_gemini_nodate} representan los principales modelos propietarios utilizados en este trabajo, desarrollados respectivamente por OpenAI, Anthropic y Google DeepMind. Todos ellos pertenecen a la categoría de modelos comerciales de mayor capacidad general y se basan en arquitecturas Transformer autoregresivas derivadas de \ac{GPT}. Están optimizados para tareas complejas de razonamiento, seguimiento de instrucciones, generación de texto y asistencia conversacional.
+
+\subsubsection*{DeepSeek como alternativa abierta de alto rendimiento}
+
+DeepSeek-V3.2 \cite{deepseek-ai_deepseek-v32_2025} se estudia de forma separada por representar una propuesta abierta especialmente orientada a competir directamente con los modelos propietarios de mayor rendimiento, manteniendo al mismo tiempo un coste de inferencia considerablemente menor. Uno de los aspectos más relevantes de la familia DeepSeek es que ha sido una de las principales referencias recientes en la popularización de arquitecturas \ac{MoE} \cite{fedus_switch_2022}, un enfoque que actualmente utilizan muchos de los \acp{LLM} más avanzados.
+
+A diferencia de los modelos tradicionales de tipo \textit{dense}, donde todos los parámetros de la red participan en cada inferencia, las arquitecturas \ac{MoE} siguen un enfoque \textit{sparse}, en el que solo una parte del modelo se activa para cada token. En lugar de utilizar toda la red neuronal para procesar cada entrada, este enfoque sustituye parte de las capas \ac{FFN} por múltiples subredes especializadas denominadas \textit{experts}. Un componente adicional, conocido como \textit{router}, decide dinámicamente qué expertos deben activarse para cada entrada o token concreto, tal y como se ilustra en la Figura~\ref{fig:moe_architecture}.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.52\textwidth]{moe_architecture.png}
+	\caption{Ejemplo simplificado del funcionamiento de la arquitectura MoE. Fuente: \cite{beautiful_visual_2025}}
+	\label{fig:moe_architecture}
+\end{figure}
+
+De este modo, no todos los parámetros del modelo participan en cada inferencia: por ejemplo, una entrada relacionada con código puede activar expertos distintos a los utilizados para texto literario o contenido en otro idioma. Esto permite aumentar considerablemente la capacidad total del modelo y el número de parámetros disponibles, manteniendo un coste computacional similar, ya que solo una pequeña parte de los expertos se activa en cada predicción.
+
+\subsubsection*{Modelos abiertos de menor escala}
+
+GPT-OSS-20B \cite{openai_gpt-oss-120b_2025} y Llama 3.1 8B \cite{grattafiori_llama_2024} representan alternativas abiertas más accesibles, orientadas a facilitar la ejecución local y a reducir el coste de inferencia. A diferencia de los modelos propietarios, permiten un mayor control sobre la inferencia, el despliegue en infraestructuras propias y posibles ajustes adicionales mediante fine-tuning. GPT-OSS-20B se sitúa como una opción intermedia, con aproximadamente veinte mil millones de parámetros y un equilibrio entre capacidad y coste computacional, mientras que Llama 3.1 8B ofrece una alternativa más ligera y eficiente, especialmente útil en escenarios con menores requisitos de hardware o despliegues locales más accesibles.
+
+\subsubsection{Inferencia mediante APIs}
+
+La inferencia con modelos propietarios se realiza habitualmente mediante \acp{API} proporcionadas por los propios desarrolladores del modelo. En este esquema, el usuario no ejecuta el modelo localmente, sino que envía una solicitud remota que contiene el prompt, el proveedor ejecuta internamente el modelo y devuelve la respuesta generada junto con metadatos como número de tokens consumidos, tiempo de respuesta o coste asociado.
+
+El uso de \acp{API} simplifica enormemente la experimentación, ya que evita la necesidad de disponer de infraestructura propia de alto rendimiento y permite acceder a modelos de gran escala que serían inviables de ejecutar localmente. No obstante, introduce limitaciones importantes relacionadas con el coste económico por uso, la dependencia del proveedor, la posible variabilidad entre versiones del modelo y la menor reproducibilidad experimental.
+
+En este trabajo, la inferencia de los modelos propietarios se realiza mediante las \acp{API} oficiales proporcionadas por sus respectivos desarrolladores. En el caso de los modelos abiertos, aunque estos permiten su despliegue local sobre infraestructuras propias, el acceso se realiza también mediante \ac{API} utilizando OpenRouter\footnote{OpenRouter es una plataforma que actúa como intermediario unificado, redirigiendo las peticiones a distintos proveedores de inferencia y permitiendo acceder a múltiples modelos mediante una única \ac{API} compatible.}, ya que la ejecución local de modelos de gran tamaño requiere recursos de hardware que no resultan viables en el contexto de este trabajo.
+
+\subsection{Limitaciones actuales}
+
+A pesar de su gran capacidad de generalización, los \acp{LLM} presentan todavía limitaciones importantes que deben considerarse en su uso práctico. Una de las más conocidas es la aparición de alucinaciones, donde el modelo genera respuestas incorrectas o inventadas con aparente seguridad, incluso cuando no dispone de información suficiente para responder con fiabilidad.
+
+Además, su rendimiento puede ser muy sensible al diseño del prompt, de modo que pequeñas variaciones en la redacción de una instrucción pueden producir respuestas significativamente diferentes. Esto dificulta la reproducibilidad experimental y complica la comparación objetiva entre modelos.
+
+Otra limitación relevante es el elevado coste de inferencia, especialmente en modelos propietarios de gran escala accesibles mediante \ac{API}, donde cada consulta implica un coste económico y dependencia directa del proveedor. A ello se suman posibles sesgos heredados de los datos de entrenamiento, que pueden afectar a la neutralidad y fiabilidad de las respuestas generadas.
+
+Por último, en modelos cerrados existe una menor transparencia sobre su arquitectura, datos de entrenamiento o actualizaciones internas, lo que reduce el control experimental y dificulta la trazabilidad completa de los resultados obtenidos.
 
 
-\subsubsection{Subsubsección}
-\label{sec:subsubseccion}
+\section{Contexto clínico de los trastornos analizados}
 
-\paragraph{Paragraph}
-\label{sec:paragraph-1}
+Aunque este trabajo se desarrolla en el ámbito de la Ingeniería Informática y su objetivo principal es la clasificación automática de texto mediante modelos de \ac{PLN}, resulta necesario disponer de un contexto básico sobre los trastornos de salud mental analizados. Comprender sus principales características clínicas, síntomas más frecuentes y posibles solapamientos conceptuales permite interpretar mejor tanto la naturaleza del conjunto de datos como la dificultad inherente de la tarea de clasificación. A continuación, se presenta una breve descripción de los trastornos considerados en este estudio: ansiedad, depresión y \ac{TCA}.
 
+\subsection{Ansiedad}
 
-\subparagraph{Subparagraph}
-\label{sec:subparagraph}
+La ansiedad es una respuesta emocional normal ante situaciones percibidas como amenazantes o inciertas y, en niveles moderados, cumple una función adaptativa al preparar al organismo para afrontar posibles riesgos \cite{belloch_manual_2020}. Sin embargo, cuando el miedo o la ansiedad se vuelven excesivos, persistentes y desproporcionados respecto al peligro real, y además generan un deterioro significativo en el funcionamiento diario de la persona, pueden constituir un trastorno de ansiedad \cite{american_psychiatric_association_diagnostic_2022}.
 
+Los trastornos de ansiedad incluyen diferentes manifestaciones clínicas, aunque suelen compartir síntomas comunes como preocupación excesiva, sensación constante de alerta, dificultad para concentrarse, irritabilidad, alteraciones del sueño, fatiga y síntomas físicos como taquicardia, tensión muscular o sensación de ahogo. En muchos casos, también aparece evitación de determinadas situaciones por miedo anticipatorio o sensación de pérdida de control. Estos patrones se recogen de forma habitual en instrumentos clínicos como el cuestionario \ac{GAD-7}, ampliamente utilizado para la evaluación de síntomas de ansiedad generalizada \cite{spitzer_brief_2006}.
 
+Desde el punto de vista del análisis textual, estas manifestaciones suelen reflejarse en expresiones relacionadas con miedo persistente, pensamientos repetitivos, inseguridad, insomnio o incapacidad para desconectar mentalmente. Frases como “no puedo dejar de pensar”, “siento que algo malo va a pasar” o “vivo en un estado constante de nerviosismo” pueden constituir indicadores relevantes para la clasificación automática.
 
-\section{Conclusiones}
-\label{sec:conclusiones-teoria}
+\subsection{Depresión}
 
-Blah, blah, blah\ldots
+La depresión es un trastorno del estado de ánimo caracterizado por la presencia persistente de tristeza, pérdida de interés o placer en actividades habituales \cite{american_psychiatric_association_diagnostic_2022} y una disminución significativa del funcionamiento personal, social o laboral. A diferencia de episodios puntuales de desánimo, la depresión implica una alteración mantenida en el tiempo que afecta de forma profunda a la percepción de uno mismo, del entorno y del futuro \cite{belloch_manual_2020}.
+
+Entre sus síntomas más frecuentes se encuentran el ánimo deprimido, la anhedonia, la fatiga constante, la sensación de inutilidad o culpa, la dificultad para concentrarse, alteraciones del sueño y del apetito, así como pensamientos de desesperanza o incluso ideación suicida en los casos más graves. Estos patrones se recogen habitualmente en instrumentos clínicos como el cuestionario \ac{PHQ-9}, ampliamente utilizado para la evaluación de síntomas depresivos \cite{kroenke_phq-9_2001}.
+
+Desde el punto de vista del análisis textual, la depresión suele reflejarse en expresiones relacionadas con vacío emocional, falta de motivación, aislamiento social o pérdida de sentido. Frases como “no tengo ganas de hacer nada”, “me siento vacío todo el tiempo” o “siento que nada va a mejorar” pueden constituir indicadores relevantes para la clasificación automática.
+
+\subsection{Trastornos de la Conducta Alimentaria (TCA)}
+
+Los \acp{TCA} constituyen un conjunto de alteraciones psicológicas caracterizadas por una relación disfuncional con la alimentación, el peso y la imagen corporal \cite{belloch_manual_2020}. Estas alteraciones pueden manifestarse a través de restricciones alimentarias severas, episodios de atracones o conductas compensatorias como el vómito autoinducido \cite{american_psychiatric_association_diagnostic_2022}. Su impacto no se limita al ámbito físico, sino que afecta también de forma significativa al bienestar emocional y al funcionamiento social de la persona.
+
+Entre los principales \acp{TCA} se encuentran la anorexia nerviosa, la bulimia nerviosa y el trastorno por atracón, aunque todos comparten una fuerte preocupación por la autoimagen y una percepción distorsionada del propio cuerpo. Estos patrones suelen evaluarse mediante instrumentos clínicos como el cuestionario \ac{EAT-26} \cite{garner_eating_1982} o el test SCOFF\footnote{El nombre SCOFF procede de cinco preguntas clave del cuestionario original: \textit{Sick} (provocarse el vómito), \textit{Control} (pérdida de control sobre la comida), \textit{One stone} (pérdida de aproximadamente 6,35 kg), \textit{Fat} (sentirse con sobrepeso) y \textit{Food} (preocupación excesiva por la comida).} \cite{morgan_scoff_1999}, ampliamente utilizados en la detección de conductas de riesgo relacionadas con la alimentación.
+
+Desde el punto de vista del análisis textual, los \acp{TCA} suelen reflejarse en expresiones relacionadas con culpa al comer, obsesión por el peso, miedo a engordar o insatisfacción corporal persistente. Frases como “me siento mal cada vez que como”, “no puedo dejar de pensar en mi peso” o “siento que nunca estoy lo suficientemente delgado/a” pueden constituir indicadores relevantes para la clasificación automática.
+
+\subsection{Solapamiento sintomático y limitaciones del análisis textual}
+
+Uno de los principales desafíos tanto en el diagnóstico clínico como en la clasificación automática de textos relacionados con salud mental es el elevado solapamiento sintomático entre distintos trastornos. La ansiedad y la depresión coexisten con frecuencia y comparten manifestaciones como insomnio, fatiga, dificultad para concentrarse, irritabilidad o pensamientos repetitivos. Del mismo modo, los \acp{TCA} suelen presentar una fuerte comorbilidad con ambos trastornos, especialmente en aspectos relacionados con la autoestima, la culpa, el control emocional y la percepción personal.
+
+Esta superposición dificulta la diferenciación clara entre categorías diagnósticas incluso en contextos clínicos, y resulta todavía más compleja cuando el análisis se realiza únicamente a partir de texto escrito. El modelo no dispone de información complementaria como entrevistas clínicas, historial médico, lenguaje no verbal o contexto personal, sino únicamente de patrones lingüísticos expresados por el usuario.
+
+Además, el análisis automático presenta limitaciones adicionales derivadas de la propia naturaleza del lenguaje en entornos reales, especialmente en redes sociales o foros informales. El uso de ironía, exageración, ambigüedad semántica, autodiagnósticos no clínicos o expresiones coloquiales puede dificultar la correcta interpretación del contenido incluso para profesionales humanos.
+
+Por ello, los modelos desarrollados en este trabajo no deben entenderse como herramientas de diagnóstico clínico, sino como sistemas de clasificación automática capaces de identificar patrones lingüísticos compatibles con determinados trastornos. Esta distinción resulta fundamental tanto desde el punto de vista metodológico como ético.
+
 
 %%% Local Variables:
 %%% TeX-master: "../book"
