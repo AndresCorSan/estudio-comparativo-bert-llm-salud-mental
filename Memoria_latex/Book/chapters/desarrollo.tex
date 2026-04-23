@@ -35,7 +35,7 @@
 \end{FraseCelebre}
 
 
-\section{Introducción}
+\section{Introducción/Metodología}
 \label{sec:introduccion-desarrollo}
 
 En este capítulo se incluirá la descripción del desarrollo del trabajo.
@@ -55,7 +55,7 @@ Un aspecto especialmente relevante es que MentalRiskES está compuesto íntegram
 
 \subsection{Análisis del dataset MentalRiskES}
 
-\subsubsection*{Descripción y estructura general del corpus}
+\subsubsection{Descripción y estructura general del corpus}
 MentalRiskES constituye un corpus en español diseñado para la detección temprana de tres trastornos mentales: depresión, ansiedad y trastornos de la conducta alimentaria (Eating Disorders, ED). Los datos que componen el corpus provienen de grupos públicos de Telegram, seleccionados específicamente por su naturaleza temática relacionada con cada uno de los trastornos.
 
 La unidad básica del dataset es el sujeto (usuario). Para cada usuario se incluye un identificador anonimizado y una secuencia cronológica de mensajes publicados dentro de un grupo concreto. El dataset conserva los mensajes originales tras un proceso de curación que incluyó la eliminación de mensajes extremadamente breves, la conversión de emojis a texto, el etiquetado de URLs y hashtags y la anonimización de nombres propios, alias y números de teléfono.
@@ -66,12 +66,12 @@ El dataset está organizado en tres carpetas, una por cada trastorno. En cada un
 	\item \textbf{bc (binary control):} indica si el sujeto debe considerarse control (1) o no (0). Se entiende por control a aquellos usuarios que no muestran señales asociadas al trastorno en cuestión.
 \end{itemize}
 
-\subsubsection*{Proceso de anotación}
+\subsubsection{Proceso de anotación}
 Es importante destacar que estas etiquetas no fueron establecidas por profesionales de la salud mental. El proceso de anotación fue realizado por diez anotadores independientes por sujeto, quienes, aunque no eran especialistas clínicos, cumplían criterios estrictos de selección (ser nativos en español y poseer estudios universitarios) y trabajaron siguiendo guías detalladas basadas en definiciones oficiales y procedimientos estandarizados. La etiqueta final asignada a cada sujeto se determina seleccionando la que aparece con mayor frecuencia entre los diez anotadores y, en caso de empate, se considera que el usuario sí presenta indicios del trastorno correspondiente.
 
 Este enfoque proporciona un nivel de fiabilidad adecuado en las anotaciones obtenidas. No obstante, la ausencia de anotadores profesionales implica que las etiquetas deben interpretarse como indicadores de riesgo y no como diagnósticos clínicos. Por ello, futuros trabajos podrían beneficiarse de corpus anotados por especialistas en salud mental para aumentar aún más su fiabilidad.
 
-\subsubsection*{Exploración del dataset}
+\subsubsection{Exploración del dataset}
 A continuación, se presenta una exploración inicial del corpus \textit{MentalRiskES} con el objetivo de entender su distribución de usuarios, mensajes y palabras, así como el balance entre clases para cada trastorno. Para ello se generó un pequeño script en Python que permitió extraer los siguientes resultados:
 
 \begin{itemize}
@@ -116,7 +116,7 @@ Otro factor importante a tener en cuenta es el número de mensajes y de palabras
 			& 2\,222  & 16\,293 & 18\,515
 			& 6\,287  & 11\,083 & 17\,370
 			& 6\,586  & 3\,913  & 10\,499 \\
-			\textbf{Media mensajes}   
+			\textbf{Media mensajes por usuario}   
 			& 38.98 & 36.78 & 37.03
 			& 37.87 & 33.28 & 34.81
 			& 34.30 & 27.36 & 31.34 \\
@@ -125,7 +125,7 @@ Otro factor importante a tener en cuenta es el número de mensajes y de palabras
 			& 31\,248  & 276\,853 & 308\,101
 			& 84\,435  & 159\,868 & 244\,303
 			& 93\,614  & 64\,667  & 158\,281 \\
-			\textbf{Media palabras}   
+			\textbf{Media palabras por usuario}   
 			& 548.21 & 624.95 & 616.20
 			& 508.64 & 480.08 & 489.59
 			& 487.57 & 452.22 & 472.48 \\
@@ -137,17 +137,18 @@ Otro factor importante a tener en cuenta es el número de mensajes y de palabras
 
 El análisis del número de mensajes y palabras revela diferencias relevantes entre los tres trastornos. Ansiedad es el conjunto con mayor volumen total de mensajes y palabras, seguido de depresión y, finalmente, ED. Si se comparan las medias por usuario, en ansiedad y depresión los usuarios de la clase control tienden a escribir ligeramente más mensajes que los usuarios \textit{suffer}, mientras que en ED ocurre lo contrario. En cuanto al número de palabras, en ansiedad los usuarios \textit{suffer} producen mensajes más extensos de media, en depresión sucede lo contrario, y en ED ambas clases presentan valores muy similares.
 
-\subsubsection*{Conclusión del análisis del dataset}
+\subsubsection{Conclusión del análisis del dataset}
+
 En conjunto, los resultados muestran diferencias claras tanto en el desbalance entre clases como en la cantidad de texto disponible por trastorno. Ansiedad es el conjunto más desequilibrado, mientras que depresión y ED presentan distribuciones más homogéneas. Asimismo, ansiedad y depresión ofrecen un volumen textual mayor que ED, lo que implica que los modelos dispondrán de más información lingüística en estos dos casos. Estas variaciones son relevantes porque afectan tanto a la dificultad del aprendizaje como a la capacidad de generalización, por lo que deben tenerse en cuenta tanto en el proceso de entrenamiento del modelo BERT como en la evaluación posterior, tanto de BERT como de los modelos LLM preentrenados.
 
 
 \subsection{Preparación de datos}
 
-Una vez analizado el dataset, el siguiente paso consistió en preparar los datos para su uso en los modelos de clasificación. Para ello se empleó de nuevo Python junto con la librería \texttt{pandas}. Dado que el dataset \textit{MentalRiskES} está estructurado a nivel de usuario y las etiquetas asignadas corresponden al sujeto en su conjunto, se decidió mantener esta unidad de análisis durante todo el proceso. Así, los mensajes asociados a cada usuario se concatenaron en un único texto, preservando la información contextual completa que aporta el corpus.
+Una vez analizado el dataset, el siguiente paso consistió en preparar los datos para su uso en los modelos de clasificación. Dado que el dataset \textit{MentalRiskES} está estructurado a nivel de usuario y las etiquetas asignadas corresponden al sujeto en su conjunto, se decidió mantener esta unidad de análisis durante todo el proceso. Así, los mensajes asociados a cada usuario se concatenaron en un único texto, preservando la información contextual completa que aporta el corpus.
 
 El proceso comenzó con la carga de los ficheros \texttt{JSON} de cada trastorno, a partir de los cuales se extrajo la lista de mensajes correspondiente a cada usuario. Estos mensajes fueron filtrados para eliminar entradas vacías y posteriormente concatenados en un único texto. Paralelamente, se incorporó la etiqueta binaria \texttt{bs} asociada a cada sujeto, generando tres \textit{dataframes} finales (uno por trastorno) con las columnas \texttt{user\_id}, \texttt{texto} y \texttt{bs}.
 
-\subsubsection*{Partición de datos para clasificación binaria}
+\subsubsection{Partición de datos para clasificación binaria}
 
 En primer lugar, se construyeron los conjuntos destinados a la clasificación binaria, en los que el objetivo es determinar si un usuario presenta (\textit{suffer}) o no presenta (\textit{control}) un determinado trastorno. A partir de los dataframes individuales, se procedió a preparar los datos para el modelo BERT. Para este tipo de modelos es necesario dividir cada dataset en tres subconjuntos: entrenamiento (70\%), validación (15\%) y prueba (15\%). El conjunto de entrenamiento se emplea para ajustar los parámetros del modelo, el de validación para seleccionar hiperparámetros y prevenir el sobreajuste, y el de prueba para evaluar el rendimiento final.
 
@@ -155,7 +156,7 @@ Dado que, tal como se observó en el análisis del subapartado 3.2.1.3, las clas
 
 En el caso de los modelos LLM, el procedimiento es más simple, ya que no requieren entrenamiento adicional. Por ello, no se generan subconjuntos de entrenamiento ni de validación, sino únicamente un conjunto de evaluación por trastorno. Dado que los conjuntos de prueba estratificados resultan demasiado pequeños y presentan un fuerte desbalance (especialmente en ansiedad), se decidió emplear el dataset completo de cada trastorno, ya con sus textos unificados, como conjunto de evaluación para los LLM.
 
-\subsubsection*{Partición de datos para clasificación multiclase}
+\subsubsection{Partición de datos para clasificación multiclase}
 
 Además del escenario binario, se prepararon también los datos para abordar una clasificación multiclase, en la que el objetivo consiste en identificar cuál de los tres trastornos presenta un usuario, o si pertenece a la clase control. Para ello se fusionaron los dataframes procesados de ansiedad, depresión y trastornos alimentarios en un único dataset. A cada usuario se le asignó una etiqueta multiclase en función de su trastorno de origen (ansiedad, depresión o ED) o del estado \textit{control} si su etiqueta binaria era 0. Este proceso dio lugar a cuatro clases en total: control, ansiedad, depresión y ED.
 
@@ -163,21 +164,84 @@ El dataset multiclase resultante se dividió posteriormente en los mismos subcon
 
 De manera análoga al caso binario, los modelos LLM se evaluarán sobre el dataset multiclase completo, sin aplicar división en subconjuntos, ya que no requieren un proceso de entrenamiento previo.
 
-\section{Planteamiento matemático}
-\label{sec:libr-desarr}
+\subsubsection{Subconjuntos para la métrica TARa@5}
 
-También resulta útil poder introducir ecuaciones que se encuentran tanto en línea con el texto (como por ejemplo $\sigma=0.75$), como en un párrafo aparte (como en la ecuación \ref{eq:eq1}). Al igual que ocurre con las figuras, también se pueden referenciar las ecuaciones.
+Con el objetivo de calcular la métrica \ac{TARa@5}, utilizada para medir la estabilidad de las predicciones de los \acp{LLM} y descrita previamente en la Sección~\ref{sec:metricas_evaluacion}, se prepararon subconjuntos específicos de evaluación para cada tarea de clasificación.
 
-\begin{equation}
-  \label{eq:eq1}
-  p[q_t=\sigma_t|q_{t-1}=\sigma_{t-1}]
-\end{equation}
+Dado que calcular esta métrica sobre el dataset completo supondría un coste de inferencia muy elevado (ya que cada ejemplo debe evaluarse cinco veces por cada modelo), se optó por construir subconjuntos reducidos pero representativos mediante muestreo estratificado. De este modo, se conserva la proporción original entre clases y se garantiza que la muestra siga siendo representativa del problema de clasificación.
 
-\section{Conclusiones}
-\label{sec:conclusiones-desarrollo}
+En los escenarios de clasificación binaria, se seleccionaron 100 ejemplos por trastorno a partir de los conjuntos completos utilizados para la inferencia con \acp{LLM}. Esta cantidad representa aproximadamente un 20\% del tamaño total de los datasets en los casos de ansiedad y depresión, y cerca de un 30\% en el caso de \ac{TCA}, porcentaje ligeramente mayor debido al menor tamaño del dataset original, ya que una proporción inferior habría generado un subconjunto demasiado reducido.
 
-Blah, blah, blah\ldots
+En el caso de la clasificación multiclase, se extrajo un subconjunto de 250 ejemplos manteniendo igualmente la distribución original entre las cuatro clases (control, ansiedad, depresión y ED). Esta cantidad supone aproximadamente un 20\% del dataset multiclase completo, proporcionando representación suficiente de cada categoría y una estimación estable de la consistencia del modelo en un escenario más complejo.
 
+\subsection{Análisis complementarios previos a la clasificación}
+
+Antes de iniciar el entrenamiento y la evaluación de los modelos, se realizaron varios análisis complementarios orientados a validar algunas decisiones metodológicas y comprender mejor la estructura del problema de clasificación. 
+
+\subsubsection{Longitud de secuencia y justificación del uso de Longformer}
+
+En primer lugar, se estudió la longitud de los textos generados tras la concatenación de los mensajes de cada usuario. Este paso resulta especialmente relevante porque los modelos \ac{BERT} estándar presentan una limitación estructural de 512 tokens de entrada, por lo que era necesario comprobar si los textos del corpus superaban dicho umbral.
+
+Para ello, se utilizó el tokenizador base de \ac{BERT} y se calculó el número total de tokens de cada usuario en los distintos datasets preparados (ansiedad, depresión, \ac{TCA} y multiclase). La Tabla~\ref{tab:token_lengths} resume las principales estadísticas obtenidas.
+
+\begin{table}[H]
+	\centering
+	\caption{Longitud media y máxima de tokens por usuario tras la concatenación de mensajes}
+	\label{tab:token_lengths}
+	\begin{tabular}{|l|c|c|}
+		\hline
+		\textbf{Categoría} & \textbf{Media de tokens} & \textbf{Máximo de tokens} \\
+		\hline
+		Ansiedad & 1042.98 & 6134 \\
+		Depresión & 820.24 & 6457 \\
+		\ac{TCA} & 799.53 & 12754 \\
+		Multiclase & 898.52 & 12754 \\
+		\hline
+	\end{tabular}
+\end{table}
+
+Los resultados muestran que, en todos los casos, la longitud media supera ampliamente el límite de 512 tokens, alcanzando además valores máximos muy superiores. Este análisis permitió identificar una de las primeras dificultades encontradas durante el desarrollo del trabajo: una parte importante de la información contextual quedaría fuera si se utilizara directamente un modelo \ac{BERT} estándar con truncación, debido a su límite máximo de 512 tokens de entrada.
+
+Ante esta situación, existen dos estrategias principales. La primera consiste en aplicar truncación durante la tokenización, conservando únicamente los primeros 512 tokens de cada texto. Esta solución resulta sencilla y eficiente, aunque puede provocar pérdida de información relevante. La segunda opción consiste en utilizar modelos Transformer diseñados para secuencias largas, capaces de procesar miles de tokens sin necesidad de truncar, aunque con un mayor coste computacional.
+
+En este trabajo se decidió emplear ambos enfoques: por un lado, modelos \ac{BERT} convencionales con truncación a 512 tokens y, por otro, un modelo \textit{long-range}, concretamente Longformer, capaz de procesar secuencias mucho más extensas. Esto permite analizar hasta qué punto la truncación afecta al rendimiento de clasificación y si el mayor coste computacional de los modelos de largo contexto se traduce realmente en una mejora significativa en el rendimiento de clasificación.
+
+\subsubsection{Visualización de embeddings y separabilidad entre clases}
+
+En segundo lugar, se realizó un análisis exploratorio sobre la separabilidad semántica de las clases antes del entrenamiento de los modelos. El objetivo de este estudio fue comprobar si los textos asociados a ansiedad, depresión, \ac{TCA} y control presentaban de forma natural agrupaciones diferenciadas en el espacio vectorial o, por el contrario, existía un fuerte solapamiento entre categorías.
+
+Para ello, se generaron embeddings de cada texto utilizando el modelo \texttt{sentence-transformers/paraphrase-multilingual-mpnet-base-v2} \cite{reimers_making_2020}, un modelo de \textit{sentence embeddings} multilingüe diseñado para representar documentos en forma de vectores densos que capturan su significado semántico. Cada texto del dataset multiclase se transformó así en una representación numérica de alta dimensión.
+
+Dado que estos embeddings se representan originalmente en un espacio vectorial de alta dimensión ($\mathbb{R}^{768}$), su visualización directa no resulta posible. Por ello, se proyectaron a un espacio bidimensional ($\mathbb{R}^2$) mediante dos técnicas de reducción de dimensionalidad: \ac{PCA} \cite{jolliffe_principal_2016} y \ac{t-SNE} \cite{van_der_maaten_visualizing_2008}. Mientras que \ac{PCA} permite observar la estructura global de los datos preservando la mayor varianza posible, \ac{t-SNE} facilita una visualización más intuitiva de agrupaciones locales y relaciones de vecindad entre ejemplos.
+
+Las Figuras~\ref{fig:embeddings_visualization} muestran las proyecciones obtenidas para el dataset multiclase, utilizando una codificación por color para cada clase: control (gris), ansiedad (rojo), depresión (azul) y \ac{TCA} (verde).
+
+\begin{figure}[H]
+	\centering
+	
+	\begin{subfigure}[b]{0.49\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{embeddings_pca.png}
+		\caption{PCA}
+		\label{fig:embeddings_pca}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[b]{0.49\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{embeddings_tsne.png}
+		\caption{t-SNE}
+		\label{fig:embeddings_tsne}
+	\end{subfigure}
+	
+	\caption{Visualización de embeddings del dataset multiclase mediante reducción de dimensionalidad}
+	\label{fig:embeddings_visualization}
+\end{figure}
+
+En la proyección mediante \ac{PCA} se observa una estructura relativamente organizada, donde la clase \ac{TCA} aparece más concentrada y desplazada hacia una región más diferenciada del espacio vectorial, lo que sugiere que sus patrones lingüísticos presentan mayor especificidad semántica. Por el contrario, ansiedad y depresión muestran un solapamiento considerable, especialmente en la zona central e izquierda del gráfico, reflejando la proximidad conceptual y clínica entre ambos trastornos.
+
+La visualización mediante \ac{t-SNE} refuerza esta misma interpretación de forma más clara. \ac{TCA} vuelve a formar un clúster más definido y separado, mientras que ansiedad y depresión continúan mostrando una fuerte superposición, lo que anticipa una mayor dificultad para diferenciarlas automáticamente. La clase control aparece distribuida entre distintas regiones del espacio, sin formar un clúster propio claramente delimitado, lo cual resulta coherente al tratarse de una categoría heterogénea que no responde a un único patrón lingüístico específico.
+
+Este análisis confirma que la tarea de clasificación presenta una dificultad inherente derivada del propio solapamiento semántico entre clases, especialmente entre ansiedad y depresión. Asimismo, justifica que ciertos errores de clasificación observados posteriormente no dependan únicamente del modelo utilizado, sino también de la ambigüedad natural presente en los datos.
 
 
 %%% Local Variables:
