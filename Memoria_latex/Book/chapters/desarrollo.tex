@@ -244,6 +244,155 @@ La visualización mediante \ac{t-SNE} refuerza esta misma interpretación de for
 Este análisis confirma que la tarea de clasificación presenta una dificultad inherente derivada del propio solapamiento semántico entre clases, especialmente entre ansiedad y depresión. Asimismo, justifica que ciertos errores de clasificación observados posteriormente no dependan únicamente del modelo utilizado, sino también de la ambigüedad natural presente en los datos.
 
 
+\section{Entrenamiento y evaluación de modelos BERT}
+
+Tras haber analizado la estructura del dataset, identificado sus principales limitaciones y dificultades, y construido los subconjuntos específicos para cada tarea de clasificación, el siguiente paso consiste en aplicar el proceso de entrenamiento y evaluación de los modelos \ac{BERT} seleccionados. En esta fase, los textos preparados se transforman en representaciones adecuadas para el modelo mediante tokenización, se ajustan los modelos preentrenados mediante fine-tuning supervisado y, finalmente, se generan predicciones sobre los conjuntos de prueba para evaluar su rendimiento.
+
+\subsection{Configuración experimental}
+
+El entrenamiento de los modelos \ac{BERT} se realizó utilizando Google Colab como entorno de ejecución, empleando una \ac{GPU} NVIDIA T4. Esta elección permitió disponer de aceleración por hardware suficiente para llevar a cabo el proceso de fine-tuning de modelos Transformer de tamaño medio y grande, aunque con ciertas limitaciones de memoria que condicionaron parte de la configuración experimental.
+
+Tal y como se explicó en la Sección~\ref{subsec:modelos_bert}, en este trabajo se utilizaron cuatro arquitecturas representativas: \ac{DistilBETO}, \ac{RoBERTa}, \ac{mDeBERTa} y Longformer. Aunque todas siguen un enfoque \textit{encoder-only} orientado a tareas de clasificación, presentan diferencias importantes en tamaño, complejidad y capacidad de procesamiento de secuencias largas, lo que obligó a adaptar algunos hiperparámetros de entrenamiento para cada caso.
+
+La configuración específica de cada modelo se definió principalmente en función de tres factores: el número de parámetros de la arquitectura, la longitud máxima de secuencia que podía procesar y las restricciones de memoria de la \ac{GPU} disponible. \ac{DistilBETO} al ser un modelo más ligero, permitió utilizar tamaños de batch mayores tanto en entrenamiento como en evaluación. En cambio, modelos más pesados como \ac{RoBERTa} o \ac{mDeBERTa} requirieron reducir este valor para evitar errores de memoria.
+
+En el caso de Longformer, diseñado específicamente para secuencias largas, se priorizó aumentar la longitud máxima de entrada hasta 2048 tokens en lugar de los 512 habituales en BERT estándar, lo que obligó a reducir considerablemente el tamaño de batch debido al mayor consumo de memoria. Para los cuatro modelos, durante la fase de evaluación se utilizó un batch superior al de entrenamiento, ya que al no calcular gradientes el consumo de memoria resulta menor.
+
+La Tabla~\ref{tab:bert_training_config} resume la configuración utilizada para cada uno de los modelos evaluados.
+
+\begin{table}[H]
+	\centering
+	\caption{Configuración experimental utilizada para el fine-tuning de los modelos BERT}
+	\label{tab:bert_training_config}
+	\begin{tabular}{|l|c|c|c|}
+		\hline
+		\textbf{Modelo} & \textbf{Max length} & \textbf{Train batch size} & \textbf{Eval batch size} \\
+		\hline
+		DistilBETO & 512 & 16 & 64 \\
+		RoBERTa & 512 & 8 & 32 \\
+		mDeBERTa & 512 & 8 & 32 \\
+		Longformer & 2048 & 1 & 2 \\
+		\hline
+	\end{tabular}
+\end{table}
+
+\subsection{Preparación para el entrenamiento}
+
+Una vez definida la configuración experimental, el siguiente paso consistió en adaptar los textos del dataset al formato requerido por los modelos Transformer. Para ello, se cargó tanto el tokenizador como el modelo preentrenado correspondiente a cada arquitectura utilizando la librería \texttt{Transformers} de Hugging Face \cite{wolf_transformers_2020}.
+
+\subsubsection{Carga del modelo preentrenado}
+
+Cada modelo se inicializó mediante \texttt{AutoModelForSequenceClassification}, ajustando automáticamente la capa de salida al número de clases de la tarea concreta. En los experimentos de clasificación binaria se utilizaron dos etiquetas (\textit{control} y \textit{suffer}), mientras que en la clasificación multiclase se configuró una salida de cuatro clases (control, ansiedad, depresión y \ac{TCA}).
+
+De este modo, el modelo conserva los pesos aprendidos durante la fase de preentrenamiento general, reutilizando el conocimiento lingüístico previamente adquirido. Por su parte, la capa final de clasificación se adapta durante el fine-tuning a la tarea supervisada específica. Durante este proceso, todos los parámetros del modelo pueden ajustarse, permitiendo especializar la representación interna hacia el problema concreto de clasificación de cada trastorno de salud mental.
+
+\subsubsection{Tokenización y adaptación del dataset}
+
+Posteriormente, se aplicó el proceso de tokenización sobre los textos concatenados de cada usuario. Esta fase transforma el texto en una secuencia de identificadores numéricos (\textit{input IDs}) junto con la información auxiliar necesaria para que el modelo pueda procesarlos correctamente, como las máscaras de atención (\textit{attention masks}).
+
+Durante la tokenización se aplicó truncado (\textit{truncation}) y relleno (\textit{padding}) hasta la longitud máxima fija (\textit{max\_length}) definida según la configuración de cada modelo.
+
+Una vez tokenizados los textos, fue necesario adaptar la estructura del dataset al formato esperado por el \texttt{Trainer} de Hugging Face. En clasificación binaria, la columna \texttt{bs} se renombró como \texttt{labels}, mientras que en clasificación multiclase se renombró la columna \texttt{label\_mc} con el mismo objetivo. Además, se eliminaron columnas auxiliares que no eran necesarias para el entrenamiento, como \texttt{texto}, \texttt{user\_id} o \texttt{trastorno}, conservando únicamente la información relevante para la inferencia supervisada.
+
+Finalmente, los datos se convirtieron al formato tensorial de PyTorch \cite{paszke_pytorch_2019} mediante \texttt{set\_format("torch")}, permitiendo su uso directo dentro del proceso de fine-tuning con el \texttt{Trainer} de Hugging Face.
+
+\subsection{Fine-tuning supervisado}
+
+Una vez preparados el modelo y el dataset, se procedió al proceso de fine-tuning supervisado. El objetivo de esta fase es especializar la representación lingüística general aprendida durante el preentrenamiento hacia la identificación de patrones asociados a ansiedad, depresión y \ac{TCA}.
+
+\subsubsection{Ponderación de clases}
+
+Como se observó durante el análisis del dataset, la distribución entre clases \textit{control} y \textit{suffer} no es equilibrada, lo que puede afectar negativamente al aprendizaje supervisado. Si se utiliza una función de pérdida estándar, el modelo tiende a optimizar principalmente el rendimiento sobre la clase más frecuente, reduciendo la sensibilidad sobre las clases minoritarias.
+
+% Formula?
+Para mitigar este problema, se calcularon pesos de clase inversamente proporcionales a la frecuencia de cada etiqueta en el conjunto de entrenamiento. De este modo, los errores cometidos sobre clases menos representadas reciben una penalización mayor durante el entrenamiento, obligando al modelo a prestar mayor atención a estos casos.
+
+Estos pesos se incorporaron posteriormente a la función de pérdida mediante una versión ponderada de \texttt{CrossEntropyLoss}, integrada dentro de un \texttt{Trainer} personalizado de Hugging Face denominado \texttt{WeightedTrainer}. Esta modificación permitió mantener el flujo estándar de entrenamiento, adaptando únicamente el cálculo de la pérdida.
+
+\subsubsection{Configuración del entrenamiento}
+
+El entrenamiento se configuró utilizando la clase \texttt{TrainingArguments} de Hugging Face, definiendo una estrategia de evaluación y guardado por épocas (\textit{eval\_strategy="epoch"} y \textit{save\_strategy="epoch"}). De esta forma, al finalizar cada época se evaluaba el modelo sobre el conjunto de validación y se almacenaba un punto de control (\textit{checkpoint}) del entrenamiento.
+
+Los principales hiperparámetros utilizados durante el entrenamiento fueron los siguientes:
+
+\begin{itemize}
+	\item \textbf{Número de épocas:} se estableció un máximo de 10 épocas, es decir, 10 recorridos completos sobre el conjunto de entrenamiento. En cada época el modelo ajusta sus parámetros a partir de los ejemplos disponibles, por lo que un número excesivo puede provocar sobreajuste, mientras que un número demasiado bajo puede impedir una correcta convergencia.
+	
+	\item \textbf{Tasa de aprendizaje (\textit{learning rate}):} se fijó en $2 \times 10^{-5}$. Este parámetro controla cuánto se modifican los pesos del modelo en cada paso de optimización. Valores demasiado altos pueden generar un entrenamiento inestable, mientras que valores demasiado bajos pueden ralentizar excesivamente el aprendizaje o impedir alcanzar un buen mínimo.
+	
+	\item \textbf{Warmup ratio:} se utilizó un 10\% del entrenamiento como fase de calentamiento. Durante este periodo inicial, la tasa de aprendizaje aumenta progresivamente desde un valor muy bajo hasta alcanzar su valor objetivo. Esto ayuda a estabilizar las primeras actualizaciones del modelo y evita cambios bruscos en los pesos al inicio del fine-tuning.
+	
+	\item \textbf{Weight decay:} se configuró con un valor de 0.01 como mecanismo de regularización. Su función consiste en penalizar pesos excesivamente grandes durante el entrenamiento, favoreciendo soluciones más estables y reduciendo el riesgo de sobreajuste sobre el conjunto de entrenamiento.
+	
+	\item \textbf{Precisión mixta (\textit{fp16}):} se activó el entrenamiento en media precisión utilizando representaciones numéricas de 16 bits en lugar de 32 bits para parte de los cálculos. Esto permite reducir el consumo de memoria de la \ac{GPU} y acelerar el entrenamiento, algo especialmente importante al trabajar con modelos grandes en entornos con recursos limitados como Google Colab.
+\end{itemize}
+
+Como métrica principal de selección se utilizó el F1-score macro sobre el conjunto de validación, configurando \texttt{load\_best\_model\_at\_end=True} para recuperar automáticamente el mejor checkpoint al finalizar el entrenamiento. Esta elección resulta especialmente adecuada en escenarios con desbalance de clases, ya que evita que el modelo optimice únicamente la precisión (\textit{accuracy}) global.
+
+\subsubsection{Early stopping y control del sobreajuste}
+
+Para evitar entrenamientos innecesariamente largos y reducir el riesgo de sobreajuste, se incorporó un mecanismo de \textit{early stopping} con una paciencia de dos épocas. Esto significa que, si el valor de F1-score sobre validación no mejoraba durante dos evaluaciones consecutivas, el entrenamiento se detenía automáticamente.
+
+Esta estrategia permitió estabilizar el proceso de fine-tuning y asegurar que el modelo final seleccionado correspondiera al mejor rendimiento observado durante el entrenamiento, en lugar de utilizar simplemente la última época ejecutada.
+
+\subsection{Evaluación e inferencia sobre el conjunto de prueba}
+
+Una vez finalizado el proceso de fine-tuning, el modelo seleccionado se evaluó sobre el conjunto de prueba (\textit{test set}), que no había sido utilizado ni durante el entrenamiento ni durante la validación. Esta fase permite estimar el rendimiento real del modelo sobre datos no vistos previamente y obtener las predicciones finales que posteriormente serán analizadas en el capítulo de resultados.
+
+La inferencia se realizó utilizando el método \texttt{predict()} del \texttt{Trainer} de Hugging Face, que genera automáticamente los logits asociados a cada ejemplo del conjunto de prueba. Estos logits representan las puntuaciones sin normalizar asignadas a cada clase posible por el modelo.
+
+Posteriormente, las predicciones finales se obtuvieron aplicando la operación \texttt{argmax} sobre dichos logits, seleccionando para cada ejemplo la clase con mayor puntuación. En clasificación binaria, esto permitió asignar cada usuario a la clase \textit{control} o \textit{suffer}, mientras que en clasificación multiclase se seleccionó entre control, ansiedad, depresión y \ac{TCA}.
+
+Las predicciones generadas se incorporaron al dataset original de prueba mediante una nueva columna denominada \texttt{pred}, conservando así tanto las etiquetas reales como las predicciones del modelo en un mismo fichero. Posteriormente, estos resultados se almacenaron en formato CSV para su análisis posterior y comparación con los resultados obtenidos mediante \acp{LLM}.
+
+\subsection{Tiempos de entrenamiento e inferencia}
+
+Además del rendimiento predictivo, durante el proceso de fine-tuning se registraron los tiempos de entrenamiento e inferencia de cada modelo con el objetivo de analizar el coste práctico asociado a cada arquitectura. Esta información resulta especialmente relevante al comparar modelos con diferentes tamaños y capacidades de procesamiento, ya que una mejora en las métricas de clasificación no siempre compensa un incremento significativo en tiempo de ejecución.
+
+El tiempo de entrenamiento corresponde al proceso completo de fine-tuning sobre el conjunto de entrenamiento y validación, incluyendo la selección automática del mejor modelo mediante \textit{early stopping}. Por su parte, el tiempo de inferencia se midió durante la generación de predicciones sobre el conjunto de prueba utilizando el método \texttt{predict()} del \texttt{Trainer}. La suma de ambos valores permite obtener una estimación del coste temporal total de cada experimento.
+
+La Tabla~\ref{tab:bert_times} recoge los tiempos registrados para cada combinación de modelo y tarea de clasificación.
+
+\begin{table}[H]
+	\centering
+	\caption{Tiempos de entrenamiento e inferencia de los modelos BERT}
+	\label{tab:bert_times}
+	\begin{tabular}{|l|c|c|c|}
+		\hline
+		\textbf{Modelo} & \textbf{Tiempo Entr. (min)} & \textbf{Tiempo Eval. (min)} & \textbf{Tiempo Total (min)} \\
+		\hline
+		
+		DistilBETO - Anxiety &  &  &  \\
+		DistilBETO - Depression &  &  &  \\
+		DistilBETO - ED &  &  &  \\
+		DistilBETO - Multiclass &  &  &  \\
+		\hline
+		
+		RoBERTa - Anxiety &  &  &  \\
+		RoBERTa - Depression &  &  &  \\
+		RoBERTa - ED &  &  &  \\
+		RoBERTa - Multiclass &  &  &  \\
+		\hline
+		
+		mDeBERTa - Anxiety &  &  &  \\
+		mDeBERTa - Depression &  &  &  \\
+		mDeBERTa - ED &  &  &  \\
+		mDeBERTa - Multiclass &  &  &  \\
+		\hline
+		
+		Longformer - Anxiety &  &  &  \\
+		Longformer - Depression &  &  &  \\
+		Longformer - ED &  &  &  \\
+		Longformer - Multiclass &  &  &  \\
+		\hline
+		
+	\end{tabular}
+\end{table}
+
+
+\section{Inferencia con LLMs mediante prompting}
+
+
 %%% Local Variables:
 %%% TeX-master: "../book"
 %%% End:
