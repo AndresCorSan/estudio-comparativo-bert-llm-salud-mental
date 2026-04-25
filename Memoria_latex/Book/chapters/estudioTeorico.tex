@@ -604,6 +604,7 @@ Además, algunos sistemas incorporan una cuarta fase opcional basada en aprendiz
 
 
 \subsection{Prompting como mecanismo de inferencia sin fine-tuning}
+\label{subsec:prompting}
 
 Como se ha explicado en el apartado anterior, tras las fases de preentrenamiento, \ac{SFT} y alineación mediante preferencias, el modelo deja de comportarse como un simple generador de texto y pasa a actuar como un asistente capaz de seguir instrucciones en lenguaje natural. Esta transformación permite utilizar los \acp{LLM} de una forma distinta a los modelos tradicionales como \ac{BERT}: en lugar de requerir fine-tuning supervisado para cada tarea específica, pueden resolver múltiples problemas directamente durante la inferencia sin necesidad de modificar sus parámetros internos.
 
@@ -659,6 +660,7 @@ En este trabajo, la inferencia con \acp{LLM} se realiza mediante \textit{zero-sh
 Además, técnicas como \ac{CoT} \cite{wei_chain--thought_2022} permiten mejorar el rendimiento en tareas complejas solicitando explícitamente al modelo que razone paso a paso antes de responder. Aunque este enfoque resulta especialmente útil en problemas matemáticos o de razonamiento lógico, también puede aportar mayor consistencia en tareas de clasificación ambigua o análisis semántico complejo.
 
 \subsection{Modelos utilizados en este trabajo}
+\label{subsec:modelos_llm}
 
 En el contexto actual de los \acp{LLM}, puede distinguirse entre modelos propietarios y modelos abiertos. Los modelos propietarios son desarrollados y mantenidos por empresas que no publican completamente sus pesos ni su proceso de entrenamiento, ofreciendo el acceso principalmente a través de servicios en la nube y \acp{API} comerciales. Este enfoque permite utilizar modelos de muy alto rendimiento, aunque limita la reproducibilidad completa de los experimentos y reduce el control sobre aspectos internos como la configuración exacta del modelo o futuras actualizaciones.
 

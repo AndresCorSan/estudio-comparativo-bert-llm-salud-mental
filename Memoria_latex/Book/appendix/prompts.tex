@@ -1,0 +1,114 @@
+\chapter{Prompts utilizados para inferencia con LLMs}
+\label{anexo:prompts_llm}
+
+\section{Prompt de clasificación binaria: ansiedad}
+
+\begin{lstlisting}[style=promptstyle]
+Vas a recibir un texto que corresponde a una serie de mensajes escritos por una 
+persona en una red social.
+El texto puede o no reflejar indicios de ansiedad.
+
+La ansiedad se asocia a una preocupación persistente y difícil de controlar, 
+acompañada de nerviosismo, inquietud interna y una sensación continua de amenaza 
+o anticipación negativa. Estas experiencias suelen generar malestar emocional 
+sostenido y dificultad para relajarse.
+
+Tu tarea es clasificar el texto únicamente en una de las siguientes categorías:
+
+1: el texto muestra indicios de ansiedad
+0: el texto no muestra indicios de ansiedad
+
+El contenido de los mensajes se proporciona a continuación entre comillas triples:
+
+"""{text}"""
+
+Responde solo con el número correspondiente.
+\end{lstlisting}
+
+
+\section{Prompt de clasificación binaria: depresión}
+
+\begin{lstlisting}[style=promptstyle]
+Vas a recibir un texto que corresponde a una serie de mensajes escritos por una 
+persona en una red social.
+El texto puede o no reflejar indicios de depresión.
+
+La depresión se asocia a un estado persistente de tristeza, apatía o vacío 
+emocional, acompañado de una disminución del interés o la capacidad de disfrute en 
+actividades habituales. Estas experiencias pueden incluir pensamientos negativos 
+recurrentes, fatiga emocional y una percepción pesimista de uno mismo o del futuro.
+
+Tu tarea es clasificar el texto únicamente en una de las siguientes categorías:
+
+1: el texto muestra indicios de depresión
+0: el texto no muestra indicios de depresión
+
+El contenido de los mensajes se proporciona a continuación entre comillas triples:
+
+"""{text}"""
+
+Responde solo con el número correspondiente.
+\end{lstlisting}
+
+
+\section{Prompt de clasificación binaria: TCA}
+
+\begin{lstlisting}[style=promptstyle]
+Vas a recibir un texto que corresponde a una serie de mensajes escritos por una 
+persona en una red social.
+El texto puede o no reflejar indicios de un trastorno de la conducta alimentaria.
+
+Los trastornos de la conducta alimentaria se asocian a una preocupación persistente 
+por el peso corporal, la alimentación o la imagen corporal, que puede manifestarse 
+mediante pensamientos rígidos o negativos sobre la comida, el cuerpo o el control 
+del peso. Estas preocupaciones suelen generar malestar emocional, culpa, ansiedad 
+en torno a la alimentación y conductas de evitación o control.
+
+Tu tarea es clasificar el texto únicamente en una de las siguientes categorías:
+
+1: el texto muestra indicios de un trastorno de la conducta alimentaria
+0: el texto no muestra indicios de un trastorno de la conducta alimentaria
+
+El contenido de los mensajes se proporciona a continuación entre comillas triples:
+
+"""{text}"""
+
+Responde solo con el número correspondiente.
+\end{lstlisting}
+
+
+\section{Prompt de clasificación multiclase}
+
+\begin{lstlisting}[style=promptstyle]
+Vas a recibir un texto que corresponde a una serie de mensajes escritos por una 
+persona en una red social.
+El texto puede reflejar indicios de uno de los siguientes estados psicológicos, 
+o no reflejar ninguno de ellos.
+
+Ansiedad: se asocia a una preocupación persistente y difícil de controlar, 
+acompañada de nerviosismo, inquietud interna y una sensación continua de amenaza 
+o anticipación negativa, generando malestar emocional y dificultad para relajarse.
+
+Depresión: se asocia a un estado persistente de tristeza, apatía o vacío emocional, 
+junto con una disminución del interés o la capacidad de disfrute en actividades 
+habituales, pensamientos negativos recurrentes y una visión pesimista de uno mismo 
+o del futuro.
+
+Trastornos de la conducta alimentaria: se asocian a una preocupación persistente 
+por el peso, la alimentación o la imagen corporal, que puede manifestarse mediante 
+pensamientos rígidos o negativos sobre la comida o el cuerpo, así como malestar 
+emocional, culpa o ansiedad en torno a la alimentación.
+
+Tu tarea es clasificar el texto únicamente en una de las siguientes categorías:
+
+0: el texto no muestra indicios de ninguno de los estados descritos
+1: el texto muestra indicios de ansiedad
+2: el texto muestra indicios de depresión
+3: el texto muestra indicios de un trastorno de la conducta alimentaria
+
+El contenido de los mensajes se proporciona a continuación entre comillas triples:
+
+"""{text}"""
+
+Responde solo con el número correspondiente.
+\end{lstlisting}

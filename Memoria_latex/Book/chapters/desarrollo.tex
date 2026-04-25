@@ -390,8 +390,117 @@ La Tabla~\ref{tab:bert_times} recoge los tiempos registrados para cada combinaci
 \end{table}
 
 
-\section{Inferencia con LLMs mediante prompting}
+\section{Inferencia con LLMs mediante zero-shot prompting}
 
+Una vez completado el entrenamiento y la evaluación de los modelos \ac{BERT}, el siguiente bloque experimental se centró en la inferencia mediante \acp{LLM} utilizando estrategias de \textit{zero-shot prompting}. A diferencia del enfoque supervisado aplicado en \ac{BERT}, estos modelos no requieren un proceso de fine-tuning adicional sobre el dataset, sino que realizan la clasificación directamente a partir de instrucciones en lenguaje natural incluidas en el prompt.
+
+El objetivo de esta fase consiste en evaluar hasta qué punto modelos de propósito general, tanto propietarios como abiertos, pueden resolver la tarea de clasificación de salud mental sin entrenamiento específico previo. Para ello, se diseñó un pipeline común de inferencia basado en \acp{API}, manteniendo una estructura homogénea para todos los modelos y permitiendo una comparación posterior tanto en rendimiento predictivo como en coste, estabilidad y facilidad de despliegue.
+
+\subsection{Configuración de acceso e inferencia}
+
+\subsubsection{Acceso mediante APIs}
+
+La inferencia con \acp{LLM} se realizó mediante acceso remoto a través de \acp{API}, evitando el despliegue local de los modelos. Como ya se explicó en la Sección~\ref{subsec:modelos_llm} en total se utilizaron seis modelos: tres propietarios (\textit{GPT-5.2}, \textit{Claude Sonnet 4.6} y \textit{Gemini 3.1 Pro}) y tres abiertos (\textit{DeepSeek-V3.2}, \textit{GPT-OSS-20B} y \textit{Llama 3.1 8B}).
+
+Para los modelos propietarios se emplearon las \acp{API} oficiales proporcionadas por sus respectivos desarrolladores. En el caso de DeepSeek-V3.2, aunque pertenece a un proveedor diferente, se utilizó una \ac{API} compatible con la interfaz de OpenAI, lo que permitió mantener el mismo esquema de llamadas basado en \texttt{chat.completions}. Por su parte, GPT-OSS-20B y Llama 3.1 8B se ejecutaron mediante OpenRouter, que actúa como intermediario unificado redirigiendo las peticiones a distintos proveedores de inferencia y ofreciendo compatibilidad con el mismo formato de API.
+
+Para facilitar la trazabilidad experimental, se desarrolló un notebook de Jupyter independiente para cada modelo, excepto en el caso de GPT-OSS-20B y Llama 3.1 8B, que se agruparon en un mismo notebook al estar ambos servidos mediante OpenRouter y compartir la misma API. Cada notebook gestionaba su propia autenticación mediante API Key, así como la carga del dataset, la construcción del prompt, la inferencia y el almacenamiento de predicciones.
+
+La Tabla~\ref{tab:llm_access} resume los modelos utilizados y el método de acceso empleado en cada caso.
+
+\begin{table}[H]
+	\centering
+	\caption{Modelos LLM utilizados y método de acceso}
+	\label{tab:llm_access}
+	\begin{tabular}{|l|c|c|c|}
+		\hline
+		\textbf{Modelo} & \textbf{Tipo} & \textbf{Compañía desarrolladora} & \textbf{Acceso} \\
+		\hline
+		GPT-5.2 & Propietario & OpenAI & API oficial \\
+		Claude Sonnet 4.6 & Propietario & Anthropic & API oficial \\
+		Gemini 3.1 Pro & Propietario & Google & API oficial \\
+		DeepSeek-V3.2 & Abierto & DeepSeek & API compatible OpenAI \\
+		GPT-OSS-20B & Abierto & OpenAI & OpenRouter \\
+		Llama 3.1 8B & Abierto & Meta & OpenRouter \\
+		\hline
+	\end{tabular}
+\end{table}
+
+Además, cada proveedor dispone de su propia plataforma de gestión y monitorización, donde es posible consultar información detallada sobre la actividad de la API mediante paneles de control (\textit{dashboards}). Estos paneles resultan especialmente útiles para supervisar el número de tokens consumidos, el coste económico acumulado, los límites de uso disponibles y la frecuencia de las peticiones realizadas, facilitando así el control experimental y la planificación de las inferencias durante el desarrollo del trabajo.
+
+\subsection{Diseño del prompt y estrategia zero-shot}
+
+\subsubsection{Estrategia zero-shot}
+
+Tal y como se explicó previamente en la Sección~\ref{subsec:prompting}, la clasificación con \acp{LLM} se abordó mediante una estrategia de \textit{zero-shot prompting}, es decir, sin realizar ajuste adicional de los parámetros del modelo sobre el dataset. En este enfoque, el modelo recibe únicamente una instrucción en lenguaje natural que describe la tarea a resolver y debe generar directamente la predicción a partir de su conocimiento previo y de la información contenida en el texto de entrada.
+
+Este planteamiento permite evaluar la capacidad real de generalización de modelos de propósito general ante una tarea específica de clasificación clínica, evitando el coste computacional asociado al fine-tuning supervisado. Además, facilita una comparación directa entre modelos propietarios y abiertos bajo un mismo esquema metodológico, manteniendo condiciones homogéneas de inferencia para todos los modelos evaluados.
+
+\subsubsection{Estructura del prompt}
+
+Para cada tarea se diseñó un prompt específico, manteniendo una estructura común en todos los casos. En primer lugar, se indicaba al modelo que recibiría un conjunto de mensajes escritos por un usuario en una red social. A continuación, se incluía una breve descripción clínica del trastorno a detectar (ansiedad, depresión o \ac{TCA}) utilizando definiciones consistentes con el marco teórico presentado anteriormente. En el caso de la clasificación multiclase, el prompt incorporaba simultáneamente las definiciones resumidas de las tres categorías junto con la clase control.
+
+Posteriormente, se especificaban de forma explícita las posibles etiquetas de salida. En clasificación binaria, el modelo debía responder únicamente con \texttt{1} si detectaba indicios del trastorno correspondiente o con \texttt{0} en caso contrario. En clasificación multiclase, las respuestas posibles se restringieron a cuatro valores: \texttt{0} (control), \texttt{1} (ansiedad), \texttt{2} (depresión) y \texttt{3} (\ac{TCA}).
+
+Finalmente, el texto completo del usuario se insertaba dentro del prompt delimitado mediante comillas triples, seguido de una instrucción final explícita: \textit{``Responde solo con el número correspondiente''}. Esta restricción permitió simplificar el procesamiento posterior de la respuesta y reducir la variabilidad generativa del modelo.
+
+Los prompts completos utilizados para cada tarea de clasificación se incluyen en el Anexo~\ref{anexo:prompts_llm}, con el objetivo de garantizar la reproducibilidad experimental y facilitar la comparación futura con otros trabajos.
+
+\subsubsection{Configuración de generación}
+
+Con el objetivo de maximizar la reproducibilidad y minimizar la aleatoriedad de la inferencia, todas las ejecuciones se realizaron con \texttt{temperature = 0}, forzando respuestas lo más deterministas posible.
+
+Además, en la mayoría de los modelos se limitó la salida mediante \texttt{max\_completion\_tokens = 5}, ya que únicamente se necesitaba una respuesta numérica breve. La única excepción fue GPT-OSS-20B, donde este límite tuvo que eliminarse debido a que los tokens internos de razonamiento también se contabilizan dentro de dicho máximo, lo que provocaba respuestas incompletas o fallos en la generación si se mantenía esa restricción.
+
+\subsection{Proceso de inferencia y almacenamiento de predicciones}
+
+Una vez definida la configuración de acceso y el diseño del prompt, se procedió a la fase de inferencia sobre los conjuntos de evaluación preparados para cada tarea.
+
+\subsubsection{Generación de predicciones}
+
+La inferencia se implementó mediante una función de clasificación denominada \texttt{classify\_text()}, encargada de enviar cada texto a la API utilizando el endpoint específico proporcionado por cada proveedor para la generación de respuestas.
+
+Cada petición incluía el modelo a utilizar y un único mensaje con rol \texttt{user}, que contenía el prompt completo con la estructura descrita anteriormente. El modelo devolvía normalmente únicamente la etiqueta correspondiente a la predicción, tal y como se indicaba explícitamente en el prompt. No obstante, por seguridad, la respuesta se procesó mediante una expresión regular para contemplar posibles casos en los que el modelo añadiera caracteres adicionales, espacios o texto no esperado, extrayendo únicamente la etiqueta numérica final.
+
+En caso de que el modelo no devolviera contenido, la respuesta no pudiera interpretarse correctamente o se produjera algún error durante la llamada a la API, la predicción se registraba como \texttt{None}. Este tratamiento permitió gestionar de forma homogénea bloqueos, fallos de generación o respuestas no válidas sin interrumpir el proceso completo de inferencia.
+
+La función se aplicó posteriormente sobre todos los textos del dataset. El resultado se incorporó en una nueva columna del dataframe denominada \texttt{pred}, que posteriormente se guardó en formato CSV. De este modo, cada fila conservaba tanto la información original del usuario como la predicción generada por el modelo.
+
+\subsection{Gestión de limitaciones específicas por proveedor}
+
+Aunque se mantuvo un pipeline común de inferencia para todos los \acp{LLM} evaluados, cada proveedor presentó ciertas particularidades técnicas que requirieron pequeños ajustes durante la implementación.
+
+\subsubsection{Diferencias entre APIs y endpoints}
+
+La mayoría de los modelos evaluados —GPT-5.2, DeepSeek-V3.2 y los modelos servidos mediante OpenRouter (GPT-OSS-20B y Llama 3.1 8B)— utilizaron una interfaz compatible con la API de OpenAI basada en \texttt{chat.completions}. En estos casos, la estructura de la llamada permanecía prácticamente idéntica, modificando únicamente el nombre del modelo y, en el caso de OpenRouter, la URL base del servicio.
+
+Claude Sonnet 4.6 requirió el uso de la librería oficial de Anthropic, inicializando el cliente mediante \texttt{Anthropic(api\_key=...)} y utilizando el endpoint \texttt{client.messages.create()}, aunque manteniendo una lógica de inferencia muy similar a la empleada con OpenAI.
+
+Por su parte, Gemini 3.1 Pro utilizó la librería oficial de Google GenAI y el método \texttt{client.models.generate\_content()}, con una estructura ligeramente diferente en la configuración de parámetros como temperatura y longitud máxima de salida. Aunque el objetivo final era el mismo, esta diferencia obligó a adaptar parcialmente la implementación respecto al resto de modelos.
+
+\subsubsection{Restricciones específicas de Gemini}
+
+En el caso de Gemini, durante la realización del TFG todavía no se encontraba disponible la versión final del modelo Gemini 3.1 Pro, por lo que fue necesario utilizar una versión \textit{preview}. Aunque esto no afectó de forma significativa a la calidad de las predicciones, sí introdujo dos limitaciones prácticas importantes: una mayor latencia en la inferencia y límites de uso considerablemente más estrictos que en otros proveedores.
+
+Concretamente, la API imponía un máximo de 25 solicitudes por minuto (\textit{RPM}) y 250 solicitudes por día (\textit{RPD}). Dado que algunos de los datasets superaban ampliamente este volumen, fue necesario implementar una función específica de control que permitiera respetar automáticamente estos límites sin interrumpir el proceso completo de inferencia.
+
+Esta función incorporó un sistema de checkpoints intermedios que permitía reanudar la clasificación desde el último punto procesado en caso de alcanzar el límite diario, evitando repetir inferencias ya realizadas. Además, se introdujo una pausa controlada entre peticiones para no superar la restrcción de solicitudes por minuto, manteniendo así la ejecución dentro de los límites permitidos por la plataforma.
+
+\subsubsection{Filtrado de contenido y bloqueos}
+
+Durante la inferencia con Gemini también se observó una mayor sensibilidad de los mecanismos automáticos de moderación de contenido respecto al resto de modelos evaluados. En determinados casos, la API devolvía bloqueos asociados a la categoría \texttt{PROHIBITED\_CONTENT}, impidiendo obtener una predicción válida para algunos textos.
+
+Este comportamiento aparecía principalmente en ejemplos donde el contenido incluía referencias explícitas a autolesiones o ideación suicida. Dado que este tipo de lenguaje forma parte natural del problema de clasificación abordado en este trabajo, estos bloqueos resultan especialmente relevantes desde el punto de vista metodológico.
+
+Cuando se producía alguno de estos bloqueos, la predicción se registraba como \texttt{None}, manteniendo el mismo tratamiento aplicado a otros errores de inferencia. 
+
+\subsection{Inferencia repetida para TARa@5}
+
+Para el cálculo de TARa@5 se utilizaron los subconjuntos estratificados preparados previamente durante la fase de preparación de datos. Sobre cada ejemplo se realizaron cinco inferencias con el mismo modelo, con el objetivo de analizar la consistencia de sus predicciones.
+
+La primera predicción se reutilizó a partir de la inferencia principal y posteriormente se generaron cuatro ejecuciones adicionales utilizando la misma función de clasificación (\texttt{classify\_text()}) y manteniendo exactamente la misma configuración de prompt y parámetros de generación. De este modo, cualquier variación observada entre predicciones podía atribuirse al propio comportamiento del modelo.
+
+Cada nueva ejecución se almacenó en columnas adicionales del dataframe (\texttt{pred\_run2} a \texttt{pred\_run5}), conservando la predicción inicial como referencia. Tras cada iteración, los resultados se guardaban de forma incremental en formato CSV para evitar la pérdida de progreso ante posibles interrupciones durante la inferencia.
 
 %%% Local Variables:
 %%% TeX-master: "../book"
