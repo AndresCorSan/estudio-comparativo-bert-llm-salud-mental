@@ -701,7 +701,7 @@ GPT-OSS-20B \cite{openai_gpt-oss-120b_2025} y Llama 3.1 8B \cite{grattafiori_lla
 
 La inferencia con modelos propietarios se realiza habitualmente mediante \acp{API} proporcionadas por los propios desarrolladores del modelo. En este esquema, el usuario no ejecuta el modelo localmente, sino que envía una solicitud remota que contiene el prompt, el proveedor ejecuta internamente el modelo y devuelve la respuesta generada junto con metadatos como número de tokens consumidos, tiempo de respuesta o coste asociado.
 
-El uso de \acp{API} simplifica enormemente la experimentación, ya que evita la necesidad de disponer de infraestructura propia de alto rendimiento y permite acceder a modelos de gran escala que serían inviables de ejecutar localmente. No obstante, introduce limitaciones importantes relacionadas con el coste económico por uso, la dependencia del proveedor, la posible variabilidad entre versiones del modelo y la menor reproducibilidad experimental.
+El uso de \acp{API} simplifica enormemente la experimentación, ya que evita la necesidad de disponer de infraestructura propia de alto rendimiento y permite acceder a modelos de gran escala que serían inviables de ejecutar localmente. 
 
 En este trabajo, la inferencia de los modelos propietarios se realiza mediante las \acp{API} oficiales proporcionadas por sus respectivos desarrolladores. En el caso de los modelos abiertos, aunque estos permiten su despliegue local sobre infraestructuras propias, el acceso se realiza también mediante \ac{API} utilizando OpenRouter\footnote{OpenRouter es una plataforma que actúa como intermediario unificado, redirigiendo las peticiones a distintos proveedores de inferencia y permitiendo acceder a múltiples modelos mediante una única \ac{API} compatible.}, ya que la ejecución local de modelos de gran tamaño requiere recursos de hardware que no resultan viables en el contexto de este trabajo.
 
@@ -714,6 +714,160 @@ Además, su rendimiento puede ser muy sensible al diseño del prompt, de modo qu
 Otra limitación relevante es el elevado coste de inferencia, especialmente en modelos propietarios de gran escala accesibles mediante \ac{API}, donde cada consulta implica un coste económico y dependencia directa del proveedor. A ello se suman posibles sesgos heredados de los datos de entrenamiento, que pueden afectar a la neutralidad y fiabilidad de las respuestas generadas.
 
 Por último, en modelos cerrados existe una menor transparencia sobre su arquitectura, datos de entrenamiento o actualizaciones internas, lo que reduce el control experimental y dificulta la trazabilidad completa de los resultados obtenidos.
+
+\section{Marco de evaluación experimental}
+
+Con el objetivo de garantizar una evaluación rigurosa, comparable y estadísticamente sólida entre los distintos modelos analizados, este trabajo adopta un marco de evaluación experimental inspirado en la metodología propuesta por Domínguez-Díaz et al. en su estudio sobre clasificación zero-shot de contenido de la Dark Web mediante modelos GPT \cite{dominguez-diaz_classifying_2026}.
+
+Dicho trabajo resultó especialmente útil como referencia metodológica, al proporcionar una estrategia de análisis robusta basada no solo en métricas clásicas de clasificación, sino también en medidas de estabilidad, intervalos de confianza mediante bootstrap y comparaciones estadísticas entre modelos, adaptadas en este caso a la tarea de clasificación de trastornos de salud mental abordada en este TFG.
+
+\subsection{Métricas principales de clasificación}
+
+La evaluación principal del rendimiento de los modelos se basa en métricas clásicas de clasificación supervisada, utilizadas para cuantificar la capacidad predictiva sobre los conjuntos de prueba. Dado que el problema abordado presenta tanto escenarios de clasificación binaria como multiclase, y además existe cierto desbalance entre clases, no resulta suficiente utilizar únicamente la exactitud global (\textit{accuracy}), ya que esta puede ofrecer una visión engañosa del comportamiento real del modelo.
+
+Por este motivo, la métrica principal empleada en este trabajo es el F1-score macro, al proporcionar una evaluación más equilibrada entre clases mayoritarias y minoritarias. Junto a esta, se utilizan otras métricas complementarias que permiten analizar de forma más detallada el comportamiento de los modelos y que se describen a continuación:
+
+
+\begin{itemize}
+	
+	\item \textbf{Precision}: Mide la proporción de predicciones positivas correctas respecto al total de predicciones positivas realizadas por el modelo. Permite evaluar hasta qué punto las predicciones positivas son fiables y resulta especialmente útil cuando los falsos positivos tienen un impacto relevante.
+	
+	\[
+	Precision = \frac{TP}{TP + FP}
+	\]
+	
+	\item \textbf{Recall}: También denominado sensibilidad o exhaustividad, mide la capacidad del modelo para recuperar correctamente los ejemplos pertenecientes a una clase positiva. Es especialmente importante cuando los falsos negativos son críticos y se busca minimizar los casos no detectados.
+	
+	\[
+	Recall = \frac{TP}{TP + FN}
+	\]
+	
+	\item \textbf{F1-score macro}: Constituye la métrica principal utilizada en este trabajo. El F1-score \cite{sokolova_systematic_2009} combina Precision y Recall mediante su media armónica, ofreciendo una medida equilibrada entre ambas.
+	
+	\[
+	F1 = 2 \cdot \frac{Precision \cdot Recall}{Precision + Recall}
+	\]
+	
+	En su variante macro, se calcula como la media no ponderada del F1-score de cada clase, asignando la misma importancia a todas ellas independientemente de su frecuencia, lo que resulta especialmente adecuado en escenarios con desbalance de clases.
+	
+	\[
+	F1_{macro} = \frac{1}{N} \sum_{i=1}^{N} F1_i
+	\]
+	
+	donde \(N\) representa el número total de clases.
+	
+	\item \textbf{\ac{MCC}}: El coeficiente de correlación de Matthews \cite{matthews_comparison_1975} proporciona una medida global de la calidad de la clasificación considerando simultáneamente verdaderos positivos, verdaderos negativos, falsos positivos y falsos negativos. A diferencia de Accuracy, resulta más robusto en escenarios desbalanceados y permite una interpretación más fiable del rendimiento general del modelo.
+	
+	\[
+	MCC =
+	\frac{TP \cdot TN - FP \cdot FN}
+	{\sqrt{(TP + FP)(TP + FN)(TN + FP)(TN + FN)}}
+	\]
+	
+\end{itemize}
+
+\subsection{Estimación de incertidumbre mediante BCa Bootstrap}
+
+Las métricas de clasificación obtenidas sobre el conjunto de prueba proporcionan una estimación puntual del rendimiento de cada modelo. Sin embargo, este valor por sí solo no permite conocer hasta qué punto dicho resultado es estable o podría variar si la evaluación se realizara sobre otra muestra similar del mismo problema. Por este motivo, resulta necesario incorporar una estimación de incertidumbre asociada a cada métrica.
+
+Para ello, en este trabajo se emplea bootstrap no paramétrico \cite{efron_bootstrap_1992}, una técnica de remuestreo ampliamente utilizada para estimar la variabilidad de una métrica sin asumir distribuciones teóricas previas. El procedimiento consiste en generar múltiples muestras del conjunto de prueba mediante muestreo aleatorio con reemplazo, manteniendo el mismo tamaño que el conjunto original. Para cada una de estas muestras se recalcula la métrica de interés, obteniendo así una distribución empírica de valores a partir de la cual pueden estimarse intervalos de confianza.
+
+En concreto, se utiliza la variante \ac{BCa} \cite{efron_better_1987}, que mejora la estimación clásica basada en percentiles al corregir posibles sesgos y asimetrías en la distribución bootstrap. Esta aproximación resulta especialmente adecuada cuando el número de ejemplos no es muy elevado o cuando la distribución de la métrica no es perfectamente simétrica, ofreciendo intervalos de confianza más robustos y estadísticamente más fiables.
+
+A partir de esta distribución bootstrap se calculan intervalos de confianza del 95\%, permitiendo interpretar no solo el valor medio de cada métrica, sino también la estabilidad y fiabilidad de dicho resultado. De este modo, dos modelos con valores de F1 similares pueden diferenciarse si uno presenta una mayor variabilidad que el otro, aportando una visión más completa del comportamiento real de cada sistema.
+
+\subsection{Consistencia predictiva mediante TARa@5}
+
+En el caso de los \acp{LLM}, además del rendimiento predictivo tradicional, resulta especialmente relevante analizar la estabilidad de sus respuestas ante múltiples ejecuciones sobre una misma entrada. A diferencia de los modelos \ac{BERT} tras el fine-tuning, cuya inferencia es completamente determinista, los \acp{LLM} pueden presentar cierta variabilidad incluso manteniendo la misma configuración de inferencia y utilizando \texttt{temperature = 0}. Esto se debe a su naturaleza generativa y a procesos internos de razonamiento que no siempre son completamente deterministas.
+
+Para estudiar esta consistencia se emplea la métrica \ac{TARa@N} \cite{atil_non-determinism_2025}, que evalúa hasta qué punto un modelo mantiene la misma predicción cuando se consulta varias veces sobre el mismo ejemplo. Esta métrica puede aplicarse sobre un número arbitrario de repeticiones \(N\), permitiendo analizar la estabilidad inferencial del modelo ante múltiples ejecuciones bajo las mismas condiciones experimentales.
+
+En este trabajo se utiliza \ac{TARa@5}, realizando cinco inferencias independientes sobre cada instancia del conjunto de prueba con exactamente el mismo prompt, la misma configuración de generación y el mismo modelo. Esta elección permite obtener una estimación suficientemente representativa de la consistencia predictiva sin incrementar de forma excesiva el coste computacional y económico asociado al uso de APIs comerciales.
+
+Para cada ejemplo, se calcula primero la clase modal, es decir, la etiqueta que aparece con mayor frecuencia entre las cinco predicciones generadas. A continuación, se obtiene el grado de acuerdo (\textit{agreement}) como la proporción de veces que dicha clase modal se repite sobre el total de ejecuciones:
+
+\[
+agreement_i =
+\frac{\max\left(\text{freq}(y_i)\right)}{5}
+\]
+
+donde \(\text{freq}(y_i)\) representa la frecuencia de cada etiqueta predicha para el ejemplo \(i\).
+
+Por ejemplo, si para una misma instancia se obtienen las predicciones \([1,1,1,0,0]\), la clase modal sería \(1\) y el grado de acuerdo sería:
+
+\[
+agreement =
+\frac{3}{5} = 0.60
+\]
+
+Finalmente, el valor de \ac{TARa@5} se calcula como la media del \textit{agreement} sobre todos los ejemplos evaluados:
+
+\[
+TARa@5 =
+\frac{1}{N}
+\sum_{i=1}^{N}
+agreement_i
+\]
+
+De este modo, \ac{TARa@5} complementa métricas como F1-score, ya que un modelo puede obtener una buena precisión media pero mostrar una baja estabilidad entre ejecuciones, reduciendo su fiabilidad práctica en escenarios reales de uso.
+
+\subsection{Matrices de confusión}
+
+Aunque métricas globales como F1-score permiten cuantificar el rendimiento general de un modelo, no muestran de forma explícita qué tipos de errores se están cometiendo ni entre qué clases aparecen con mayor frecuencia. Para complementar este análisis, se utilizan matrices de confusión \cite{powers_evaluation_2020}, una herramienta especialmente útil para interpretar el comportamiento del clasificador de forma más detallada.
+
+Una matriz de confusión representa la relación entre las etiquetas reales y las predicciones generadas por el modelo. Cada fila corresponde a la clase verdadera y cada columna a la clase predicha, permitiendo observar tanto los aciertos como las confusiones sistemáticas entre categorías. Los valores situados en la diagonal principal representan las clasificaciones correctas, mientras que los valores fuera de la diagonal indican errores de predicción.
+
+En este trabajo se emplean matrices de confusión normalizadas por fila, de modo que cada valor expresa la proporción de ejemplos de una clase real que han sido clasificados en cada categoría posible. Esta normalización facilita la comparación entre clases incluso cuando existe desbalance en el número de ejemplos, evitando que las clases mayoritarias dominen visualmente la interpretación.
+
+Su análisis resulta especialmente relevante en la tarea multiclase, donde ciertas categorías como ansiedad y depresión presentan una mayor proximidad semántica y clínica, lo que puede generar un mayor solapamiento en las predicciones. De este modo, las matrices de confusión permiten identificar patrones de error recurrentes y aportar una interpretación cualitativa que complementa las métricas cuantitativas tradicionales.
+
+\subsection{Comparación estadística entre modelos}
+
+Comparar modelos únicamente a partir de diferencias en métricas como F1-score puede resultar insuficiente, ya que pequeñas variaciones pueden deberse al azar o a la variabilidad propia del conjunto de prueba. Por este motivo, además de las métricas puntuales y sus intervalos de confianza, resulta necesario incorporar un análisis de significancia estadística que permita determinar si las diferencias observadas entre modelos son realmente consistentes.
+
+\subsubsection{Bootstrap pareado y significancia estadística}
+
+Para ello, en este trabajo se emplea bootstrap pareado (\textit{paired bootstrap}) \cite{efron_introduction_1994}\cite{davison_bootstrap_1997}, una técnica especialmente adecuada cuando se comparan clasificadores evaluados sobre exactamente los mismos ejemplos. A diferencia del bootstrap estándar, donde cada modelo se analiza de forma independiente, en el bootstrap pareado se realiza el remuestreo manteniendo alineadas las predicciones de ambos modelos sobre cada instancia, preservando así la dependencia entre observaciones.
+
+En cada remuestreo se calcula la diferencia de rendimiento entre dos modelos para una métrica determinada, definida como:
+
+\[
+\Delta = M_A - M_B
+\]
+
+donde \(M_A\) y \(M_B\) representan el valor de la métrica evaluada (por ejemplo, F1-score macro) para los modelos comparados. A partir de los sucesivos remuestreos se obtiene una distribución empírica de diferencias \(\Delta^{*}\), sobre la cual se estiman el valor medio de la diferencia, su intervalo de confianza al 95\% mediante \ac{BCa} bootstrap y un \textit{p-value} bilateral.
+
+El \textit{p-value} puede interpretarse como la probabilidad de observar una diferencia igual o mayor que la obtenida si realmente no existiera una diferencia real entre ambos modelos. En el contexto del bootstrap pareado, una formulación habitual es:
+
+\[
+p_{\text{bootstrap}}
+=
+2 \cdot
+\min
+\left(
+\frac{1}{B}
+\sum
+\mathbb{I}(\delta_i \leq 0),
+\;
+\frac{1}{B}
+\sum
+\mathbb{I}(\delta_i \geq 0)
+\right)
+\]
+
+donde \(B\) representa el número total de remuestreos bootstrap, \(\delta_i\) la diferencia observada en el remuestreo \(i\), y \(\mathbb{I}(\cdot)\) la función indicadora, que toma valor 1 cuando se cumple la condición y 0 en caso contrario. Valores bajos de \textit{p-value} indican que dicha diferencia difícilmente puede atribuirse al azar, sugiriendo por tanto una superioridad estadísticamente significativa de uno de los modelos.
+
+\subsubsection{Corrección por comparaciones múltiples}
+
+Dado que el estudio incluye múltiples comparaciones pareadas entre modelos, también se aplica una corrección por comparaciones múltiples mediante el procedimiento de \ac{BH} \cite{benjamini_controlling_1995}, que ajusta los p-values para controlar la tasa de falsos descubrimientos (False Discovery Rate, FDR) y evitar interpretar como significativas diferencias que podrían aparecer únicamente por el elevado número de comparaciones realizadas.
+
+Sea \(p_{(1)} \leq p_{(2)} \leq \dots \leq p_{(m)}\) la secuencia de \textit{p-values} ordenados de menor a mayor para un total de \(m\) comparaciones. El criterio de Benjamini-Hochberg establece que una comparación se considera significativa si cumple:
+
+\[
+p_{(i)} \leq \frac{i}{m}\alpha
+\]
+
+donde \(i\) representa la posición del \textit{p-value} en el orden creciente, \(m\) el número total de comparaciones  realizadas y \(\alpha\) el nivel de significancia fijado (habitualmente 0.05). De este modo, se reduce el riesgo de falsos positivos sin aplicar una corrección excesivamente conservadora como ocurre en otros métodos más restrictivos.
 
 
 \section{Contexto clínico de los trastornos analizados}
