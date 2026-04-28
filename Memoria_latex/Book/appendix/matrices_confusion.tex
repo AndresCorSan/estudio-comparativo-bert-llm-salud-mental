@@ -1,0 +1,76 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Generic template for TFC/TFM/TFG/Tesis
+%
+% $Id: versiones.tex,v 1.6 2020/03/24 17:18:13 macias Exp $
+%
+% By:
+%  + Javier Macías-Guarasa. 
+%    Departamento de Electrónica
+%    Universidad de Alcalá
+%  + Roberto Barra-Chicote. 
+%    Departamento de Ingeniería Electrónica
+%    Universidad Politécnica de Madrid   
+% 
+% Based on original sources by Roberto Barra, Manuel Ocaña, Jesús Nuevo,
+% Pedro Revenga, Fernando Herránz and Noelia Hernández. Thanks a lot to
+% all of them, and to the many anonymous contributors found (thanks to
+% google) that provided help in setting all this up.
+%
+% See also the additionalContributors.txt file to check the name of
+% additional contributors to this work.
+%
+% If you think you can add pieces of relevant/useful examples,
+% improvements, please contact us at (macias@depeca.uah.es)
+%
+% You can freely use this template and please contribute with
+% comments or suggestions!!!
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Matrices de confusión completas por tarea}
+\label{anexo:matrices_confusion}
+
+En este anexo se incluyen las matrices de confusión completas de todos los modelos evaluados para cada una de las tareas de clasificación. Estas figuras complementan el análisis presentado en el capítulo de resultados experimentales y permiten observar con mayor detalle los patrones de error específicos de cada arquitectura.
+
+\section{Clasificación binaria: ansiedad}
+\label{anexo:mc_anx}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{cm_ansiedad_full.png}
+	\caption{Matrices de confusión completas para la tarea de clasificación de ansiedad}
+\end{figure}
+
+\section{Clasificación binaria: depresión}
+\label{anexo:mc_dep}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{cm_depresion_full.png}
+	\caption{Matrices de confusión completas para la tarea de clasificación de depresión}
+\end{figure}
+
+\section{Clasificación binaria: TCA}
+\label{anexo:mc_tca}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{cm_tca_full.png}
+	\caption{Matrices de confusión completas para la tarea de clasificación de TCA}
+\end{figure}
+
+\section{Clasificación multiclase}
+\label{anexo:mc_multi}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{cm_multi_full.png}
+	\caption{Matrices de confusión completas para la tarea de clasificación multiclase}
+\end{figure}
+
+%% Local Variables:
+%% TeX-master: "../book"
+%%% End:
+
+

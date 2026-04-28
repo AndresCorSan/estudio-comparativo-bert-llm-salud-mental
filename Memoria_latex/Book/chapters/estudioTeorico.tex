@@ -453,7 +453,7 @@ El segundo objetivo es \textit{Next Sentence Prediction}, una tarea orientada a 
 
 Esta tarea resulta especialmente útil en problemas donde la relación entre frases es importante, como inferencia textual, respuesta a preguntas o clasificación de pares de oraciones. Para realizar esta predicción, \ac{BERT} utiliza la representación final del token \texttt{[CLS]}, que actúa como resumen global de la secuencia completa.
 
-Posteriormente, trabajos como \acs{RoBERTa} cuestionaron la utilidad real de \ac{NSP} y demostraron que era posible obtener mejores resultados eliminando esta tarea y aumentando la escala del preentrenamiento. Aun así, \ac{MLM} sigue siendo el núcleo fundamental del aprendizaje en \ac{BERT} y el principal responsable de su capacidad de comprensión contextual bidireccional.
+Posteriormente, trabajos como \ac{RoBERTa} cuestionaron la utilidad real de \ac{NSP} y demostraron que era posible obtener mejores resultados eliminando esta tarea y aumentando la escala del preentrenamiento. Aun así, \ac{MLM} sigue siendo el núcleo fundamental del aprendizaje en \ac{BERT} y el principal responsable de su capacidad de comprensión contextual bidireccional.
 
 \subsection{Fine-tuning para clasificación de texto}
 
@@ -477,7 +477,7 @@ Este proceso permite aprovechar el conocimiento lingüístico aprendido durante 
 \subsection{Variantes y modelos BERT utilizados en este trabajo}
 \label{subsec:modelos_bert}
 
-Aunque \ac{BERT} supuso un avance fundamental en tareas de comprensión del lenguaje, posteriormente surgieron múltiples variantes orientadas a mejorar aspectos concretos como la eficiencia computacional, el rendimiento, el tratamiento multilingüe o el manejo de secuencias largas. En este trabajo se seleccionan cuatro modelos representativos dentro de esta familia: \acs{DistilBETO}, \acs{RoBERTa}, \acs{mDeBERTa} y Longformer, cada uno con características específicas que permiten analizar distintos enfoques dentro de los modelos \textit{encoder-only}.
+Aunque \ac{BERT} supuso un avance fundamental en tareas de comprensión del lenguaje, posteriormente surgieron múltiples variantes orientadas a mejorar aspectos concretos como la eficiencia computacional, el rendimiento, el tratamiento multilingüe o el manejo de secuencias largas. En este trabajo se seleccionan cuatro modelos representativos dentro de esta familia: \acs{DistilBETO}, RoBERTa-large-BNE, \acs{mDeBERTa} y Longformer, cada uno con características específicas que permiten analizar distintos enfoques dentro de los modelos \textit{encoder-only}.
 
 La elección de estos modelos responde tanto a criterios de rendimiento como de adecuación al problema planteado. Dado que el objetivo es la clasificación de textos en español relacionados con ansiedad, depresión y trastornos de la conducta alimentaria, resulta especialmente relevante considerar modelos optimizados para español, variantes más eficientes computacionalmente y arquitecturas capaces de manejar secuencias de mayor longitud cuando el contexto textual así lo requiere. La Tabla~\ref{tab:bert_models_comparison} sintetiza estas diferencias y resume las principales características de los modelos seleccionados.
 
@@ -489,8 +489,8 @@ La elección de estos modelos responde tanto a criterios de rendimiento como de 
 		\hline
 		\textbf{Modelo} & \textbf{Motivación principal} & \textbf{Ventaja destacada} \\ \hline
 		\acs{DistilBETO} & Eficiencia + español & Menor coste computacional \\ \hline
-		\acs{RoBERTa} & Optimización de BERT & Mejor rendimiento general \\ \hline
-		\acs{mDeBERTa} & Mejora del mecanismo de atención & Mayor comprensión contextual \\ \hline
+		RoBERTa-large-BNE & Optimización de BERT + mayor número de capas y parámetros & Mejor rendimiento general \\ \hline
+		\acs{mDeBERTa} & Mejora del mecanismo de atención y multilingüe & Mayor comprensión contextual \\ \hline
 		Longformer & Manejo de secuencias largas & Mayor contexto de entrada \\ \hline
 	\end{tabular}
 \end{table}
@@ -499,9 +499,11 @@ La elección de estos modelos responde tanto a criterios de rendimiento como de 
 
 \ac{DistilBETO} combina dos ideas especialmente útiles en este contexto: por un lado, BETO, una adaptación de \ac{BERT} preentrenada específicamente sobre grandes corpus en español \cite{canete_spanish_2023}; y por otro, la destilación de conocimiento propuesta en \ac{DistilBERT} \cite{sanh_distilbert_2020}, que permite reducir el tamaño del modelo manteniendo gran parte de su rendimiento. Como resultado, \ac{DistilBETO} ofrece una alternativa más ligera y rápida que \ac{BERT} tradicional, con menor coste computacional y una buena adaptación al dominio lingüístico del trabajo.
 
-\subsubsection{RoBERTa}
+\subsubsection{RoBERTa-large-BNE}
 
 \ac{RoBERTa} fue propuesto por Liu et al. \cite{liu_roberta_2019} como una versión optimizada de \ac{BERT}. Su principal diferencia consiste en eliminar la tarea de \textit{Next Sentence Prediction} (NSP), aumentar significativamente la cantidad de datos de preentrenamiento, utilizar enmascarado dinámico\footnote{En \ac{BERT} original, los tokens enmascarados se seleccionan una única vez durante la preparación del conjunto de entrenamiento. En cambio, en \ac{RoBERTa} el enmascarado se realiza de forma dinámica en cada época, de modo que una misma secuencia puede presentar diferentes tokens ocultos a lo largo del entrenamiento, aumentando la diversidad de ejemplos y mejorando la capacidad de generalización del modelo.} y prolongar el entrenamiento durante más iteraciones. Estas modificaciones permitieron mejorar de forma consistente el rendimiento respecto a \ac{BERT} original sin alterar su arquitectura encoder-only.
+
+En este trabajo se utiliza específicamente la variante RoBERTa-large-BNE \cite{gutierrez-fandino_maria_2022}, una versión de gran tamaño preentrenada para español desarrollada sobre corpus extensos de texto en este idioma. Frente a variantes base de menor tamaño, la configuración \textit{large} incorpora un mayor número de capas y parámetros, lo que le permite aprender representaciones lingüísticas más complejas y capturar mejor relaciones semánticas profundas, aunque a costa de un mayor coste computacional durante el fine-tuning y la inferencia.
 
 \subsubsection{mDeBERTa}
 
@@ -856,6 +858,33 @@ p_{\text{bootstrap}}
 \]
 
 donde \(B\) representa el número total de remuestreos bootstrap, \(\delta_i\) la diferencia observada en el remuestreo \(i\), y \(\mathbb{I}(\cdot)\) la función indicadora, que toma valor 1 cuando se cumple la condición y 0 en caso contrario. Valores bajos de \textit{p-value} indican que dicha diferencia difícilmente puede atribuirse al azar, sugiriendo por tanto una superioridad estadísticamente significativa de uno de los modelos.
+
+\subsubsection{Tamaño del efecto mediante Cohen's d}
+
+Además de la significancia estadística, resulta útil cuantificar la magnitud práctica de la diferencia observada entre modelos. Para ello, se emplea el tamaño del efecto mediante Cohen’s \(d\) adaptado para muestras pareadas \cite{cohen_statistical_2013}, tal y como se utiliza habitualmente en estudios comparativos con medidas repetidas.
+
+Mientras que el \textit{p-value} permite evaluar si una diferencia puede atribuirse al azar, Cohen’s \(d\) permite estimar si dicha diferencia resulta relevante desde un punto de vista práctico. En otras palabras, el \textit{p-value} indica si la diferencia parece real, mientras que el tamaño del efecto indica si esa diferencia realmente importa.
+
+En el caso de comparaciones pareadas, Cohen’s \(d\) se calcula a partir de la distribución de diferencias bootstrap como:
+
+\[
+d =
+\frac{\bar{\delta}}
+{s_{\delta}}
+\]
+
+donde \(\bar{\delta}\) representa la media de las diferencias observadas entre ambos modelos y \(s_{\delta}\) su desviación estándar. De este modo, el estadístico expresa la magnitud de la diferencia en unidades de desviación estándar, permitiendo comparar de forma más interpretable el rendimiento relativo entre modelos.
+
+Siguiendo la clasificación propuesta por Cohen, los tamaños de efecto se interpretan de la siguiente forma:
+
+\begin{itemize}
+	\item \(|d| < 0.2\): efecto negligible
+	\item \(0.2 \leq |d| < 0.5\): efecto pequeño
+	\item \(0.5 \leq |d| < 0.8\): efecto moderado
+	\item \(|d| \geq 0.8\): efecto grande
+\end{itemize}
+
+Un tamaño de efecto grande indica que la diferencia entre modelos no solo existe, sino que además resulta consistente y relevante en la práctica. Por el contrario, un efecto negligible sugiere que ambos modelos presentan un comportamiento muy similar, incluso aunque puedan existir pequeñas diferencias numéricas en las métricas de evaluación.
 
 \subsubsection{Corrección por comparaciones múltiples}
 

@@ -252,9 +252,9 @@ Tras haber analizado la estructura del dataset, identificado sus principales lim
 
 El entrenamiento de los modelos \ac{BERT} se realizó utilizando Google Colab como entorno de ejecución, empleando una \ac{GPU} NVIDIA T4. Esta elección permitió disponer de aceleración por hardware suficiente para llevar a cabo el proceso de fine-tuning de modelos Transformer de tamaño medio y grande, aunque con ciertas limitaciones de memoria que condicionaron parte de la configuración experimental.
 
-Tal y como se explicó en la Sección~\ref{subsec:modelos_bert}, en este trabajo se utilizaron cuatro arquitecturas representativas: \ac{DistilBETO}, \ac{RoBERTa}, \ac{mDeBERTa} y Longformer. Aunque todas siguen un enfoque \textit{encoder-only} orientado a tareas de clasificación, presentan diferencias importantes en tamaño, complejidad y capacidad de procesamiento de secuencias largas, lo que obligó a adaptar algunos hiperparámetros de entrenamiento para cada caso.
+Tal y como se explicó en la Sección~\ref{subsec:modelos_bert}, en este trabajo se utilizaron cuatro arquitecturas representativas: \ac{DistilBETO}, RoBERTa-large-BNE, mDeBERTa-v3 y Longformer. Aunque todas siguen un enfoque \textit{encoder-only} orientado a tareas de clasificación, presentan diferencias importantes en tamaño, complejidad y capacidad de procesamiento de secuencias largas, lo que obligó a adaptar algunos hiperparámetros de entrenamiento para cada caso.
 
-La configuración específica de cada modelo se definió principalmente en función de tres factores: el número de parámetros de la arquitectura, la longitud máxima de secuencia que podía procesar y las restricciones de memoria de la \ac{GPU} disponible. \ac{DistilBETO} al ser un modelo más ligero, permitió utilizar tamaños de batch mayores tanto en entrenamiento como en evaluación. En cambio, modelos más pesados como \ac{RoBERTa} o \ac{mDeBERTa} requirieron reducir este valor para evitar errores de memoria.
+La configuración específica de cada modelo se definió principalmente en función de tres factores: el número de parámetros de la arquitectura, la longitud máxima de secuencia que podía procesar y las restricciones de memoria de la \ac{GPU} disponible. \ac{DistilBETO} al ser un modelo más ligero, permitió utilizar tamaños de batch mayores tanto en entrenamiento como en evaluación. En cambio, modelos más pesados como RoBERTa-large-BNE o mDeBERTa-v3 requirieron reducir este valor para evitar errores de memoria.
 
 En el caso de Longformer, diseñado específicamente para secuencias largas, se priorizó aumentar la longitud máxima de entrada hasta 2048 tokens en lugar de los 512 habituales en BERT estándar, lo que obligó a reducir considerablemente el tamaño de batch debido al mayor consumo de memoria. Para los cuatro modelos, durante la fase de evaluación se utilizó un batch superior al de entrenamiento, ya que al no calcular gradientes el consumo de memoria resulta menor.
 
@@ -269,8 +269,8 @@ La Tabla~\ref{tab:bert_training_config} resume la configuración utilizada para 
 		\textbf{Modelo} & \textbf{Max length} & \textbf{Train batch size} & \textbf{Eval batch size} \\
 		\hline
 		DistilBETO & 512 & 16 & 64 \\
-		RoBERTa & 512 & 8 & 32 \\
-		mDeBERTa & 512 & 8 & 32 \\
+		RoBERTa-large-BNE & 512 & 8 & 32 \\
+		mDeBERTa-v3 & 512 & 8 & 32 \\
 		Longformer & 2048 & 1 & 2 \\
 		\hline
 	\end{tabular}
@@ -368,16 +368,16 @@ La Tabla~\ref{tab:bert_times} recoge los tiempos registrados para cada combinaci
 		DistilBETO - Multiclass &  &  &  \\
 		\hline
 		
-		RoBERTa - Anxiety &  &  &  \\
-		RoBERTa - Depression &  &  &  \\
-		RoBERTa - ED &  &  &  \\
-		RoBERTa - Multiclass &  &  &  \\
+		RoBERTa-large-BNE - Anxiety &  &  &  \\
+		RoBERTa-large-BNE - Depression &  &  &  \\
+		RoBERTa-large-BNE - ED &  &  &  \\
+		RoBERTa-large-BNE - Multiclass &  &  &  \\
 		\hline
 		
-		mDeBERTa - Anxiety &  &  &  \\
-		mDeBERTa - Depression &  &  &  \\
-		mDeBERTa - ED &  &  &  \\
-		mDeBERTa - Multiclass &  &  &  \\
+		mDeBERTa-v3 - Anxiety &  &  &  \\
+		mDeBERTa-v3 - Depression &  &  &  \\
+		mDeBERTa-v3 - ED &  &  &  \\
+		mDeBERTa-v3 - Multiclass &  &  &  \\
 		\hline
 		
 		Longformer - Anxiety &  &  &  \\
