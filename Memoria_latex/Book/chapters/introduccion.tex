@@ -37,7 +37,7 @@ Dentro de este contexto, el \ac{PLN} se ha consolidado como una de las áreas m�
 
 Por otro lado, el uso generalizado de plataformas digitales, redes sociales y servicios de comunicación ha dado lugar a un crecimiento masivo de datos textuales generados por los usuarios. Esta disponibilidad de información supone un recurso de gran valor para los sistemas de inteligencia artificial, ya que permite entrenar y evaluar modelos en contextos reales. En el ámbito de la salud mental, estos datos pueden contener señales lingüísticas asociadas a estados emocionales o patrones de comportamiento, lo que abre la posibilidad de desarrollar herramientas automáticas capaces de identificar indicios tempranos de determinados trastornos a partir del análisis del lenguaje.
 
-En este contexto, el presente trabajo tiene como objetivo evaluar la capacidad de distintos modelos de procesamiento del lenguaje natural para detectar automáticamente indicadores de ansiedad, depresión y trastornos de la conducta alimentaria en textos escritos en español. Para ello, se realiza una comparación entre enfoques basados en modelos consolidados y modelos de lenguaje de última generación.
+En este contexto, el presente trabajo tiene como objetivo evaluar la capacidad de distintos modelos de procesamiento del lenguaje natural para detectar automáticamente indicadores de ansiedad, depresión y \ac{TCA} en textos escritos en español. Para ello, se realiza una comparación entre enfoques basados en modelos consolidados y modelos de lenguaje de última generación.
 
 Con el fin de alcanzar este objetivo general, se plantean los siguientes objetivos específicos:
 
@@ -47,6 +47,27 @@ Con el fin de alcanzar este objetivo general, se plantean los siguientes objetiv
 	\item Aplicar \acp{LLM}, tanto de código abierto como propietarios, mediante estrategias de \textit{zero-shot prompting} utilizando \acp{API} de distintos proveedores, con el fin de predecir la presencia de los distintos trastornos sin necesidad de reentrenamiento.
 	\item Comparar los resultados obtenidos por ambos enfoques, analizando distintas métricas estándar de evaluación.
 	\item Analizar las ventajas, limitaciones y posibles sesgos derivados del uso de modelos de lenguaje en tareas relacionadas con la salud mental.
+\end{itemize}
+
+En este contexto, el presente trabajo tiene como objetivo evaluar y comparar la capacidad de distintos modelos de procesamiento del lenguaje natural para la detección automática de indicadores de salud mental en textos escritos en español, centrándose en ansiedad, depresión y trastornos de la conducta alimentaria (\ac{TCA}). Para ello, se realiza una comparación entre modelos encoder tradicionales basados en \ac{BERT}, \acp{LLM} open-source y \acp{LLM} propietarios de última generación.
+
+Con el fin de alcanzar este objetivo general, se plantean los siguientes objetivos específicos:
+
+\begin{itemize}
+	\item Analizar y preprocesar un conjunto de datos en español que contenga textos anotados con la presencia o ausencia de ansiedad, depresión y trastornos de la conducta alimentaria.
+	
+	\item Plantear tanto tareas de clasificación binaria independientes para ansiedad, depresión y \ac{TCA}, como una tarea de clasificación multiclase. Las tareas binarias permiten evaluar la capacidad de los modelos para detectar la presencia o ausencia de cada trastorno de forma individual, mientras que la tarea multiclase permite analizar su capacidad para distinguir simultáneamente entre usuarios control, ansiedad, depresión y \ac{TCA}, así como identificar qué clases tienden a confundirse entre sí.
+	
+	\item Entrenar y evaluar modelos encoder basados en \acs{BERT} mediante técnicas de \textit{fine-tuning}, incluyendo arquitecturas preentrenadas tanto específicamente para español como modelos multilingües y de contexto largo.
+	
+	\item Aplicar \acp{LLM}, tanto open-source como propietarios, mediante estrategias de \textit{zero-shot prompting} a través de \acp{API} de distintos proveedores, con el fin de realizar predicciones sin necesidad de reentrenamiento supervisado.
+	
+	\item Comparar de forma rigurosa ambos enfoques utilizando métricas de rendimiento, estabilidad predictiva, análisis de errores mediante matrices de confusión, comparación estadística mediante bootstrap pareado y análisis de significancia.
+	
+	\item Evaluar la relación entre rendimiento y coste computacional de los distintos modelos, analizando su viabilidad práctica en escenarios reales de detección temprana en salud mental.
+	
+	\item Identificar ventajas, limitaciones y posibles implicaciones del uso de modelos de lenguaje aplicados a tareas de cribado automático en salud mental.
+	
 \end{itemize}
 
 Finalmente, cabe destacar que este trabajo se enmarca en el ámbito del cribado automático y el apoyo al análisis preliminar. En ningún caso pretende sustituir el diagnóstico clínico ni la evaluación realizada por profesionales de la salud mental, sino contribuir al desarrollo de herramientas que puedan facilitar la identificación temprana de posibles señales de riesgo.

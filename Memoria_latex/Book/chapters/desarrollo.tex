@@ -25,26 +25,29 @@
 \chapter{Desarrollo}
 \label{cha:desarrollo}
 
-\begin{FraseCelebre}
-  \begin{Frase}
-    A fuerza de construir bien, se llega a buen arquitecto\footnote{Tomado de ejemplos del proyecto \texis{}.}.
-  \end{Frase}
-  \begin{Fuente}
-    Aristóteles
-  \end{Fuente}
-\end{FraseCelebre}
-
-
-\section{Introducción/Metodología}
+\section{Metodología}
 \label{sec:introduccion-desarrollo}
 
-En este capítulo se incluirá la descripción del desarrollo del trabajo.
+Tras presentar en el capítulo anterior las bases teóricas necesarias para este trabajo, en este capítulo se describe la metodología seguida y el desarrollo práctico realizado. El proceso comenzó con la selección y análisis de un conjunto de datos (\textit{dataset}) adecuado para el estudio, examinando su estructura, distribución de clases y principales limitaciones.
 
-El capítulo se estructura en n apartados....
+A continuación, se realizó la preparación de los datos y la construcción de los conjuntos necesarios para las tareas de clasificación binaria (ansiedad, depresión y \ac{TCA}) y multiclase. Posteriormente, se desarrollaron los dos bloques experimentales principales: por un lado, el fine-tuning supervisado de varios modelos \ac{BERT}; por otro, la inferencia con distintos \acp{LLM}, tanto open-source como propietarios, mediante estrategias de \textit{zero-shot prompting} a través de sus respectivas \acp{API}.
+
+Todo el desarrollo experimental se implementó en Python utilizando Google Colab como entorno principal de trabajo, mediante cuadernos de Jupyter (\texttt{.ipynb}) organizados por fases: exploración del dataset, preparación de datos, entrenamiento de modelos \ac{BERT}, inferencia con \acp{LLM} y, finalmente, estudio de resultados y análisis comparativo. Esta estructura permitió mantener una experimentación modular, reproducible y fácilmente trazable durante todo el TFG.
+
+La Figura~\ref{fig:pipeline_general} resume de forma esquemática el flujo completo de trabajo seguido, desde la selección del dataset hasta el análisis comparativo final entre los modelos evaluados.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{pipeline_general_tfg.png}
+	\caption{Pipeline general de la metodología seguida en el desarrollo de este TFG}
+	\label{fig:pipeline_general}
+\end{figure}
 
 
 \section{Dataset empleado}
 \label{sec:desarr-del-sist}
+
+\subsection{Selección del dataset MentalRiskES}
 
 La elección del dataset constituye una parte fundamental en el desarrollo de este trabajo, ya que condiciona tanto la metodología empleada como la validez de los resultados obtenidos. Inicialmente, el objetivo del TFG se centraba en la detección de ansiedad y depresión a partir de texto, pero pronto se observó que encontrar corpus adecuados para este propósito resultaba especialmente complejo. La mayoría de datasets públicos disponibles incluían únicamente casos de depresión, ofrecían información limitada sobre la calidad del etiquetado o no contaban con un proceso de anotación suficientemente fiable.
 
