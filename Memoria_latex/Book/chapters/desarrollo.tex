@@ -28,11 +28,11 @@
 \section{Metodología}
 \label{sec:introduccion-desarrollo}
 
-Tras presentar en el capítulo anterior las bases teóricas necesarias para este trabajo, en este capítulo se describe la metodología seguida y el desarrollo práctico realizado. El proceso comenzó con la selección y análisis de un conjunto de datos (\textit{dataset}) adecuado para el estudio, examinando su estructura, distribución de clases y principales limitaciones.
+Tras presentar en el capítulo anterior las bases teóricas, en este capítulo se describe la metodología seguida y el desarrollo práctico realizado. El proceso comenzó con la selección y análisis de un conjunto de datos (\textit{dataset}) adecuado, examinando su estructura, distribución de clases y principales limitaciones.
 
-A continuación, se realizó la preparación de los datos y la construcción de los conjuntos necesarios para las tareas de clasificación binaria (ansiedad, depresión y \ac{TCA}) y multiclase. Posteriormente, se desarrollaron los dos bloques experimentales principales: por un lado, el fine-tuning supervisado de varios modelos \ac{BERT}; por otro, la inferencia con distintos \acp{LLM}, tanto open-source como propietarios, mediante estrategias de \textit{zero-shot prompting} a través de sus respectivas \acp{API}.
+A continuación, se prepararon los datos y se construyeron los conjuntos necesarios para las tareas de clasificación binaria (ansiedad, depresión y \ac{TCA}) y multiclase. Posteriormente, se desarrollaron dos bloques experimentales principales: el fine-tuning supervisado de modelos \ac{BERT} y la inferencia con distintos \acp{LLM}, tanto open-source como propietarios, mediante estrategias de \textit{zero-shot prompting}. Finalmente, se realizó un estudio de resultados y un análisis comparativo entre modelos, que se detallará en el Capítulo~\ref{cha:resultados}.
 
-Todo el desarrollo experimental se implementó en Python utilizando Google Colab como entorno principal de trabajo, mediante cuadernos de Jupyter (\texttt{.ipynb}) organizados por fases: exploración del dataset, preparación de datos, entrenamiento de modelos \ac{BERT}, inferencia con \acp{LLM} y, finalmente, estudio de resultados y análisis comparativo. Esta estructura permitió mantener una experimentación modular, reproducible y fácilmente trazable durante todo el TFG.
+El desarrollo experimental se implementó en Python utilizando Google Colab como entorno principal de trabajo, mediante cuadernos de Jupyter (\texttt{.ipynb}). Todo el código desarrollado para este TFG se encuentra disponible en un repositorio de GitHub\footnote{\url{https://github.com/AndresCorSan/estudio-comparativo-bert-llm-salud-mental}}, cuyo archivo \texttt{README.md} describe la estructura del proyecto y las distintas fases del desarrollo ilustradas en la Figura~\ref{fig:pipeline_general}.
 
 \begin{figure}[H]
 	\centering
