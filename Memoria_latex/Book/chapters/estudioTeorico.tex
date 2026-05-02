@@ -39,23 +39,23 @@ Dentro de la inteligencia artificial, el aprendizaje automático (\textit{Machin
 
 El \ac{PLN} es una rama de la inteligencia artificial centrada en el desarrollo de sistemas capaces de comprender, interpretar y generar lenguaje humano de forma automática. Se sitúa en la intersección entre la informática, la lingüística y el aprendizaje automático, combinando técnicas de análisis lingüístico con modelos computacionales que permiten extraer información útil a partir de datos textuales.
 
-El principal objetivo de este campo es reducir la distancia existente entre la forma en que los humanos se comunican y la forma en que los sistemas informáticos procesan la información. Mientras que las personas utilizan lenguaje natural, ambiguo y dependiente del contexto, los modelos computacionales trabajan con representaciones numéricas y estructuras formales. Por ello, uno de los principales desafíos del \ac{PLN} consiste en transformar el texto en una representación que preserve su significado semántico y permita su procesamiento automático.
+El principal objetivo de este campo es reducir la distancia existente entre la forma en que los humanos se comunican y la forma en que los sistemas informáticos procesan la información. Mientras que las personas utilizan lenguaje natural, los modelos computacionales trabajan con representaciones numéricas y estructuras formales. Por ello, uno de los principales desafíos del \ac{PLN} consiste en transformar el texto en una representación que preserve su significado semántico y permita su procesamiento automático.
 
 Esta dificultad se debe a múltiples factores inherentes al lenguaje humano, como la ambigüedad léxica y sintáctica, la dependencia del contexto, la variabilidad lingüística o la existencia de conocimiento implícito no expresado de forma directa. Expresiones con significados distintos según el contexto o frases cuya interpretación depende del conocimiento previo del lector muestran la complejidad de esta tarea y justifican la necesidad de modelos cada vez más sofisticados.
 
-Entre las tareas más habituales del \ac{PLN} se encuentran la clasificación de texto, la traducción automática, el resumen de documentos y los asistentes conversacionales (\textit{chatbots}). Tradicionalmente, muchas de estas tareas requerían el entrenamiento o ajuste de modelos específicos para cada problema, como ocurre en tareas de clasificación mediante modelos basados en \acs{BERT}. Sin embargo, en los últimos años, los \acp{LLM} han permitido abordar múltiples tareas utilizando una única arquitectura general, mejorando significativamente los resultados obtenidos en numerosos dominios.
+Entre las tareas más habituales del \ac{PLN} se encuentran la clasificación de texto, la traducción automática, el resumen de documentos y los asistentes conversacionales (\textit{chatbots}). Tradicionalmente, muchas de estas tareas requerían el entrenamiento o ajuste de modelos específicos para cada problema, como ocurre en tareas de clasificación mediante modelos basados en \acs{BERT}. Sin embargo, en los últimos años, los \acp{LLM} han permitido abordar todas estas tareas utilizando una única arquitectura general, mejorando significativamente los resultados obtenidos en numerosos dominios.
 
 
 \subsection{Representación del texto}
 
-Como se ha mencionado en el apartado anterior, los modelos de \ac{PLN} no procesan directamente texto en lenguaje natural, sino representaciones numéricas. Por ello, uno de los pasos fundamentales consiste en transformar el texto en una forma estructurada que pueda ser utilizada como entrada por los modelos de aprendizaje.
+Como se ha mencionado anteriormente, los modelos de \ac{PLN} no procesan directamente texto en lenguaje natural, sino representaciones numéricas. Por ello, uno de los pasos fundamentales consiste en transformar el texto en una forma estructurada que pueda ser utilizada como entrada por los modelos de aprendizaje.
 
 De forma general, este proceso sigue un flujo compuesto por varias etapas: el texto original se divide primero en unidades más pequeñas llamadas \textit{tokens}, posteriormente estos tokens se transforman en representaciones vectoriales mediante técnicas de \textit{embedding}, y finalmente dichos vectores son utilizados como entrada de un modelo capaz de generar una salida, como una clasificación o una predicción. Este \textit{pipeline} constituye la base de la mayoría de sistemas modernos de \ac{PLN}, como se muestra en la Figura~\ref{fig:pipeline_pln}.
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.55\textwidth]{pipeline_pln.png}
-	\caption{Proceso general de representación del texto en sistemas de \ac{PLN}.}
+	\caption{Proceso general de representación del texto en sistemas de PLN.}
 	\label{fig:pipeline_pln}
 \end{figure}
 
@@ -70,7 +70,7 @@ La tokenización es, por tanto, el primer paso fundamental en este proceso y con
 	\label{fig:niveles_tok}
 \end{figure}
 
-La tokenización basada en palabras fue durante un tiempo la aproximación más habitual por su simplicidad e interpretabilidad. Sin embargo, presenta limitaciones importantes, como el problema de las palabras fuera de vocabulario (\textit{Out Of Vocabulary}, OOV), es decir, términos que no aparecen en el vocabulario del modelo y no pueden representarse correctamente. Además, requiere vocabularios muy grandes para cubrir la gran variedad léxica del lenguaje y no captura adecuadamente relaciones morfológicas entre palabras derivadas de una misma raíz, como “correr”, “corriendo” o “corrí”.
+La tokenización basada en palabras fue durante un tiempo la aproximación más habitual por su simplicidad e interpretabilidad. Sin embargo, presenta limitaciones importantes, como el problema de las palabras fuera de vocabulario (\textit{Out Of Vocabulary}, OOV)\footnote{Se denomina OOV a aquellos términos que no aparecen en el vocabulario predefinido del modelo durante su entrenamiento, por lo que no pueden ser representados directamente y suelen sustituirse por un token genérico, perdiendo así información específica.}, además de requerir vocabularios muy grandes para cubrir la gran variedad léxica del lenguaje. Asimismo, no captura adecuadamente relaciones morfológicas entre palabras derivadas de una misma raíz, como “correr”, “corriendo” o “corrí”.
 
 Por otro lado, la tokenización a nivel de caracteres elimina el problema del vocabulario cerrado, ya que cualquier palabra puede representarse como una secuencia de caracteres. Sin embargo, genera secuencias más largas, dificulta la captura del significado y aumenta el coste computacional. Como solución intermedia surgió la tokenización por subpalabras (\textit{subword tokenization}), que combina las ventajas de ambos enfoques al representar palabras frecuentes completas y dividir las menos comunes en fragmentos más pequeños, convirtiéndose en la estrategia más utilizada en los modelos actuales.
 
@@ -83,11 +83,11 @@ En el caso de \ac{BPE} \cite{sennrich_neural_2016}, el algoritmo comienza con un
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.6\textwidth]{bpe_example.png}
-	\caption{Ejemplo simplificado del funcionamiento de \ac{BPE}. Adaptado de \cite{herrmannova_byte-pair_2025}.}
+	\caption{Ejemplo simplificado del funcionamiento de BPE. Adaptado de \cite{herrmannova_byte-pair_2025}.}
 	\label{fig:bpe_example}
 \end{figure}
 
-Una vez construido este vocabulario, durante la inferencia cualquier nuevo texto se segmenta utilizando únicamente esas subpalabras aprendidas. Para ello, \ac{BPE} no almacena únicamente el vocabulario final, sino también la lista ordenada de fusiones aprendidas. Para tokenizar una nueva palabra, primero se divide en caracteres individuales y posteriormente se aplican las fusiones en el mismo orden en que fueron aprendidas durante el entrenamiento.
+Una vez construido este vocabulario, durante la inferencia cualquier nuevo texto se segmenta utilizando únicamente esas subpalabras aprendidas. Para ello, \ac{BPE} no almacena únicamente el vocabulario final, sino también la lista ordenada de fusiones aprendidas. De tal modo, para tokenizar una nueva palabra, primero se divide en caracteres individuales y posteriormente se aplican las fusiones en el mismo orden en que fueron aprendidas durante el entrenamiento.
 
 WordPiece \cite{schuster_japanese_2012} sigue una idea similar a \ac{BPE}, pero en lugar de seleccionar fusiones únicamente por frecuencia bruta, utiliza una medida de asociación entre tokens que prioriza combinaciones más informativas. Concretamente, selecciona el par con mayor puntuación según la relación entre la frecuencia conjunta y la frecuencia individual de cada token:
 \begin{equation*}
@@ -95,7 +95,7 @@ WordPiece \cite{schuster_japanese_2012} sigue una idea similar a \ac{BPE}, pero 
 \end{equation*}
 De esta forma, se favorecen combinaciones que coocurren más de lo esperado y no únicamente las más frecuentes. A diferencia de \ac{BPE}, durante la inferencia WordPiece no guarda la lista de fusiones aprendidas, sino únicamente el vocabulario final. Para tokenizar una nueva entrada, busca de forma iterativa el subtoken más largo presente en dicho vocabulario (\textit{greedy longest-match-first}).
 
-Ambos enfoques permiten reducir el problema \acs{OOV}, mejorar la generalización y mantener un tamaño de vocabulario manejable, por lo que se han convertido en el estándar de los modelos basados en \textit{transformers}. Mientras que WordPiece es característico de modelos como \acs{BERT} o DistilBERT, variantes de \ac{BPE} son ampliamente utilizadas en modelos generativos como \acs{GPT} o LLaMA. En este trabajo, esta diferencia resulta especialmente relevante, ya que tanto los modelos \acs{BERT} como los \acp{LLM} evaluados utilizan este tipo de tokenización basada en subpalabras.
+Ambos enfoques permiten reducir el problema \acs{OOV}, mejorar la generalización y mantener un tamaño de vocabulario manejable, por lo que se han convertido en el estándar de los modelos basados en \textit{transformers}. Mientras que WordPiece es característico de modelos como \ac{BERT}, variantes de \ac{BPE} son ampliamente utilizadas en modelos generativos como \acs{GPT} o LLaMA. En este trabajo, esta diferencia resulta especialmente relevante, ya que tanto los modelos \ac{BERT} como los \acp{LLM} evaluados utilizan este tipo de tokenización basada en subpalabras.
 
 \subsubsection{Embeddings}
 
@@ -106,20 +106,20 @@ Entre los métodos más influyentes para aprender estas representaciones destaca
 
 \subsubsection*{Word2Vec}
 
-Word2Vec, propuesto por Mikolov et al. \cite{mikolov_efficient_2013}, aprende embeddings entrenando una red neuronal sencilla sobre tareas de predicción de contexto. Su funcionamiento parte de una palabra codificada mediante \textit{one-hot encoding}, que atraviesa una capa oculta de menor dimensión; los pesos aprendidos en esta capa constituyen finalmente los embeddings de cada palabra.
+Word2Vec, propuesto por Mikolov et al. \cite{mikolov_efficient_2013}, aprende embeddings entrenando una red neuronal sencilla sobre tareas de predicción de contexto. Su funcionamiento parte de una palabra codificada mediante \textit{one-hot encoding}, que atraviesa una capa oculta de menor dimensión; los pesos aprendidos en esta capa constituyen finalmente los embeddings de cada palabra. Existen dos variantes principales: \textit{Skip-gram} y \ac{CBOW}.
 
-Existen dos variantes principales. En el modelo \textit{Skip-gram}, el objetivo es predecir las palabras del contexto a partir de una palabra central. Por ejemplo, dada la palabra “negro” en la frase “El gato negro duerme tranquilo”, el modelo intenta predecir palabras cercanas como “gato” o “duerme”. En cambio, el modelo \ac{CBOW} realiza el proceso inverso: utiliza las palabras del contexto para predecir la palabra central. Mientras \ac{CBOW} suele ser más rápido y funciona bien con palabras frecuentes, Skip-gram suele ofrecer mejores resultados para palabras menos comunes. La comparación entre ambos enfoques puede observarse en la Figura~\ref{fig:cbow_skipgram}, donde se representa la diferencia entre predecir el contexto o predecir la palabra objetivo.
+En el modelo Skip-gram, el objetivo es predecir las palabras del contexto a partir de una palabra central. Por ejemplo, dada la palabra “negro” en la frase “El gato negro duerme tranquilo”, el modelo intenta predecir palabras cercanas como “gato” o “duerme”. En cambio, el modelo \ac{CBOW} realiza el proceso inverso: utiliza las palabras del contexto para predecir la palabra central. Mientras \ac{CBOW} suele ser más rápido y funciona bien con palabras frecuentes, Skip-gram suele ofrecer mejores resultados para palabras menos comunes. La comparación entre ambos enfoques puede observarse en la Figura~\ref{fig:cbow_skipgram}, donde se representa la diferencia entre predecir el contexto o predecir la palabra objetivo.
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=1\textwidth]{cbow_skipgram.png}
-	\caption{Comparación entre los enfoques \acs{CBOW} y Skip-gram. Adaptado de \cite{po_evolution_2026}.}
+	\caption{Comparación entre los enfoques Skip-gram y CBOW. Adaptado de \cite{po_evolution_2026}.}
 	\label{fig:cbow_skipgram}
 \end{figure}
 
 \subsubsection*{\ac{GloVe}}
 
-Por su parte, \ac{GloVe} \cite{pennington_glove_2014} utiliza un enfoque diferente basado en estadísticas globales de coocurrencia. En lugar de predecir palabras vecinas de forma local, construye una matriz que refleja cuántas veces aparecen juntas distintas palabras dentro de un corpus y aprende vectores a partir de esa información global. Como se aprecia en la Figura~\ref{fig:glove_matrix}, cada celda de la matriz indica la frecuencia con la que dos palabras aparecen en contextos similares; por ejemplo, términos como ``love'' y ``programming'' presentan una alta coocurrencia dentro del corpus analizado. A partir de esta información, el modelo genera embeddings en los que palabras con patrones de aparición semejantes terminan ocupando posiciones cercanas en el espacio vectorial.
+Por su parte, \ac{GloVe} \cite{pennington_glove_2014} utiliza un enfoque diferente basado en estadísticas globales de coocurrencia. En lugar de predecir palabras vecinas de forma local, construye una matriz que refleja cuántas veces aparecen juntas distintas palabras dentro de un corpus y aprende vectores a partir de esa información global. Como se aprecia en la Figura~\ref{fig:glove_matrix}, cada celda de la matriz indica la frecuencia con la que dos palabras aparecen en contextos similares; por ejemplo, términos como ``love'' y ``programming'' presentan una alta coocurrencia dentro del corpus de tres frases analizado. A partir de esta información, el modelo genera embeddings en los que palabras con patrones de aparición semejantes terminan ocupando posiciones cercanas en el espacio vectorial.
 
 \begin{figure}[H]
 	\centering
@@ -130,27 +130,27 @@ Por su parte, \ac{GloVe} \cite{pennington_glove_2014} utiliza un enfoque diferen
 
 En la práctica, tanto Word2Vec como \ac{GloVe} ofrecen resultados similares en muchas tareas, aunque parten de enfoques conceptualmente distintos: predictivo en Word2Vec y basado en coocurrencia global en \ac{GloVe}. Ambos supusieron un avance importante frente a las representaciones clásicas, ya que permitieron capturar relaciones semánticas entre palabras mediante vectores densos de baja dimensión.
 
-Estos embeddings presentan propiedades interesantes, como la formación de agrupaciones semánticas o incluso relaciones vectoriales capaces de capturar analogías lingüísticas. Sin embargo, también comparten una limitación importante: son embeddings estáticos, lo que significa que cada palabra tiene siempre la misma representación independientemente del contexto en el que aparezca. Esto resulta problemático en palabras polisémicas como “banco”, cuyo significado cambia en frases como “me senté en el banco del parque” y “fui al banco a sacar dinero”.
+Estos embeddings presentan propiedades interesantes, como la formación de agrupaciones semánticas entre palabras o incluso relaciones vectoriales capaces de capturar analogías lingüísticas. Sin embargo, también comparten una limitación importante: son embeddings estáticos, lo que significa que cada palabra tiene siempre la misma representación independientemente del contexto en el que aparezca. Esto resulta problemático en palabras polisémicas como “banco”, cuyo significado cambia en frases como “me senté en el banco del parque” y “fui al banco a sacar dinero”.
 
 \subsubsection*{Embeddings contextuales}
 
 Para superar la principal limitación de los embeddings estáticos surgieron los embeddings contextuales, en los que la representación vectorial de una palabra depende del contexto en el que aparece dentro de la frase. De este modo, una misma palabra puede tener vectores distintos según su significado en cada oración. Por ejemplo, el término ``banco'' no tendrá la misma representación en ``me senté en el banco del parque'' que en ``fui al banco a sacar dinero'', permitiendo una interpretación semántica mucho más precisa.
 
-Uno de los primeros modelos relevantes en este enfoque fue \ac{ELMo} \cite{peters_deep_2018}, propuesto en 2018, que utilizó redes \ac{LSTM} bidireccionales para generar representaciones dependientes del contexto. A diferencia de Word2Vec o \ac{GloVe}, \ac{ELMo} no asigna un único vector fijo por palabra, sino que calcula su representación teniendo en cuenta las palabras que la rodean dentro de la secuencia, convirtiéndose en un precedente directo de modelos posteriores como \acs{BERT}.
+Uno de los primeros modelos relevantes en este enfoque fue \ac{ELMo} \cite{peters_deep_2018}, propuesto en 2018, que utilizó redes \ac{LSTM} bidireccionales para generar representaciones dependientes del contexto. A diferencia de Word2Vec o \ac{GloVe}, \ac{ELMo} no asigna un único vector fijo por palabra, sino que calcula su representación teniendo en cuenta las palabras que la rodean dentro de la secuencia, convirtiéndose en un precedente directo de modelos posteriores.
 
-Con la llegada de los modelos basados en \textit{transformers}, esta idea se consolidó y pasó a formar parte de la arquitectura principal de modelos como \acs{BERT} y, posteriormente, de los grandes modelos de lenguaje (\acp{LLM}). En estos modelos, la primera capa de la red corresponde a una capa de embeddings que transforma los identificadores de los tokens (\textit{token IDs}) en vectores densos de alta dimensión. Como se ilustra en la Figura~\ref{fig:llm_embedding_layer}, cada token del vocabulario se asocia a una fila dentro de una gran matriz de embeddings, funcionando como una tabla de consulta (\textit{lookup table}) que permite recuperar rápidamente su representación vectorial.
+Con la llegada de los modelos basados en \textit{transformers}, esta idea se consolidó y pasó a formar parte de la arquitectura principal de modelos como \ac{BERT} y, posteriormente, de los grandes modelos de lenguaje (\acp{LLM}). En estos modelos, la primera capa de la red corresponde a una capa de embeddings que transforma los identificadores de los tokens (\textit{token IDs}) en vectores densos de alta dimensión. Como se ilustra en la Figura~\ref{fig:llm_embedding_layer}, cada token del vocabulario se asocia a una fila dentro de una gran matriz de embeddings, funcionando como una tabla de consulta (\textit{lookup table}) que permite recuperar rápidamente su representación vectorial.
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\textwidth]{llm_embedding_layer.png}
-	\caption{Esquema simplificado de la capa de embeddings en un \ac{LLM}. Fuente \cite{pasanen_network_2025}.}
+	\caption{Esquema simplificado de la capa de embeddings en un LLM. Fuente \cite{pasanen_network_2025}.}
 	\label{fig:llm_embedding_layer}
 \end{figure}
 
 A diferencia de los embeddings clásicos entrenados de forma independiente, en los \acp{LLM} estos embeddings se aprenden conjuntamente con el resto del modelo durante la fase de preentrenamiento\footnote{El preentrenamiento es la fase inicial en la que el modelo aprende a partir de grandes cantidades de texto sin supervisión, antes de especializarse en tareas concretas.}. Esta evolución supuso un cambio fundamental en el \ac{PLN} moderno, ya que permitió mejorar significativamente la comprensión contextual del lenguaje y aumentar el rendimiento en tareas complejas como la clasificación de texto, la generación de lenguaje o la detección de información implícita en los textos.
 
 
-\section{Evolución hacia los modelos Transformer}
+\section{Modelos basados en Transformers}
 
 \subsection{Contexto histórico: de las RNN al Transformer}
 
@@ -159,7 +159,7 @@ Antes de la aparición de los modelos basados en \textit{transformers}, el proce
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.65\textwidth]{rnn_secuencial.png}
-	\caption{Procesamiento secuencial en una \ac{RNN}. Fuente: \cite{borges_deep_2018}}
+	\caption{Procesamiento secuencial en una RNN. Fuente: \cite{borges_deep_2018}}
 	\label{fig:rnn_seq}
 \end{figure}
 
@@ -174,7 +174,7 @@ Estas limitaciones se hacían aún más evidentes en las arquitecturas \textit{e
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.65\textwidth]{seq2seq.png}
-	\caption{Esquema general de una arquitectura encoder-decoder (\textit{seq2seq}). Adaptado de \cite{noauthor_seq2seq_nodate}.}
+	\caption{Esquema general de una arquitectura encoder-decoder (\textit{seq2seq}). Fuente: \cite{de_fitero_dominguez_diapositivas_2026}}
 	\label{fig:seq2seq}
 \end{figure}
 
@@ -187,7 +187,7 @@ Como respuesta a las limitaciones mencionadas anteriormente surgió el mecanismo
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.7\textwidth]{bahdanau_attention.png}
-	\caption{Mecanismo de atención en una arquitectura encoder-decoder.}
+	\caption{Mecanismo de atención en una arquitectura encoder-decoder. Fuente: \cite{de_fitero_dominguez_diapositivas_2026}}
 	\label{fig:bahdanau_attention}
 \end{figure}
 
@@ -201,11 +201,11 @@ Aunque el mecanismo de atención supuso una mejora importante respecto a las arq
 
 Esta situación planteó una cuestión clave en la evolución del \ac{PLN}: ¿era posible procesar toda la secuencia en paralelo manteniendo la capacidad de modelar relaciones complejas entre palabras? La respuesta llegó en 2017 con la arquitectura Transformer propuesta por Vaswani et al. en el trabajo \textit{Attention Is All You Need} \cite{vaswani_attention_2017}, que eliminó completamente la recurrencia y basó el modelado de secuencias exclusivamente en mecanismos de atención.
 
-Frente a las arquitecturas \ac{RNN} y \ac{LSTM}, donde los tokens debían procesarse de forma secuencial, el Transformer permite procesar toda la secuencia de entrada en paralelo, mejorando significativamente la eficiencia del entrenamiento y aprovechando mejor el uso de hardware especializado como \ac{GPU} y \ac{TPU}.
+Frente a las arquitecturas \ac{RNN} y \ac{LSTM}, donde los tokens debían procesarse de forma secuencial, el Transformer permite procesar toda la secuencia de entrada en paralelo, mejorando significativamente la eficiencia del entrenamiento y aprovechando mejor el uso de hardware especializado como \acp{GPU} y \acp{TPU}.
 
 La idea central consiste en que cualquier token de la secuencia puede relacionarse directamente con cualquier otro, independientemente de la distancia que los separe dentro del texto. Esto permite modelar dependencias de largo alcance sin la degradación de información que aparecía en arquitecturas recurrentes. Además, al eliminar la necesidad de mantener un estado oculto secuencial, se reduce el problema de propagación de información a través de largas cadenas temporales.
 
-La arquitectura original está compuesta por dos bloques principales: un encoder y un decoder, ambos formados por la repetición de varias capas idénticas apiladas. Como se observa en la Figura~\ref{fig:transformer_architecture}, el encoder recibe la secuencia de entrada y genera representaciones contextualizadas de cada token, mientras que el decoder utiliza dicha información para producir la secuencia de salida de forma autoregresiva. Cada capa del encoder incluye un bloque de self-attention y una red feed-forward, mientras que en el decoder se añade además una capa de masked self-attention que impide acceder a tokens futuros durante la generación.
+La arquitectura original está compuesta por dos bloques principales: un encoder y un decoder, ambos formados por la repetición de varias capas idénticas apiladas. Como se observa en la Figura~\ref{fig:transformer_architecture}, el encoder recibe la secuencia de entrada y genera representaciones contextualizadas de cada token, mientras que el decoder utiliza dicha información para producir la secuencia de salida de forma autoregresiva.
 
 \begin{figure}[H]
 	\centering
@@ -273,11 +273,9 @@ Como se ilustra en la Figura~\ref{fig:self_attention_example}, este mecanismo pe
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.5\textwidth]{self_attention_example.png}
-	\caption{Ejemplo de self-attention.}
+	\caption{Ejemplo de self-attention.  Fuente: \cite{de_fitero_dominguez_diapositivas_2026}}
 	\label{fig:self_attention_example}
 \end{figure}
-
-De este modo, cada posición de la secuencia obtiene una representación enriquecida por el contexto global, lo que constituye la base del funcionamiento de modelos como \acs{BERT} y los grandes modelos de lenguaje.
 
 \subsubsection{Multi-Head Attention}
 
@@ -310,8 +308,8 @@ Como puede observarse en la Figura~\ref{fig:multihead_attention}, las múltiples
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.82\textwidth]{multihead_attention.png}
-	\caption{Esquema general de Multi-Head Attention.}
+	\includegraphics[width=\textwidth]{multihead_attention.png}
+	\caption{Esquema general de Multi-Head Attention. Fuente: \cite{de_fitero_dominguez_diapositivas_2026}}
 	\label{fig:multihead_attention}
 \end{figure}
 
@@ -331,7 +329,7 @@ donde \(W_1\) y \(W_2\) son matrices de pesos aprendidas y \(b_1\), \(b_2\) son 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.6\textwidth]{ffn_transformer.png}
-	\caption{Esquema de la Feed-Forward Network en una capa Transformer.}
+	\caption{Esquema de la Feed-Forward Network en una capa Transformer. Fuente: \cite{de_fitero_dominguez_diapositivas_2026}}
 	\label{fig:ffn_transformer}
 \end{figure}
 
@@ -396,9 +394,9 @@ Formalmente, esta restricción se implementa añadiendo una máscara causal ante
 
 Esto garantiza que durante la generación no exista fuga de información futura, algo esencial en tareas de generación de texto. Modelos como \ac{GPT} o LLaMA utilizan esta arquitectura \textit{decoder-only}.
 
-Además, en arquitecturas encoder-decoder completas, como BART \cite{lewis_bart_2019} o T5 \cite{raffel_exploring_2020}, el decoder incorpora una capa adicional denominada \textit{cross-attention}, donde las \textit{queries} proceden del decoder, mientras que las \textit{keys} y \textit{values} provienen del encoder. Esto permite que el modelo consulte dinámicamente la secuencia de entrada mientras genera la salida, siendo especialmente útil en tareas como traducción automática o resumen.
+Además, en arquitecturas encoder-decoder completas, como BART \cite{lewis_bart_2019} o T5 \cite{raffel_exploring_2020}, el decoder incorpora una capa adicional denominada \textit{cross-attention}, donde las \textit{queries} proceden del decoder, mientras que las \textit{keys} y \textit{values} provienen del encoder. Esto permite que el modelo consulte dinámicamente la secuencia de entrada mientras genera la salida, siendo especialmente útil en tareas como la traducción automática o la generación de resúmenes.
 
-Actualmente pueden distinguirse tres grandes familias de modelos Transformer: encoder-only (\acs{BERT}), decoder-only (\ac{GPT}) y encoder-decoder (T5), cada una optimizada para distintos tipos de tareas. No obstante, en los últimos años los modelos \textit{decoder-only} se han convertido en el enfoque predominante, especialmente en el desarrollo de grandes modelos de lenguaje. Esto se debe, por un lado, a que su arquitectura autoregresiva resulta más simple al basarse únicamente en la predicción del siguiente token utilizando el contexto previo y, por otro, a que un único modelo puede adaptarse a múltiples tareas mediante prompting, sin necesidad de diseñar arquitecturas específicas para cada problema.
+Actualmente pueden distinguirse tres grandes familias de modelos Transformer: encoder-only, decoder-only y encoder-decoder, cada una optimizada para distintos tipos de tareas. No obstante, en los últimos años los modelos \textit{decoder-only} se han convertido en el enfoque predominante, especialmente en el desarrollo de grandes modelos de lenguaje. Esto se debe, por un lado, a que su arquitectura autoregresiva resulta más simple al basarse únicamente en la predicción del siguiente token utilizando el contexto previo y, por otro, a que un único modelo puede adaptarse a múltiples tareas mediante prompting, sin necesidad de diseñar arquitecturas específicas para cada problema.
 
 
 \section{Modelos BERT}
@@ -413,7 +411,7 @@ Por ejemplo, en una frase como ``El banco está junto al río'', \ac{BERT} puede
 
 \subsubsection{Arquitectura general de BERT}
 
-La arquitectura interna de \ac{BERT} se basa exclusivamente en el bloque encoder del Transformer, compuesto por múltiples capas apiladas de self-attention, multi-head attention, redes \ac{FFN}, normalización y conexiones residuales, descritas en la sección anterior. A diferencia de los modelos autoregresivos basados en decoder, esta estructura permite que cada token atienda simultáneamente a todo el contexto de entrada, generando representaciones profundamente bidireccionales. Sobre esta base, el modelo aprende representaciones contextuales profundas a partir de grandes volúmenes de texto no etiquetado durante una fase de preentrenamiento.
+La arquitectura interna de \ac{BERT} se basa exclusivamente en el bloque encoder del Transformer, compuesto por múltiples capas apiladas de self-attention, multi-head attention, redes \ac{FFN}, normalización y conexiones residuales, descritas en la sección anterior. Sobre esta base, el modelo aprende representaciones contextuales profundas a partir de grandes volúmenes de texto no etiquetado durante una fase de preentrenamiento.
 
 La representación de entrada en \ac{BERT} no se construye únicamente a partir del embedding de cada token, sino como la suma de tres componentes: los \textit{token embeddings}, que representan el significado léxico de cada palabra o subpalabra; los \textit{segment embeddings}, que permiten distinguir si un token pertenece a la primera o segunda secuencia de entrada\footnote{Esto resulta útil en tareas que requieren procesar dos textos simultáneamente, como inferencia entre oraciones o respuesta a preguntas, donde \ac{BERT} recibe ambas secuencias concatenadas y necesita identificar a cuál pertenece cada token.}; y los \textit{position embeddings}, que incorporan la información sobre la posición de cada token dentro de la secuencia. Esta combinación permite al modelo conservar tanto el contenido semántico como la estructura de la entrada.
 
@@ -432,7 +430,7 @@ Gracias a este diseño, \ac{BERT} se convirtió en la base de numerosos modelos 
 
 Una de las principales aportaciones de \ac{BERT} fue su estrategia de preentrenamiento, diseñada para aprender representaciones profundas del lenguaje a partir de grandes volúmenes de texto no etiquetado antes de realizar el ajuste fino en tareas específicas. Este proceso permite que el modelo adquiera conocimiento lingüístico general, relaciones semánticas y dependencias sintácticas que posteriormente pueden reutilizarse en múltiples aplicaciones.
 
-Para ello, \ac{BERT} combina dos objetivos de entrenamiento complementarios: \ac{MLM} y \ac{NSP}. Ambos permiten aprovechar el contexto bidireccional del encoder y constituyen una diferencia fundamental respecto a modelos autoregresivos tradicionales. En la Figura~\ref{fig:bert_pretraining}, la parte izquierda representa esta fase de preentrenamiento (\textit{pre-training}), basada en \ac{MLM} y \ac{NSP}, mientras que la parte derecha corresponde al proceso de fine-tuning sobre tareas específicas, que se abordará en el siguiente apartado.
+Para ello, \ac{BERT} combina dos objetivos de entrenamiento complementarios: \ac{MLM} y \ac{NSP}. Ambos permiten aprovechar el contexto bidireccional del encoder y constituyen una diferencia fundamental respecto a modelos autoregresivos tradicionales. En la Figura~\ref{fig:bert_pretraining}, la parte izquierda representa esta fase de preentrenamiento (\textit{pre-training}), basada en \ac{MLM} y \ac{NSP}, mientras que la parte derecha corresponde al proceso de fine-tuning sobre tareas específicas, que se abordará en la Sección~\ref{subsec:fine_tuning_bert}.
 
 \begin{figure}[H]
 	\centering
@@ -443,7 +441,7 @@ Para ello, \ac{BERT} combina dos objetivos de entrenamiento complementarios: \ac
 
 \subsubsection{Masked Language Modeling (MLM)}
 
-El objetivo principal es el \textit{Masked Language Modeling}. A diferencia del modelado clásico de lenguaje, donde se predice el siguiente token, BERT selecciona aleatoriamente un porcentaje de palabras de la secuencia de entrada y las sustituye por el token especial \texttt{[MASK]}. El modelo debe predecir cuál era la palabra original utilizando tanto el contexto izquierdo como el derecho, lo que fuerza una comprensión bidireccional del texto.
+El objetivo principal es \ac{MLM}. A diferencia del modelado clásico de lenguaje, donde se predice el siguiente token, BERT selecciona aleatoriamente un porcentaje de palabras de la secuencia de entrada y las sustituye por el token especial \texttt{[MASK]}. El modelo debe predecir cuál era la palabra original utilizando tanto el contexto izquierdo como el derecho, lo que fuerza una comprensión bidireccional del texto.
 
 En el trabajo original, aproximadamente el 15\% de los tokens se seleccionan para esta tarea. De ellos, el 80\% se reemplaza por \texttt{[MASK]}, el 10\% por una palabra aleatoria y el 10\% restante se mantiene sin cambios. Esta estrategia evita que el modelo dependa excesivamente del token \texttt{[MASK]} y mejora su capacidad de generalización durante el fine-tuning.
 
@@ -456,8 +454,7 @@ Esta tarea resulta especialmente útil en problemas donde la relación entre fra
 Posteriormente, trabajos como \ac{RoBERTa} cuestionaron la utilidad real de \ac{NSP} y demostraron que era posible obtener mejores resultados eliminando esta tarea y aumentando la escala del preentrenamiento. Aun así, \ac{MLM} sigue siendo el núcleo fundamental del aprendizaje en \ac{BERT} y el principal responsable de su capacidad de comprensión contextual bidireccional.
 
 \subsection{Fine-tuning para clasificación de texto}
-
-Una vez finalizada la fase de preentrenamiento, \ac{BERT} puede adaptarse a tareas específicas mediante un proceso de ajuste fino (\textit{fine-tuning}) supervisado. En esta etapa no se entrena un modelo desde cero, sino que se parte de un \ac{BERT} ya preentrenado sobre grandes volúmenes de texto y se reutilizan sus pesos como punto de partida. Sobre esta base, se añade una capa de salida sencilla adaptada a la tarea objetivo, por ejemplo una capa de clasificación para predecir etiquetas.
+\label{subsec:fine_tuning_bert}
 
 Una vez finalizada la fase de preentrenamiento, \ac{BERT} puede adaptarse a tareas específicas mediante un proceso de ajuste fino (\textit{fine-tuning}) supervisado. En esta etapa no se entrena un modelo desde cero, sino que se parte de un \ac{BERT} ya preentrenado sobre grandes volúmenes de texto y se reutilizan sus pesos como punto de partida. Sobre esta base, se añade una capa de salida específica adaptada a la tarea objetivo, por ejemplo una capa de clasificación para predecir etiquetas. Como se mostró anteriormente en la Figura~\ref{fig:bert_pretraining}, la parte derecha representa esta fase de fine-tuning, donde el modelo preentrenado se adapta a tareas supervisadas específicas mediante una capa de salida adicional.
 
@@ -479,19 +476,19 @@ Este proceso permite aprovechar el conocimiento lingüístico aprendido durante 
 
 Aunque \ac{BERT} supuso un avance fundamental en tareas de comprensión del lenguaje, posteriormente surgieron múltiples variantes orientadas a mejorar aspectos concretos como la eficiencia computacional, el rendimiento, el tratamiento multilingüe o el manejo de secuencias largas. En este trabajo se seleccionan cuatro modelos representativos dentro de esta familia: \acs{DistilBETO}, RoBERTa-large-BNE, \acs{mDeBERTa} y Longformer, cada uno con características específicas que permiten analizar distintos enfoques dentro de los modelos \textit{encoder-only}.
 
-La elección de estos modelos responde tanto a criterios de rendimiento como de adecuación al problema planteado. Dado que el objetivo es la clasificación de textos en español relacionados con ansiedad, depresión y trastornos de la conducta alimentaria, resulta especialmente relevante considerar modelos optimizados para español, variantes más eficientes computacionalmente y arquitecturas capaces de manejar secuencias de mayor longitud cuando el contexto textual así lo requiere. La Tabla~\ref{tab:bert_models_comparison} sintetiza estas diferencias y resume las principales características de los modelos seleccionados.
+La elección de estos modelos responde tanto a criterios de rendimiento como de adecuación al problema planteado. Dado que el objetivo es la clasificación de textos en español relacionados con ansiedad, depresión y \ac{TCA}, resulta especialmente relevante considerar modelos optimizados para español, variantes más eficientes computacionalmente y arquitecturas capaces de manejar secuencias de mayor longitud cuando el contexto textual así lo requiere. La Tabla~\ref{tab:bert_models_comparison} sintetiza estas diferencias y resume las principales características y ventajas de los modelos seleccionados.
 
 \begin{table}[H]
 	\centering
 	\caption{Comparación de los modelos BERT utilizados en este trabajo}
 	\label{tab:bert_models_comparison}
-	\begin{tabular}{|l|l|l|}
+	\begin{tabular}{|p{4cm}|p{5cm}|p{5cm}|}
 		\hline
 		\textbf{Modelo} & \textbf{Motivación principal} & \textbf{Ventaja destacada} \\ \hline
-		\acs{DistilBETO} & Eficiencia + español & Menor coste computacional \\ \hline
+		\acs{DistilBETO} & Menor tamaño + especializado en texto en español & Menor coste computacional \\ \hline
 		RoBERTa-large-BNE & Optimización de BERT + mayor número de capas y parámetros & Mejor rendimiento general \\ \hline
-		\acs{mDeBERTa} & Mejora del mecanismo de atención y multilingüe & Mayor comprensión contextual \\ \hline
-		Longformer & Manejo de secuencias largas & Mayor contexto de entrada \\ \hline
+		\acs{mDeBERTa} & Mejora del mecanismo de atención + multilingüe & Mayor comprensión contextual \\ \hline
+		Longformer & Manejo de secuencias de tokens más largas que el resto & Mayor contexto de entrada \\ \hline
 	\end{tabular}
 \end{table}
 
@@ -501,7 +498,7 @@ La elección de estos modelos responde tanto a criterios de rendimiento como de 
 
 \subsubsection{RoBERTa-large-BNE}
 
-\ac{RoBERTa} fue propuesto por Liu et al. \cite{liu_roberta_2019} como una versión optimizada de \ac{BERT}. Su principal diferencia consiste en eliminar la tarea de \textit{Next Sentence Prediction} (NSP), aumentar significativamente la cantidad de datos de preentrenamiento, utilizar enmascarado dinámico\footnote{En \ac{BERT} original, los tokens enmascarados se seleccionan una única vez durante la preparación del conjunto de entrenamiento. En cambio, en \ac{RoBERTa} el enmascarado se realiza de forma dinámica en cada época, de modo que una misma secuencia puede presentar diferentes tokens ocultos a lo largo del entrenamiento, aumentando la diversidad de ejemplos y mejorando la capacidad de generalización del modelo.} y prolongar el entrenamiento durante más iteraciones. Estas modificaciones permitieron mejorar de forma consistente el rendimiento respecto a \ac{BERT} original sin alterar su arquitectura encoder-only.
+\acf{RoBERTa} fue propuesto por Liu et al. \cite{liu_roberta_2019} como una versión optimizada de \ac{BERT}. Su principal diferencia consiste en eliminar la tarea de \textit{Next Sentence Prediction} (NSP), aumentar significativamente la cantidad de datos de preentrenamiento, utilizar enmascarado dinámico\footnote{En \ac{BERT} original, los tokens enmascarados se seleccionan una única vez durante la preparación del conjunto de entrenamiento. En cambio, en \ac{RoBERTa} el enmascarado se realiza de forma dinámica en cada época, de modo que una misma secuencia puede presentar diferentes tokens ocultos a lo largo del entrenamiento, aumentando la diversidad de ejemplos y mejorando la capacidad de generalización del modelo.} y prolongar el entrenamiento durante más iteraciones. Estas modificaciones permitieron mejorar de forma consistente el rendimiento respecto a \ac{BERT} original sin alterar su arquitectura encoder-only.
 
 En este trabajo se utiliza específicamente la variante RoBERTa-large-BNE \cite{gutierrez-fandino_maria_2022}, una versión de gran tamaño preentrenada para español desarrollada sobre corpus extensos de texto en este idioma. Frente a variantes base de menor tamaño, la configuración \textit{large} incorpora un mayor número de capas y parámetros, lo que le permite aprender representaciones lingüísticas más complejas y capturar mejor relaciones semánticas profundas, aunque a costa de un mayor coste computacional durante el fine-tuning y la inferencia.
 
@@ -539,20 +536,20 @@ En los últimos años, esta combinación de escalado masivo y preentrenamiento a
 
 \subsection{Pipeline de entrenamiento de los LLMs}
 
-Como se ha mencionado anteriormente, los \acp{LLM} actuales suelen basarse en arquitecturas \textit{decoder-only} entrenadas mediante predicción autoregresiva del siguiente token. Sin embargo, un modelo únicamente preentrenado no constituye todavía un asistente conversacional útil, ya que su comportamiento natural consiste simplemente en continuar texto a partir del contexto previo.
+A diferencia del proceso de entrenamiento descrito anteriormente para los modelos \ac{BERT}, basado en tareas bidireccionales como el enmascaramiento de tokens, los \acp{LLM} actuales siguen un flujo distinto y suelen apoyarse en arquitecturas \textit{decoder-only} preentrenadas mediante predicción autoregresiva del siguiente token. Sin embargo, un modelo únicamente preentrenado no constituye todavía un asistente conversacional útil, ya que su comportamiento natural consiste simplemente en continuar texto a partir del contexto previo.
 
 Para convertir este modelo base en un sistema capaz de seguir instrucciones, mantener conversaciones y generar respuestas alineadas con las preferencias humanas, es necesario un proceso de entrenamiento adicional compuesto por varias fases sucesivas. Cada una de ellas aporta capacidades específicas que transforman progresivamente el modelo base en un modelo conversacional o \textit{chat model}. La Figura~\ref{fig:llm_training_pipeline} resume este proceso completo, desde el preentrenamiento inicial hasta la obtención de un modelo conversacional alineado.
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.95\textwidth]{llm_training_pipeline.png}
-	\caption{Pipeline general de entrenamiento de un LLM.}
+	\caption{Pipeline general de entrenamiento de un LLM. Fuente: \cite{de_fitero_dominguez_diapositivas_2026}}
 	\label{fig:llm_training_pipeline}
 \end{figure}
 
 \subsubsection{Fase 1: Pre-entrenamiento autoregresivo}
 
-La primera etapa en el entrenamiento de un \ac{LLM} consiste en el pre-entrenamiento autoregresivo (\textit{pre-training}), cuyo objetivo es aprender un modelo base capaz de predecir el siguiente token de una secuencia. A diferencia de \ac{BERT}, que utiliza \textit{Masked Language Modeling}, los \acp{LLM} basados en arquitecturas \textit{decoder-only} se entrenan mediante predicción causal, donde cada token se genera únicamente a partir del contexto previo.
+La primera etapa en el entrenamiento de un \ac{LLM} consiste en el pre-entrenamiento autoregresivo (\textit{pre-training}), cuyo objetivo es aprender un modelo base capaz de predecir el siguiente token de una secuencia. A diferencia de \ac{BERT}, que utiliza \textit{Masked Language Modeling}, los \acp{LLM} se entrenan mediante predicción causal, donde cada token se genera únicamente a partir del contexto previo.
 
 Formalmente, el modelo aprende a maximizar la probabilidad condicional de cada token dado su contexto anterior:
 
@@ -596,7 +593,7 @@ Después del \ac{SFT}, el modelo ya puede seguir instrucciones, pero todavía pu
 
 Esta etapa suele realizarse mediante técnicas de \ac{PO}, donde el modelo aprende a distinguir entre respuestas mejores y peores para una misma instrucción. En lugar de utilizar únicamente ejemplos correctos, se emplean pares de respuestas comparadas por evaluadores humanos o generadas automáticamente, indicando cuál resulta preferible.
 
-En los enfoques clásicos de \ac{RLHF}, estas preferencias se utilizan primero para entrenar un modelo de recompensa (\textit{reward model}), cuya función es estimar qué tan buena es una respuesta según criterios humanos de utilidad, seguridad o calidad. Posteriormente, este modelo guía el ajuste del \ac{LLM} mediante aprendizaje por refuerzo.
+En los enfoques clásicos de \ac{RLHF}, estas preferencias se utilizan primero para entrenar un modelo de recompensa (\textit{reward model}), cuya función es estimar como de buena es una respuesta según criterios humanos de utilidad, seguridad o calidad. Posteriormente, este modelo guía el ajuste del \ac{LLM} mediante aprendizaje por refuerzo.
 
 Métodos más recientes como \ac{DPO} \cite{rafailov_direct_2023} permiten optimizar directamente estas preferencias sin necesidad de entrenar explícitamente este modelo de recompensa intermedio, simplificando considerablemente el proceso. El objetivo final es obtener un modelo más útil, seguro y alineado con el comportamiento esperado por el usuario.
 
@@ -655,11 +652,11 @@ En este trabajo, la inferencia con \acp{LLM} se realiza mediante \textit{zero-sh
 		\caption{Few-shot}
 	\end{subfigure}
 	
-	\caption{Comparación entre estrategias de prompting. Fuente: \cite{noauthor_day_nodate}}
+	\caption{Comparación entre estrategias de prompting. Adaptado de \cite{noauthor_day_nodate}}
 	\label{fig:prompting_strategies}
 \end{figure}
 
-Además, técnicas como \ac{CoT} \cite{wei_chain--thought_2022} permiten mejorar el rendimiento en tareas complejas solicitando explícitamente al modelo que razone paso a paso antes de responder. Aunque este enfoque resulta especialmente útil en problemas matemáticos o de razonamiento lógico, también puede aportar mayor consistencia en tareas de clasificación ambigua o análisis semántico complejo.
+Otras técnicas como \ac{CoT} \cite{wei_chain--thought_2022} permiten mejorar el rendimiento en tareas complejas solicitando explícitamente al modelo que razone paso a paso antes de responder. Aunque este enfoque resulta especialmente útil en problemas matemáticos o de razonamiento lógico, también puede aportar mayor consistencia en tareas de clasificación ambigua o análisis semántico complejo.
 
 \subsection{Modelos utilizados en este trabajo}
 \label{subsec:modelos_llm}
@@ -672,7 +669,7 @@ En este trabajo se utilizan ambos enfoques: GPT-5.2, Claude Sonnet 4.6 y Gemini 
 
 \subsubsection{Descripción de los modelos seleccionados}
 
-La selección de modelos utilizada en este trabajo busca comparar dos grandes grupos dentro del panorama actual de los \acp{LLM}. Por un lado, se incluyen tres modelos propietarios de referencia, que permiten analizar posibles diferencias entre los modelos comerciales de mayor rendimiento. Por otro lado, se seleccionan tres modelos abiertos de distintos niveles de capacidad, con el objetivo de evaluar hasta qué punto las alternativas abiertas pueden competir frente a los modelos propietarios más avanzados.
+La selección de modelos utilizada en este trabajo incluye, por un lado, tres modelos propietarios de referencia que permiten analizar posibles diferencias entre los modelos comerciales de mayor rendimiento. Por otro lado, se seleccionan tres modelos abiertos de distintos niveles de capacidad, con el objetivo de evaluar hasta qué punto las alternativas abiertas pueden competir frente a los modelos propietarios más avanzados.
 
 De este modo, no solo se compara el rendimiento absoluto de cada modelo, sino también la relación entre coste y beneficio, buscando identificar el punto óptimo a partir del cual un mayor gasto computacional o económico deja de traducirse en mejoras significativas de rendimiento.
 
@@ -772,22 +769,22 @@ Por este motivo, la métrica principal empleada en este trabajo es el F1-score m
 
 Las métricas de clasificación obtenidas sobre el conjunto de prueba proporcionan una estimación puntual del rendimiento de cada modelo. Sin embargo, este valor por sí solo no permite conocer hasta qué punto dicho resultado es estable o podría variar si la evaluación se realizara sobre otra muestra similar del mismo problema. Por este motivo, resulta necesario incorporar una estimación de incertidumbre asociada a cada métrica.
 
-Para ello, en este trabajo se emplea bootstrap no paramétrico \cite{efron_bootstrap_1992}, una técnica de remuestreo ampliamente utilizada para estimar la variabilidad de una métrica sin asumir distribuciones teóricas previas. El procedimiento consiste en generar múltiples muestras del conjunto de prueba mediante muestreo aleatorio con reemplazo, manteniendo el mismo tamaño que el conjunto original. Para cada una de estas muestras se recalcula la métrica de interés, obteniendo así una distribución empírica de valores a partir de la cual pueden estimarse intervalos de confianza.
+Para ello, en este trabajo se emplea bootstrap no paramétrico \cite{efron_bootstrap_1992}, una técnica de remuestreo ampliamente utilizada para estimar la variabilidad de una métrica sin asumir distribuciones teóricas previas. El procedimiento consiste en generar múltiples muestras del conjunto de prueba mediante muestreo aleatorio con reemplazo, manteniendo el mismo tamaño que el conjunto original. En este trabajo se generan 1000 remuestreos. Para cada una de estas muestras se recalcula la métrica de interés, obteniendo así una distribución empírica de valores a partir de la cual pueden estimarse intervalos de confianza.
 
 En concreto, se utiliza la variante \ac{BCa} \cite{efron_better_1987}, que mejora la estimación clásica basada en percentiles al corregir posibles sesgos y asimetrías en la distribución bootstrap. Esta aproximación resulta especialmente adecuada cuando el número de ejemplos no es muy elevado o cuando la distribución de la métrica no es perfectamente simétrica, ofreciendo intervalos de confianza más robustos y estadísticamente más fiables.
 
 A partir de esta distribución bootstrap se calculan intervalos de confianza del 95\%, permitiendo interpretar no solo el valor medio de cada métrica, sino también la estabilidad y fiabilidad de dicho resultado. De este modo, dos modelos con valores de F1 similares pueden diferenciarse si uno presenta una mayor variabilidad que el otro, aportando una visión más completa del comportamiento real de cada sistema.
 
 \subsection{Consistencia predictiva mediante TARa@5}
+\label{subsec:tara5}
 
-En el caso de los \acp{LLM}, además del rendimiento predictivo tradicional, resulta especialmente relevante analizar la estabilidad de sus respuestas ante múltiples ejecuciones sobre una misma entrada. A diferencia de los modelos \ac{BERT} tras el fine-tuning, cuya inferencia es completamente determinista, los \acp{LLM} pueden presentar cierta variabilidad incluso manteniendo la misma configuración de inferencia y utilizando \texttt{temperature = 0}. Esto se debe a su naturaleza generativa y a procesos internos de razonamiento que no siempre son completamente deterministas.
+En el caso de los \acp{LLM}, además del rendimiento predictivo tradicional, resulta especialmente relevante analizar la estabilidad de sus respuestas ante múltiples ejecuciones sobre una misma entrada. A diferencia de los modelos \ac{BERT} tras el fine-tuning, cuya inferencia es completamente determinista, los \acp{LLM} pueden presentar cierta variabilidad incluso manteniendo la misma configuración de inferencia y utilizando \texttt{temperature = 0}\footnote{El parámetro \textit{temperature} controla el grado de aleatoriedad en la generación del modelo. Valores cercanos a 0 producen salidas más deterministas y conservadoras, mientras que valores cercanos a 1 incrementan la diversidad y variabilidad de las respuestas.}. Esto se debe a su naturaleza generativa y a procesos internos de razonamiento que no siempre son completamente deterministas.
 
 Para estudiar esta consistencia se emplea la métrica \ac{TARa@N} \cite{atil_non-determinism_2025}, que evalúa hasta qué punto un modelo mantiene la misma predicción cuando se consulta varias veces sobre el mismo ejemplo. Esta métrica puede aplicarse sobre un número arbitrario de repeticiones \(N\), permitiendo analizar la estabilidad inferencial del modelo ante múltiples ejecuciones bajo las mismas condiciones experimentales.
 
 En este trabajo se utiliza \ac{TARa@5}, realizando cinco inferencias independientes sobre cada instancia del conjunto de prueba con exactamente el mismo prompt, la misma configuración de generación y el mismo modelo. Esta elección permite obtener una estimación suficientemente representativa de la consistencia predictiva sin incrementar de forma excesiva el coste computacional y económico asociado al uso de APIs comerciales.
 
 Para cada ejemplo, se calcula primero la clase modal, es decir, la etiqueta que aparece con mayor frecuencia entre las cinco predicciones generadas. A continuación, se obtiene el grado de acuerdo (\textit{agreement}) como la proporción de veces que dicha clase modal se repite sobre el total de ejecuciones:
-
 \[
 agreement_i =
 \frac{\max\left(\text{freq}(y_i)\right)}{5}
@@ -796,14 +793,12 @@ agreement_i =
 donde \(\text{freq}(y_i)\) representa la frecuencia de cada etiqueta predicha para el ejemplo \(i\).
 
 Por ejemplo, si para una misma instancia se obtienen las predicciones \([1,1,1,0,0]\), la clase modal sería \(1\) y el grado de acuerdo sería:
-
 \[
 agreement =
 \frac{3}{5} = 0.60
 \]
 
 Finalmente, el valor de \ac{TARa@5} se calcula como la media del \textit{agreement} sobre todos los ejemplos evaluados:
-
 \[
 TARa@5 =
 \frac{1}{N}
@@ -815,9 +810,11 @@ De este modo, \ac{TARa@5} complementa métricas como F1-score, ya que un modelo 
 
 \subsection{Matrices de confusión}
 
-Aunque métricas globales como F1-score permiten cuantificar el rendimiento general de un modelo, no muestran de forma explícita qué tipos de errores se están cometiendo ni entre qué clases aparecen con mayor frecuencia. Para complementar este análisis, se utilizan matrices de confusión \cite{powers_evaluation_2020}, una herramienta especialmente útil para interpretar el comportamiento del clasificador de forma más detallada.
+Aunque métricas globales como F1-score permiten cuantificar el rendimiento general de un modelo, no muestran de forma explícita qué tipos de errores se están cometiendo ni entre qué clases aparecen con mayor frecuencia. Para complementar este análisis, se utilizan matrices de confusión \cite{powers_evaluation_2020}.
 
-Una matriz de confusión representa la relación entre las etiquetas reales y las predicciones generadas por el modelo. Cada fila corresponde a la clase verdadera y cada columna a la clase predicha, permitiendo observar tanto los aciertos como las confusiones sistemáticas entre categorías. Los valores situados en la diagonal principal representan las clasificaciones correctas, mientras que los valores fuera de la diagonal indican errores de predicción.
+Una matriz de confusión representa la relación entre las etiquetas reales y las predicciones generadas por el modelo. Cada fila corresponde a la clase verdadera y cada columna a la clase predicha, permitiendo observar tanto los aciertos como las confusiones sistemáticas entre categorías. En el caso de la clasificación binaria, esta representación se traduce en cuatro tipos de resultados: verdaderos positivos, verdaderos negativos, falsos positivos y falsos negativos. Los valores situados en la diagonal principal representan las clasificaciones correctas, mientras que los valores fuera de la diagonal indican errores de predicción.
+
+En el contexto de este estudio, no todos los errores tienen la misma relevancia. Desde una perspectiva clínica, resulta generalmente preferible cometer un falso positivo (identificar a un usuario como potencialmente afectado cuando en realidad no lo está) que un falso negativo, en el que un caso real pasa desapercibido. Mientras que el primer caso puede implicar una alerta innecesaria, el segundo puede suponer la no detección de una situación de riesgo, lo que lo convierte en un error potencialmente más grave.
 
 En este trabajo se emplean matrices de confusión normalizadas por fila, de modo que cada valor expresa la proporción de ejemplos de una clase real que han sido clasificados en cada categoría posible. Esta normalización facilita la comparación entre clases incluso cuando existe desbalance en el número de ejemplos, evitando que las clases mayoritarias dominen visualmente la interpretación.
 
@@ -831,7 +828,7 @@ Comparar modelos únicamente a partir de diferencias en métricas como F1-score 
 
 Para ello, en este trabajo se emplea bootstrap pareado (\textit{paired bootstrap}) \cite{efron_introduction_1994}\cite{davison_bootstrap_1997}, una técnica especialmente adecuada cuando se comparan clasificadores evaluados sobre exactamente los mismos ejemplos. A diferencia del bootstrap estándar, donde cada modelo se analiza de forma independiente, en el bootstrap pareado se realiza el remuestreo manteniendo alineadas las predicciones de ambos modelos sobre cada instancia, preservando así la dependencia entre observaciones.
 
-En cada remuestreo se calcula la diferencia de rendimiento entre dos modelos para una métrica determinada, definida como:
+En este trabajo se realizan 1000 remuestreos bootstrap. En cada uno se calcula la diferencia de rendimiento entre dos modelos para una métrica determinada, definida como:
 
 \[
 \Delta = M_A - M_B
@@ -863,7 +860,7 @@ donde \(B\) representa el número total de remuestreos bootstrap, \(\delta_i\) l
 
 Además de la significancia estadística, resulta útil cuantificar la magnitud práctica de la diferencia observada entre modelos. Para ello, se emplea el tamaño del efecto mediante Cohen’s \(d\) adaptado para muestras pareadas \cite{cohen_statistical_2013}, tal y como se utiliza habitualmente en estudios comparativos con medidas repetidas.
 
-Mientras que el \textit{p-value} permite evaluar si una diferencia puede atribuirse al azar, Cohen’s \(d\) permite estimar si dicha diferencia resulta relevante desde un punto de vista práctico. En otras palabras, el \textit{p-value} indica si la diferencia parece real, mientras que el tamaño del efecto indica si esa diferencia realmente importa.
+Mientras que el \textit{p-value} permite evaluar si una diferencia puede atribuirse al azar, Cohen’s \(d\) permite estimar la magnitud de dicha diferencia en caso de existir. En otras palabras, el \textit{p-value} indica si la diferencia parece real, mientras que el tamaño del efecto indica si esa diferencia realmente importa.
 
 En el caso de comparaciones pareadas, Cohen’s \(d\) se calcula a partir de la distribución de diferencias bootstrap como:
 
@@ -898,6 +895,7 @@ p_{(i)} \leq \frac{i}{m}\alpha
 
 donde \(i\) representa la posición del \textit{p-value} en el orden creciente, \(m\) el número total de comparaciones  realizadas y \(\alpha\) el nivel de significancia fijado (habitualmente 0.05). De este modo, se reduce el riesgo de falsos positivos sin aplicar una corrección excesivamente conservadora como ocurre en otros métodos más restrictivos.
 
+\newpage
 
 \section{Contexto clínico de los trastornos analizados}
 
@@ -917,15 +915,15 @@ La depresión es un trastorno del estado de ánimo caracterizado por la presenci
 
 Entre sus síntomas más frecuentes se encuentran el ánimo deprimido, la anhedonia, la fatiga constante, la sensación de inutilidad o culpa, la dificultad para concentrarse, alteraciones del sueño y del apetito, así como pensamientos de desesperanza o incluso ideación suicida en los casos más graves. Estos patrones se recogen habitualmente en instrumentos clínicos como el cuestionario \ac{PHQ-9}, ampliamente utilizado para la evaluación de síntomas depresivos \cite{kroenke_phq-9_2001}.
 
-Desde el punto de vista del análisis textual, la depresión suele reflejarse en expresiones relacionadas con vacío emocional, falta de motivación, aislamiento social o pérdida de sentido. Frases como “no tengo ganas de hacer nada”, “me siento vacío todo el tiempo” o “siento que nada va a mejorar” pueden constituir indicadores relevantes para la clasificación automática.
+En el plano del lenguaje, la depresión suele reflejarse en expresiones relacionadas con vacío emocional, falta de motivación, aislamiento social o pérdida de sentido. Frases como “no tengo ganas de hacer nada”, “me siento vacío todo el tiempo” o “siento que nada va a mejorar” pueden constituir indicadores relevantes para la clasificación automática.
 
 \subsection{Trastornos de la Conducta Alimentaria (TCA)}
 
-Los \acp{TCA} constituyen un conjunto de alteraciones psicológicas caracterizadas por una relación disfuncional con la alimentación, el peso y la imagen corporal \cite{belloch_manual_2020}. Estas alteraciones pueden manifestarse a través de restricciones alimentarias severas, episodios de atracones o conductas compensatorias como el vómito autoinducido \cite{american_psychiatric_association_diagnostic_2022}. Su impacto no se limita al ámbito físico, sino que afecta también de forma significativa al bienestar emocional y al funcionamiento social de la persona.
+Los Trastornos de la Conducta Alimentaria (\acp{TCA}) constituyen un conjunto de alteraciones psicológicas caracterizadas por una relación disfuncional con la alimentación, el peso y la imagen corporal \cite{belloch_manual_2020}. Estas alteraciones pueden manifestarse a través de restricciones alimentarias severas, episodios de atracones o conductas compensatorias como el vómito autoinducido \cite{american_psychiatric_association_diagnostic_2022}. Su impacto no se limita al ámbito físico, sino que afecta también de forma significativa al bienestar emocional y al funcionamiento social de la persona.
 
-Entre los principales \acp{TCA} se encuentran la anorexia nerviosa, la bulimia nerviosa y el trastorno por atracón, aunque todos comparten una fuerte preocupación por la autoimagen y una percepción distorsionada del propio cuerpo. Estos patrones suelen evaluarse mediante instrumentos clínicos como el cuestionario \ac{EAT-26} \cite{garner_eating_1982} o el test SCOFF\footnote{El nombre SCOFF procede de cinco preguntas clave del cuestionario original: \textit{Sick} (provocarse el vómito), \textit{Control} (pérdida de control sobre la comida), \textit{One stone} (pérdida de aproximadamente 6,35 kg), \textit{Fat} (sentirse con sobrepeso) y \textit{Food} (preocupación excesiva por la comida).} \cite{morgan_scoff_1999}, ampliamente utilizados en la detección de conductas de riesgo relacionadas con la alimentación.
+Entre los principales \acp{TCA} se encuentran la anorexia nerviosa, la bulimia nerviosa y el trastorno por atracón, aunque todos comparten una fuerte preocupación por la autoimagen y una percepción distorsionada del propio cuerpo. Estos patrones suelen evaluarse mediante instrumentos clínicos como el cuestionario \ac{EAT-26} \cite{garner_eating_1982} o el test SCOFF \cite{morgan_scoff_1999}, ampliamente utilizados en la detección de conductas de riesgo relacionadas con la alimentación.
 
-Desde el punto de vista del análisis textual, los \acp{TCA} suelen reflejarse en expresiones relacionadas con culpa al comer, obsesión por el peso, miedo a engordar o insatisfacción corporal persistente. Frases como “me siento mal cada vez que como”, “no puedo dejar de pensar en mi peso” o “siento que nunca estoy lo suficientemente delgado/a” pueden constituir indicadores relevantes para la clasificación automática.
+A nivel lingüístico, los \acp{TCA} suelen reflejarse en expresiones relacionadas con culpa al comer, obsesión por el peso, miedo a engordar o insatisfacción corporal persistente. Frases como “me siento mal cada vez que como”, “no puedo dejar de pensar en mi peso” o “siento que nunca estoy lo suficientemente delgado/a” pueden constituir indicadores relevantes para la clasificación automática.
 
 \subsection{Solapamiento sintomático y limitaciones del análisis textual}
 

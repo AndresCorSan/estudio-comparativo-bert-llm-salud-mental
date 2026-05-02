@@ -34,11 +34,10 @@ A continuación, se realizó la preparación de los datos y la construcción de 
 
 Todo el desarrollo experimental se implementó en Python utilizando Google Colab como entorno principal de trabajo, mediante cuadernos de Jupyter (\texttt{.ipynb}) organizados por fases: exploración del dataset, preparación de datos, entrenamiento de modelos \ac{BERT}, inferencia con \acp{LLM} y, finalmente, estudio de resultados y análisis comparativo. Esta estructura permitió mantener una experimentación modular, reproducible y fácilmente trazable durante todo el TFG.
 
-La Figura~\ref{fig:pipeline_general} resume de forma esquemática el flujo completo de trabajo seguido, desde la selección del dataset hasta el análisis comparativo final entre los modelos evaluados.
-
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=\textwidth]{pipeline_general_tfg.png}
+	\hspace*{-0.1\textwidth}
+	\includegraphics[width=1.2\textwidth]{pipeline_general_tfg.png}
 	\caption{Pipeline general de la metodología seguida en el desarrollo de este TFG}
 	\label{fig:pipeline_general}
 \end{figure}
@@ -47,11 +46,11 @@ La Figura~\ref{fig:pipeline_general} resume de forma esquemática el flujo compl
 \section{Dataset empleado}
 \label{sec:desarr-del-sist}
 
-\subsection{Selección del dataset MentalRiskES}
+\subsection{Selección del dataset}
 
 La elección del dataset constituye una parte fundamental en el desarrollo de este trabajo, ya que condiciona tanto la metodología empleada como la validez de los resultados obtenidos. Inicialmente, el objetivo del TFG se centraba en la detección de ansiedad y depresión a partir de texto, pero pronto se observó que encontrar corpus adecuados para este propósito resultaba especialmente complejo. La mayoría de datasets públicos disponibles incluían únicamente casos de depresión, ofrecían información limitada sobre la calidad del etiquetado o no contaban con un proceso de anotación suficientemente fiable.
 
-Tras estudiar distintas alternativas, se seleccionó finalmente el dataset \textit{MentalRiskES}, creado por investigadores de la Universidad de Jaén junto con colaboradores internacionales. Este corpus proporciona anotaciones realizadas por múltiples evaluadores y presenta un mayor grado de consistencia que otros datasets disponibles. Además, MentalRiskES no solo incluye datos sobre ansiedad y depresión, sino también sobre trastornos de la conducta alimentaria, por lo que se decidió ampliar el alcance del trabajo para incorporar la detección de este tercer trastorno. 
+Tras estudiar distintas alternativas, se seleccionó finalmente el dataset \textit{MentalRiskES} \cite{marmol-romero_mentalriskes_2024}, creado por el grupo de investigación SINAI de la Universidad de Jaén. Este corpus proporciona anotaciones realizadas por múltiples evaluadores y presenta un mayor grado de consistencia que otros datasets disponibles. Además, MentalRiskES no solo incluye datos sobre ansiedad y depresión, sino también sobre trastornos de la conducta alimentaria (\acp{TCA}), por lo que se decidió ampliar el alcance del trabajo para incorporar la detección de este tercer trastorno. 
 
 Un aspecto especialmente relevante es que MentalRiskES está compuesto íntegramente por texto en español, lo que permite desarrollar un estudio que se aleja de la tendencia dominante en la literatura, centrada mayoritariamente en corpus en lengua inglesa.
 
@@ -59,7 +58,7 @@ Un aspecto especialmente relevante es que MentalRiskES está compuesto íntegram
 \subsection{Análisis del dataset MentalRiskES}
 
 \subsubsection{Descripción y estructura general del corpus}
-MentalRiskES constituye un corpus en español diseñado para la detección temprana de tres trastornos mentales: depresión, ansiedad y trastornos de la conducta alimentaria (Eating Disorders, ED). Los datos que componen el corpus provienen de grupos públicos de Telegram, seleccionados específicamente por su naturaleza temática relacionada con cada uno de los trastornos.
+MentalRiskES constituye un corpus en español diseñado para la detección temprana de tres trastornos de salud mental: ansiedad, depresión y trastornos de la conducta alimentaria. Los datos que componen el corpus provienen de grupos públicos de Telegram, seleccionados específicamente por su naturaleza temática relacionada con cada uno de los trastornos.
 
 La unidad básica del dataset es el sujeto (usuario). Para cada usuario se incluye un identificador anonimizado y una secuencia cronológica de mensajes publicados dentro de un grupo concreto. El dataset conserva los mensajes originales tras un proceso de curación que incluyó la eliminación de mensajes extremadamente breves, la conversión de emojis a texto, el etiquetado de URLs y hashtags y la anonimización de nombres propios, alias y números de teléfono.
 
@@ -75,10 +74,11 @@ Es importante destacar que estas etiquetas no fueron establecidas por profesiona
 Este enfoque proporciona un nivel de fiabilidad adecuado en las anotaciones obtenidas. No obstante, la ausencia de anotadores profesionales implica que las etiquetas deben interpretarse como indicadores de riesgo y no como diagnósticos clínicos. Por ello, futuros trabajos podrían beneficiarse de corpus anotados por especialistas en salud mental para aumentar aún más su fiabilidad.
 
 \subsubsection{Exploración del dataset}
-A continuación, se presenta una exploración inicial del corpus \textit{MentalRiskES} con el objetivo de entender su distribución de usuarios, mensajes y palabras, así como el balance entre clases para cada trastorno. Para ello se generó un pequeño script en Python que permitió extraer los siguientes resultados:
+\label{subsubsec:exploracion_dataset}
+A continuación, se presenta una exploración inicial del corpus \textit{MentalRiskES} con el objetivo de entender su distribución de usuarios, mensajes y palabras, así como el balance entre clases para cada trastorno.
 
 \begin{itemize}
-	\item En los trastornos de la conducta alimentaria (ED), el corpus contiene 335 sujetos, de los cuales 192 pertenecen a la clase control y 143 a la clase \textit{suffer}. Aunque existe cierto desbalance, la diferencia entre clases es moderada.
+	\item En \ac{TCA}, el corpus contiene 335 sujetos, de los cuales 192 pertenecen a la clase control y 143 a la clase \textit{suffer}. Aunque existe cierto desbalance, la diferencia entre clases es moderada.
 	\item En depresión, la proporción está más desequilibrada. De los 499 sujetos presentes en esta partición, 166 son control y 333 se agrupan dentro de las distintas subcategorías de \textit{suffer}, lo que supone aproximadamente el doble de sujetos positivos respecto a negativos.
 	\item La partición correspondiente a ansiedad presenta el desbalance más pronunciado: solo 57 sujetos pertenecen a la clase control, frente a 443 que han sido anotados como \textit{suffer}. Este desequilibrio debe tenerse en cuenta en fases posteriores, ya que puede afectar al rendimiento y a la sensibilidad del modelo.
 \end{itemize}
@@ -104,7 +104,7 @@ Otro factor importante a tener en cuenta es el número de mensajes y de palabras
 			\hline
 			& \multicolumn{3}{c|}{\textbf{Ansiedad}} 
 			& \multicolumn{3}{c|}{\textbf{Depresión}} 
-			& \multicolumn{3}{c|}{\textbf{ED}} \\
+			& \multicolumn{3}{c|}{\textbf{TCA}} \\
 			\textbf{Métrica} 
 			& \textbf{Control} & \textbf{Suffer} & \textbf{Total}
 			& \textbf{Control} & \textbf{Suffer} & \textbf{Total}
@@ -138,44 +138,56 @@ Otro factor importante a tener en cuenta es el número de mensajes y de palabras
 	\label{tab:resumen_trastornos}
 \end{table}
 
-El análisis del número de mensajes y palabras revela diferencias relevantes entre los tres trastornos. Ansiedad es el conjunto con mayor volumen total de mensajes y palabras, seguido de depresión y, finalmente, ED. Si se comparan las medias por usuario, en ansiedad y depresión los usuarios de la clase control tienden a escribir ligeramente más mensajes que los usuarios \textit{suffer}, mientras que en ED ocurre lo contrario. En cuanto al número de palabras, en ansiedad los usuarios \textit{suffer} producen mensajes más extensos de media, en depresión sucede lo contrario, y en ED ambas clases presentan valores muy similares.
+El análisis del número de mensajes y palabras revela diferencias relevantes entre los tres trastornos. Ansiedad es el conjunto con mayor volumen total de mensajes y palabras, seguido de depresión y, finalmente, \ac{TCA}. Si se comparan las medias por usuario, en ansiedad y depresión los usuarios de la clase control tienden a escribir ligeramente más mensajes que los usuarios \textit{suffer}, mientras que en \ac{TCA} ocurre lo contrario. En cuanto al número de palabras, en ansiedad los usuarios \textit{suffer} producen mensajes más extensos de media, en depresión sucede lo contrario, y en \ac{TCA} ambas clases presentan valores muy similares.
 
 \subsubsection{Conclusión del análisis del dataset}
 
-En conjunto, los resultados muestran diferencias claras tanto en el desbalance entre clases como en la cantidad de texto disponible por trastorno. Ansiedad es el conjunto más desequilibrado, mientras que depresión y ED presentan distribuciones más homogéneas. Asimismo, ansiedad y depresión ofrecen un volumen textual mayor que ED, lo que implica que los modelos dispondrán de más información lingüística en estos dos casos. Estas variaciones son relevantes porque afectan tanto a la dificultad del aprendizaje como a la capacidad de generalización, por lo que deben tenerse en cuenta tanto en el proceso de entrenamiento del modelo BERT como en la evaluación posterior, tanto de BERT como de los modelos LLM preentrenados.
+En conjunto, los resultados muestran diferencias claras tanto en el desbalance entre clases como en la cantidad de texto disponible por trastorno. Ansiedad es el conjunto más desequilibrado, mientras que depresión y \ac{TCA} presentan distribuciones más homogéneas. Asimismo, ansiedad y depresión ofrecen un volumen textual mayor que \ac{TCA}, lo que implica que los modelos dispondrán de más información lingüística en estos dos casos. Estas variaciones son relevantes porque afectan a la dificultad del aprendizaje y a la capacidad de generalización, por lo que deben considerarse tanto en el entrenamiento del modelo \ac{BERT} como en la evaluación posterior de este y de los modelos LLM preentrenados.
+
+Además, el tamaño relativamente reducido del dataset constituye una posible limitación importante. Por un lado, puede dificultar el proceso de fine-tuning de los modelos \ac{BERT}, al restringir la cantidad de ejemplos disponibles para aprender patrones representativos de cada trastorno. Por otro, también puede afectar a la solidez estadística de las comparaciones entre modelos, ya que diferencias observadas en el rendimiento podrían deberse en parte a la variabilidad muestral y no reflejar necesariamente una superioridad consistente. En este sentido, es posible que el comportamiento relativo de los modelos cambie al evaluarlos sobre conjuntos de datos de mayor tamaño.
 
 
 \subsection{Preparación de datos}
 
 Una vez analizado el dataset, el siguiente paso consistió en preparar los datos para su uso en los modelos de clasificación. Dado que el dataset \textit{MentalRiskES} está estructurado a nivel de usuario y las etiquetas asignadas corresponden al sujeto en su conjunto, se decidió mantener esta unidad de análisis durante todo el proceso. Así, los mensajes asociados a cada usuario se concatenaron en un único texto, preservando la información contextual completa que aporta el corpus.
 
-El proceso comenzó con la carga de los ficheros \texttt{JSON} de cada trastorno, a partir de los cuales se extrajo la lista de mensajes correspondiente a cada usuario. Estos mensajes fueron filtrados para eliminar entradas vacías y posteriormente concatenados en un único texto. Paralelamente, se incorporó la etiqueta binaria \texttt{bs} asociada a cada sujeto, generando tres \textit{dataframes} finales (uno por trastorno) con las columnas \texttt{user\_id}, \texttt{texto} y \texttt{bs}.
+El proceso comenzó con la carga de los ficheros \texttt{JSON} de cada trastorno, a partir de los cuales se extrajo la lista de mensajes correspondiente a cada usuario. Estos mensajes fueron filtrados para eliminar posibles entradas vacías y posteriormente concatenados en un único texto. Paralelamente, se incorporó la etiqueta binaria \texttt{bs} asociada a cada sujeto, generando tres \textit{dataframes} finales (uno por trastorno) con las columnas \texttt{user\_id}, \texttt{texto} y \texttt{bs}.
 
 \subsubsection{Partición de datos para clasificación binaria}
 
-En primer lugar, se construyeron los conjuntos destinados a la clasificación binaria, en los que el objetivo es determinar si un usuario presenta (\textit{suffer}) o no presenta (\textit{control}) un determinado trastorno. A partir de los dataframes individuales, se procedió a preparar los datos para el modelo BERT. Para este tipo de modelos es necesario dividir cada dataset en tres subconjuntos: entrenamiento (70\%), validación (15\%) y prueba (15\%). El conjunto de entrenamiento se emplea para ajustar los parámetros del modelo, el de validación para seleccionar hiperparámetros y prevenir el sobreajuste, y el de prueba para evaluar el rendimiento final.
+En primer lugar, se construyeron los conjuntos destinados a la clasificación binaria, en los que el objetivo es determinar si un usuario presenta (\textit{suffer}) o no presenta (\textit{control}) un determinado trastorno. A partir de los dataframes individuales, se procedió a preparar los datos para el modelo \ac{BERT}. Para este tipo de modelos es necesario dividir cada dataset en tres subconjuntos: entrenamiento (70\%), validación (15\%) y prueba (15\%). El conjunto de entrenamiento se emplea para ajustar los parámetros del modelo, el de validación para seleccionar hiperparámetros y prevenir el sobreajuste, y el de prueba para evaluar el rendimiento final.
 
-Dado que, tal como se observó en el análisis del subapartado 3.2.1.3, las clases \textit{suffer} y \textit{control} presentan un desbalance significativo (especialmente en el caso del trastorno de ansiedad), la división se realizó mediante estratificación. Esto garantiza que la proporción entre ambas clases se conserve en los subconjuntos de entrenamiento, validación y prueba, manteniendo la distribución del corpus original. Los subconjuntos resultantes se almacenaron en ficheros CSV para su uso posterior en el proceso de entrenamiento de BERT.
+Dado que, tal como se observó en el análisis de la Sección~\ref{subsubsec:exploracion_dataset}, las clases \textit{suffer} y \textit{control} presentan un desbalance significativo (especialmente en el caso del trastorno de ansiedad), la división se realizó mediante estratificación. Esto garantiza que la proporción entre ambas clases se conserve en los subconjuntos de entrenamiento, validación y prueba, manteniendo la distribución del corpus original. Los subconjuntos resultantes se almacenaron en ficheros CSV para su uso posterior en el proceso de entrenamiento de \ac{BERT}.
 
 En el caso de los modelos LLM, el procedimiento es más simple, ya que no requieren entrenamiento adicional. Por ello, no se generan subconjuntos de entrenamiento ni de validación, sino únicamente un conjunto de evaluación por trastorno. Dado que los conjuntos de prueba estratificados resultan demasiado pequeños y presentan un fuerte desbalance (especialmente en ansiedad), se decidió emplear el dataset completo de cada trastorno, ya con sus textos unificados, como conjunto de evaluación para los LLM.
 
 \subsubsection{Partición de datos para clasificación multiclase}
 
-Además del escenario binario, se prepararon también los datos para abordar una clasificación multiclase, en la que el objetivo consiste en identificar cuál de los tres trastornos presenta un usuario, o si pertenece a la clase control. Para ello se fusionaron los dataframes procesados de ansiedad, depresión y trastornos alimentarios en un único dataset. A cada usuario se le asignó una etiqueta multiclase en función de su trastorno de origen (ansiedad, depresión o ED) o del estado \textit{control} si su etiqueta binaria era 0. Este proceso dio lugar a cuatro clases en total: control, ansiedad, depresión y ED.
+Además del escenario binario, se prepararon también los datos para abordar una clasificación multiclase, en la que el objetivo consiste en identificar cuál de los tres trastornos presenta un usuario, o si pertenece a la clase control. Para ello se fusionaron los dataframes procesados de ansiedad, depresión y trastornos alimentarios en un único dataset. A cada usuario se le asignó una etiqueta multiclase en función de su trastorno de origen o del estado \textit{control} si su etiqueta binaria era 0. Este proceso dio lugar a cuatro clases en total: control \texttt{0}, ansiedad \texttt{1}, depresión \texttt{2} y \ac{TCA} \texttt{3}.
 
-El dataset multiclase resultante se dividió posteriormente en los mismos subconjuntos que en el caso binario (70\% entrenamiento, 15\% validación y 15\% prueba), aplicando una división estratificada para preservar la proporción entre clases. Este conjunto se empleará para entrenar una variante multiclase de BERT.
+El dataset multiclase resultante se dividió posteriormente en los mismos subconjuntos que en el caso binario (70\% entrenamiento, 15\% validación y 15\% prueba), aplicando una división estratificada para preservar la proporción entre clases. Este conjunto se empleará para entrenar una variante multiclase de \ac{BERT}.
 
 De manera análoga al caso binario, los modelos LLM se evaluarán sobre el dataset multiclase completo, sin aplicar división en subconjuntos, ya que no requieren un proceso de entrenamiento previo.
 
 \subsubsection{Subconjuntos para la métrica TARa@5}
 
-Con el objetivo de calcular la métrica \ac{TARa@5}, utilizada para medir la estabilidad de las predicciones de los \acp{LLM} y descrita previamente en la Sección~\ref{sec:metricas_evaluacion}, se prepararon subconjuntos específicos de evaluación para cada tarea de clasificación.
+Con el objetivo de calcular la métrica \ac{TARa@5}, utilizada para medir la estabilidad de las predicciones de los \acp{LLM} y descrita previamente en la Sección~\ref{subsec:tara5}, se prepararon subconjuntos específicos de evaluación para cada tarea de clasificación.
 
 Dado que calcular esta métrica sobre el dataset completo supondría un coste de inferencia muy elevado (ya que cada ejemplo debe evaluarse cinco veces por cada modelo), se optó por construir subconjuntos reducidos pero representativos mediante muestreo estratificado. De este modo, se conserva la proporción original entre clases y se garantiza que la muestra siga siendo representativa del problema de clasificación.
 
 En los escenarios de clasificación binaria, se seleccionaron 100 ejemplos por trastorno a partir de los conjuntos completos utilizados para la inferencia con \acp{LLM}. Esta cantidad representa aproximadamente un 20\% del tamaño total de los datasets en los casos de ansiedad y depresión, y cerca de un 30\% en el caso de \ac{TCA}, porcentaje ligeramente mayor debido al menor tamaño del dataset original, ya que una proporción inferior habría generado un subconjunto demasiado reducido.
 
-En el caso de la clasificación multiclase, se extrajo un subconjunto de 250 ejemplos manteniendo igualmente la distribución original entre las cuatro clases (control, ansiedad, depresión y ED). Esta cantidad supone aproximadamente un 20\% del dataset multiclase completo, proporcionando representación suficiente de cada categoría y una estimación estable de la consistencia del modelo en un escenario más complejo.
+En el caso de la clasificación multiclase, se extrajo un subconjunto de 250 ejemplos manteniendo igualmente la distribución original entre las cuatro clases (control, ansiedad, depresión y \ac{TCA}). Esta cantidad supone aproximadamente un 20\% del dataset multiclase completo, proporcionando representación suficiente de cada categoría y una estimación estable de la consistencia del modelo en un escenario más complejo.
+
+En la Figura~\ref{fig:particiones_dataset} se muestra un resumen visual del proceso completo de preparación de datos y de los distintos subconjuntos generados para cada tarea.
+
+\begin{figure}[H]
+	\centering
+	\hspace*{-0.1\textwidth}
+	\includegraphics[width=1.2\textwidth]{diagrama_particiones.png}
+	\caption{Resumen de las particiones y subconjuntos generados a partir del dataset original.}
+	\label{fig:particiones_dataset}
+\end{figure}
 
 \subsection{Análisis complementarios previos a la clasificación}
 
@@ -249,19 +261,29 @@ Este análisis confirma que la tarea de clasificación presenta una dificultad i
 
 \section{Entrenamiento y evaluación de modelos BERT}
 
-Tras haber analizado la estructura del dataset, identificado sus principales limitaciones y dificultades, y construido los subconjuntos específicos para cada tarea de clasificación, el siguiente paso consiste en aplicar el proceso de entrenamiento y evaluación de los modelos \ac{BERT} seleccionados. En esta fase, los textos preparados se transforman en representaciones adecuadas para el modelo mediante tokenización, se ajustan los modelos preentrenados mediante fine-tuning supervisado y, finalmente, se generan predicciones sobre los conjuntos de prueba para evaluar su rendimiento.
+Tras haber analizado la estructura del dataset, identificado sus principales limitaciones y dificultades, y construido los subconjuntos específicos para cada tarea de clasificación, el siguiente paso consiste en entrenar y evaluar los modelos \ac{BERT} seleccionados. 
+
+En esta fase, los textos preparados se transforman en representaciones adecuadas para el modelo mediante tokenización, se ajustan los modelos preentrenados mediante fine-tuning supervisado y, finalmente, se generan predicciones sobre los conjuntos de prueba para evaluar su rendimiento. La Figura~\ref{fig:bert_pipeline} ilustra este pipeline, cuyas distintas etapas se describen en detalle a lo largo de la presente sección.
+
+\begin{figure}[H]
+	\centering
+	\hspace*{-0.1\textwidth}
+	\includegraphics[width=1.2\textwidth]{bert_pipeline.png}
+	\caption{Flujo general del entrenamiento y evaluación de los modelos BERT.}
+	\label{fig:bert_pipeline}
+\end{figure}
 
 \subsection{Configuración experimental}
 
 El entrenamiento de los modelos \ac{BERT} se realizó utilizando Google Colab como entorno de ejecución, empleando una \ac{GPU} NVIDIA T4. Esta elección permitió disponer de aceleración por hardware suficiente para llevar a cabo el proceso de fine-tuning de modelos Transformer de tamaño medio y grande, aunque con ciertas limitaciones de memoria que condicionaron parte de la configuración experimental.
 
-Tal y como se explicó en la Sección~\ref{subsec:modelos_bert}, en este trabajo se utilizaron cuatro arquitecturas representativas: \ac{DistilBETO}, RoBERTa-large-BNE, mDeBERTa-v3 y Longformer. Aunque todas siguen un enfoque \textit{encoder-only} orientado a tareas de clasificación, presentan diferencias importantes en tamaño, complejidad y capacidad de procesamiento de secuencias largas, lo que obligó a adaptar algunos hiperparámetros de entrenamiento para cada caso.
+Tal y como se explicó en la Sección~\ref{subsec:modelos_bert}, en este trabajo se utilizaron cuatro variantes representativas: \ac{DistilBETO}, RoBERTa-large-BNE, mDeBERTa-v3 y Longformer. Aunque todas siguen un enfoque \textit{encoder-only} orientado a tareas de clasificación, presentan diferencias importantes en tamaño, complejidad y capacidad de procesamiento de secuencias largas, lo que obligó a adaptar algunos hiperparámetros de entrenamiento para cada caso. 
 
 La configuración específica de cada modelo se definió principalmente en función de tres factores: el número de parámetros de la arquitectura, la longitud máxima de secuencia que podía procesar y las restricciones de memoria de la \ac{GPU} disponible. \ac{DistilBETO} al ser un modelo más ligero, permitió utilizar tamaños de batch mayores tanto en entrenamiento como en evaluación. En cambio, modelos más pesados como RoBERTa-large-BNE o mDeBERTa-v3 requirieron reducir este valor para evitar errores de memoria.
 
-En el caso de Longformer, diseñado específicamente para secuencias largas, se priorizó aumentar la longitud máxima de entrada hasta 2048 tokens en lugar de los 512 habituales en BERT estándar, lo que obligó a reducir considerablemente el tamaño de batch debido al mayor consumo de memoria. Para los cuatro modelos, durante la fase de evaluación se utilizó un batch superior al de entrenamiento, ya que al no calcular gradientes el consumo de memoria resulta menor.
+En el caso de Longformer, diseñado específicamente para secuencias largas, se priorizó aumentar la longitud máxima de entrada hasta 2048 tokens en lugar de los 512 habituales en \ac{BERT} estándar, lo que obligó a reducir considerablemente el tamaño de batch debido al mayor consumo de memoria. 
 
-La Tabla~\ref{tab:bert_training_config} resume la configuración utilizada para cada uno de los modelos evaluados.
+Para los cuatro modelos, durante la fase de evaluación se utilizó un batch superior al de entrenamiento, ya que al no calcular gradientes el consumo de memoria resulta menor. La Tabla~\ref{tab:bert_training_config} resume la configuración utilizada para cada uno de los modelos evaluados.
 
 \begin{table}[H]
 	\centering
@@ -285,7 +307,7 @@ Una vez definida la configuración experimental, el siguiente paso consistió en
 
 \subsubsection{Carga del modelo preentrenado}
 
-Cada modelo se inicializó mediante \texttt{AutoModelForSequenceClassification}, ajustando automáticamente la capa de salida al número de clases de la tarea concreta. En los experimentos de clasificación binaria se utilizaron dos etiquetas (\textit{control} y \textit{suffer}), mientras que en la clasificación multiclase se configuró una salida de cuatro clases (control, ansiedad, depresión y \ac{TCA}).
+Cada modelo se inicializó mediante \texttt{AutoModelForSequenceClassification}, ajustando automáticamente la capa de salida al número de clases de la tarea concreta. En los experimentos de clasificación binaria se utilizaron dos etiquetas (control \texttt{0} y suffer \texttt{1}), mientras que en la clasificación multiclase se configuró una salida de cuatro clases (control \texttt{0}, ansiedad \texttt{1}, depresión \texttt{2} y \ac{TCA} \texttt{3}).
 
 De este modo, el modelo conserva los pesos aprendidos durante la fase de preentrenamiento general, reutilizando el conocimiento lingüístico previamente adquirido. Por su parte, la capa final de clasificación se adapta durante el fine-tuning a la tarea supervisada específica. Durante este proceso, todos los parámetros del modelo pueden ajustarse, permitiendo especializar la representación interna hacia el problema concreto de clasificación de cada trastorno de salud mental.
 
@@ -295,13 +317,13 @@ Posteriormente, se aplicó el proceso de tokenización sobre los textos concaten
 
 Durante la tokenización se aplicó truncado (\textit{truncation}) y relleno (\textit{padding}) hasta la longitud máxima fija (\textit{max\_length}) definida según la configuración de cada modelo.
 
-Una vez tokenizados los textos, fue necesario adaptar la estructura del dataset al formato esperado por el \texttt{Trainer} de Hugging Face. En clasificación binaria, la columna \texttt{bs} se renombró como \texttt{labels}, mientras que en clasificación multiclase se renombró la columna \texttt{label\_mc} con el mismo objetivo. Además, se eliminaron columnas auxiliares que no eran necesarias para el entrenamiento, como \texttt{texto}, \texttt{user\_id} o \texttt{trastorno}, conservando únicamente la información relevante para la inferencia supervisada.
+Una vez tokenizados los textos, fue necesario adaptar el dataset al formato esperado por el \texttt{Trainer} de Hugging Face, que requiere que las etiquetas de cada ejemplo se encuentren en una columna denominada \texttt{labels}. Por ello, en clasificación binaria la columna \texttt{bs} se renombró como \texttt{labels}, y en multiclase se hizo lo mismo con \texttt{label\_mc}. Además, se eliminaron columnas auxiliares que no eran necesarias para el entrenamiento, como \texttt{texto}, \texttt{user\_id} o \texttt{trastorno}, conservando únicamente la información relevante para la inferencia supervisada.
 
-Finalmente, los datos se convirtieron al formato tensorial de PyTorch \cite{paszke_pytorch_2019} mediante \texttt{set\_format("torch")}, permitiendo su uso directo dentro del proceso de fine-tuning con el \texttt{Trainer} de Hugging Face.
+Finalmente, los datos se convirtieron al formato tensorial de PyTorch \cite{paszke_pytorch_2019} mediante \texttt{set\_format("torch")}, permitiendo su uso directo dentro del proceso de fine-tuning con el \texttt{Trainer}.
 
 \subsection{Fine-tuning supervisado}
 
-Una vez preparados el modelo y el dataset, se procedió al proceso de fine-tuning supervisado. El objetivo de esta fase es especializar la representación lingüística general aprendida durante el preentrenamiento hacia la identificación de patrones asociados a ansiedad, depresión y \ac{TCA}.
+Una vez preparados el modelo y el dataset, se procedió al proceso de fine-tuning supervisado. El objetivo de esta fase es especializar la representación lingüística general, aprendida durante el preentrenamiento del modelo base, hacia la identificación de patrones asociados a ansiedad, depresión y \ac{TCA}.
 
 \subsubsection{Ponderación de clases}
 
@@ -336,7 +358,14 @@ Como métrica principal de selección se utilizó el F1-score macro sobre el con
 
 Para evitar entrenamientos innecesariamente largos y reducir el riesgo de sobreajuste, se incorporó un mecanismo de \textit{early stopping} con una paciencia de dos épocas. Esto significa que, si el valor de F1-score sobre validación no mejoraba durante dos evaluaciones consecutivas, el entrenamiento se detenía automáticamente.
 
-Esta estrategia permitió estabilizar el proceso de fine-tuning y asegurar que el modelo final seleccionado correspondiera al mejor rendimiento observado durante el entrenamiento, en lugar de utilizar simplemente la última época ejecutada.
+Esta estrategia permitió estabilizar el proceso de fine-tuning y asegurar que el modelo final seleccionado correspondiera al mejor rendimiento observado durante el entrenamiento, en lugar de utilizar simplemente la última época ejecutada. Un ejemplo de este comportamiento puede observarse en la Figura~\ref{fig:early_stopping_distilbeto}, donde el entrenamiento se detiene al no mejorar el F1-score tras varias épocas consecutivas.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.7\textwidth]{early_stopping_distilbeto.png}
+	\caption{Evolución del fine-tuning de DistilBETO en la tarea de depresión.}
+	\label{fig:early_stopping_distilbeto}
+\end{figure}
 
 \subsection{Evaluación e inferencia sobre el conjunto de prueba}
 
@@ -350,43 +379,45 @@ Las predicciones generadas se incorporaron al dataset original de prueba mediant
 
 \subsection{Tiempos de entrenamiento e inferencia}
 
-Además del rendimiento predictivo, durante el proceso de fine-tuning se registraron los tiempos de entrenamiento e inferencia de cada modelo con el objetivo de analizar el coste práctico asociado a cada arquitectura. Esta información resulta especialmente relevante al comparar modelos con diferentes tamaños y capacidades de procesamiento, ya que una mejora en las métricas de clasificación no siempre compensa un incremento significativo en tiempo de ejecución.
+Además del rendimiento predictivo, durante el proceso de fine-tuning se registraron los tiempos de entrenamiento e inferencia de cada modelo con el objetivo de analizar el coste práctico asociado a cada arquitectura. Estos tiempos se usarán más tarde para realizar una comparación rendimiento-coste entre modelos.
 
 El tiempo de entrenamiento corresponde al proceso completo de fine-tuning sobre el conjunto de entrenamiento y validación, incluyendo la selección automática del mejor modelo mediante \textit{early stopping}. Por su parte, el tiempo de inferencia se midió durante la generación de predicciones sobre el conjunto de prueba utilizando el método \texttt{predict()} del \texttt{Trainer}. La suma de ambos valores permite obtener una estimación del coste temporal total de cada experimento.
-
-La Tabla~\ref{tab:bert_times} recoge los tiempos registrados para cada combinación de modelo y tarea de clasificación.
 
 \begin{table}[H]
 	\centering
 	\caption{Tiempos de entrenamiento e inferencia de los modelos BERT}
 	\label{tab:bert_times}
-	\begin{tabular}{|l|c|c|c|}
+	\begin{tabular}{|l|l|c|c|c|}
 		\hline
-		\textbf{Modelo} & \textbf{Tiempo Entr. (min)} & \textbf{Tiempo Eval. (min)} & \textbf{Tiempo Total (min)} \\
-		\hline
-		
-		DistilBETO - Anxiety &  &  &  \\
-		DistilBETO - Depression &  &  &  \\
-		DistilBETO - ED &  &  &  \\
-		DistilBETO - Multiclass &  &  &  \\
+		\textbf{Modelo} & \textbf{Tarea} & \textbf{Tiempo Entr.} & \textbf{Tiempo Eval.} & \textbf{Tiempo Total} \\
 		\hline
 		
-		RoBERTa-large-BNE - Anxiety &  &  &  \\
-		RoBERTa-large-BNE - Depression &  &  &  \\
-		RoBERTa-large-BNE - ED &  &  &  \\
-		RoBERTa-large-BNE - Multiclass &  &  &  \\
+		\multirow{4}{*}{DistilBETO}
+		& Ansiedad & 1' 17'' & 0,35'' & 1' 18'' \\
+		& Depresion & 1' 43'' & 0,35'' & 1' 43'' \\
+		& TCA & 1' 15'' & 0,38'' & 1' 16'' \\
+		& Multiclase & 1' 45'' & 0,83'' & 1' 45'' \\
 		\hline
 		
-		mDeBERTa-v3 - Anxiety &  &  &  \\
-		mDeBERTa-v3 - Depression &  &  &  \\
-		mDeBERTa-v3 - ED &  &  &  \\
-		mDeBERTa-v3 - Multiclass &  &  &  \\
+		\multirow{4}{*}{RoBERTa-large-BNE}
+		& Ansiedad & 11' 32'' & 1,69'' & 11' 34'' \\
+		& Depresion & 10' 50'' & 2,09'' & 10' 52'' \\
+		& TCA & 6' 10'' & 1,17'' & 6' 11'' \\
+		& Multiclase & 12' 58'' & 3,89'' & 13' 02'' \\
 		\hline
 		
-		Longformer - Anxiety &  &  &  \\
-		Longformer - Depression &  &  &  \\
-		Longformer - ED &  &  &  \\
-		Longformer - Multiclass &  &  &  \\
+		\multirow{4}{*}{mDeBERTa-v3}
+		& Ansiedad & 2' 59'' & 1,56'' & 3' 01'' \\
+		& Depresion & 5' 20'' & 1,57'' & 5' 22'' \\
+		& TCA & 14' 25'' & 1,07'' & 14' 27'' \\
+		& Multiclase & 10' 33'' & 3,88'' & 10' 37'' \\
+		\hline
+		
+		\multirow{4}{*}{Longformer}
+		& Ansiedad & 10' 03'' & 20,55'' & 10' 23'' \\
+		& Depresion & 11' 50'' & 20,67'' & 12' 11'' \\
+		& TCA & 6' 50'' & 13,62'' & 7' 04'' \\
+		& Multiclase & 85' 04'' & 58,29'' & 86' 02'' \\
 		\hline
 		
 	\end{tabular}
@@ -399,17 +430,11 @@ Una vez completado el entrenamiento y la evaluación de los modelos \ac{BERT}, e
 
 El objetivo de esta fase consiste en evaluar hasta qué punto modelos de propósito general, tanto propietarios como abiertos, pueden resolver la tarea de clasificación de salud mental sin entrenamiento específico previo. Para ello, se diseñó un pipeline común de inferencia basado en \acp{API}, manteniendo una estructura homogénea para todos los modelos y permitiendo una comparación posterior tanto en rendimiento predictivo como en coste, estabilidad y facilidad de despliegue.
 
-\subsection{Configuración de acceso e inferencia}
-
-\subsubsection{Acceso mediante APIs}
+\subsection{Configuración de acceso mediante APIs}
 
 La inferencia con \acp{LLM} se realizó mediante acceso remoto a través de \acp{API}, evitando el despliegue local de los modelos. Como ya se explicó en la Sección~\ref{subsec:modelos_llm} en total se utilizaron seis modelos: tres propietarios (\textit{GPT-5.2}, \textit{Claude Sonnet 4.6} y \textit{Gemini 3.1 Pro}) y tres abiertos (\textit{DeepSeek-V3.2}, \textit{GPT-OSS-20B} y \textit{Llama 3.1 8B}).
 
 Para los modelos propietarios se emplearon las \acp{API} oficiales proporcionadas por sus respectivos desarrolladores. En el caso de DeepSeek-V3.2, aunque pertenece a un proveedor diferente, se utilizó una \ac{API} compatible con la interfaz de OpenAI, lo que permitió mantener el mismo esquema de llamadas basado en \texttt{chat.completions}. Por su parte, GPT-OSS-20B y Llama 3.1 8B se ejecutaron mediante OpenRouter, que actúa como intermediario unificado redirigiendo las peticiones a distintos proveedores de inferencia y ofreciendo compatibilidad con el mismo formato de API.
-
-Para facilitar la trazabilidad experimental, se desarrolló un notebook de Jupyter independiente para cada modelo, excepto en el caso de GPT-OSS-20B y Llama 3.1 8B, que se agruparon en un mismo notebook al estar ambos servidos mediante OpenRouter y compartir la misma API. Cada notebook gestionaba su propia autenticación mediante API Key, así como la carga del dataset, la construcción del prompt, la inferencia y el almacenamiento de predicciones.
-
-La Tabla~\ref{tab:llm_access} resume los modelos utilizados y el método de acceso empleado en cada caso.
 
 \begin{table}[H]
 	\centering
@@ -429,13 +454,13 @@ La Tabla~\ref{tab:llm_access} resume los modelos utilizados y el método de acce
 	\end{tabular}
 \end{table}
 
-Además, cada proveedor dispone de su propia plataforma de gestión y monitorización, donde es posible consultar información detallada sobre la actividad de la API mediante paneles de control (\textit{dashboards}). Estos paneles resultan especialmente útiles para supervisar el número de tokens consumidos, el coste económico acumulado, los límites de uso disponibles y la frecuencia de las peticiones realizadas, facilitando así el control experimental y la planificación de las inferencias durante el desarrollo del trabajo.
+Para facilitar la trazabilidad experimental, se desarrolló un notebook de Jupyter independiente para cada modelo, excepto en el caso de GPT-OSS-20B y Llama 3.1 8B, que se agruparon en un mismo notebook al estar ambos servidos mediante OpenRouter y compartir la misma API. Cada notebook gestionaba su propia autenticación mediante API Key, así como la carga del dataset, la construcción del prompt, la inferencia y el almacenamiento de predicciones.
 
 \subsection{Diseño del prompt y estrategia zero-shot}
 
 \subsubsection{Estrategia zero-shot}
 
-Tal y como se explicó previamente en la Sección~\ref{subsec:prompting}, la clasificación con \acp{LLM} se abordó mediante una estrategia de \textit{zero-shot prompting}, es decir, sin realizar ajuste adicional de los parámetros del modelo sobre el dataset. En este enfoque, el modelo recibe únicamente una instrucción en lenguaje natural que describe la tarea a resolver y debe generar directamente la predicción a partir de su conocimiento previo y de la información contenida en el texto de entrada.
+La clasificación con \acp{LLM} se abordó mediante una estrategia de \textit{zero-shot prompting}, es decir, sin realizar ajuste adicional de los parámetros del modelo sobre el dataset. En este enfoque, el modelo recibe únicamente una instrucción en lenguaje natural que describe la tarea a resolver y debe generar directamente la predicción a partir de su conocimiento previo y de la información contenida en el texto de entrada.
 
 Este planteamiento permite evaluar la capacidad real de generalización de modelos de propósito general ante una tarea específica de clasificación clínica, evitando el coste computacional asociado al fine-tuning supervisado. Además, facilita una comparación directa entre modelos propietarios y abiertos bajo un mismo esquema metodológico, manteniendo condiciones homogéneas de inferencia para todos los modelos evaluados.
 
