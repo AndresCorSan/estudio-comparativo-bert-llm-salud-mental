@@ -228,23 +228,23 @@ La Figura \ref{fig:cm_depresion} muestra tres casos representativos: el mejor mo
 		\hline
 		\textbf{Modelo A} & \textbf{Modelo B} & \textbf{Mean $\Delta$} & \textbf{Cohen's $d$} & \textbf{Effect size} & \textbf{\textit{p}} \\
 		\hline
-		RoBERTa-large-BNE & GPT-OSS-20B & 0.069 [-0.055, 0.204] & 1.050 & Large & 0.660 \\
-		RoBERTa-large-BNE & GPT-5.2 & 0.028 [-0.085, 0.132] & 0.535 & Medium & 0.730 \\
-		RoBERTa-large-BNE & Gemini 3.1 Pro & -0.015 [-0.117, 0.095] & -0.260 & Small & 0.780 \\
-		GPT-OSS-20B & GPT-5.2 & -0.041 [-0.165, 0.068] & -0.722 & Medium & 0.702 \\
-		GPT-OSS-20B & Gemini 3.1 Pro & -0.069 [-0.186, 0.045] & -1.220 & Large & 0.660 \\
-		GPT-5.2 & Gemini 3.1 Pro & -0.045 [-0.130, 0.048] & -1.039 & Large & 0.660 \\
+		RoBERTa-large-BNE & DeepSeek-V3.2 & -0.013 [-0.111, 0.093] & -0.248 & Small & 0.832 \\
+		RoBERTa-large-BNE & Gemini 3.1 Pro & -0.015 [-0.120, 0.096] & -0.237 & Small & 0.832 \\
+		RoBERTa-large-BNE & GPT-5.2 & 0.028 [-0.071, 0.141] & 0.541 & Medium & 0.832 \\
+		DeepSeek-V3.2 & Gemini 3.1 Pro & -0.027 [-0.066, 0.008] & -1.422 & Large & 0.486 \\
+		DeepSeek-V3.2 & GPT-5.2 & 0.008 [-0.030, 0.044] & 0.434 & Small & 0.832 \\
+		Gemini 3.1 Pro & GPT-5.2 & 0.036 [0.005, 0.064] & 2.316 & Large & 0.180 \\
 		\hline
 	\end{tabular}
 	\caption{Comparación estadística mediante bootstrap pareado para la tarea de depresión.}
 	\label{tab:bootstrap_depression}
 \end{table}
 
-La Tabla \ref{tab:bootstrap_depression} muestra que, a diferencia de lo observado en ansiedad, en la tarea de depresión las diferencias entre los mejores modelos son todavía más reducidas. Ninguna de las comparaciones alcanza significancia estadística tras la corrección de Benjamini-Hochberg, ya que todos los \textit{p-values} ajustados se mantienen claramente por encima del umbral convencional de 0.05.
+La Tabla~\ref{tab:bootstrap_depression} muestra que, en la tarea de depresión, las diferencias entre los modelos con mejor rendimiento son relativamente pequeñas y no alcanzan significancia estadística tras aplicar la corrección de Benjamini-Hochberg. Todos los \textit{p-values} ajustados permanecen por encima del umbral convencional de 0.05, indicando que las diferencias observadas en F1-score macro podrían explicarse por la variabilidad del conjunto de prueba.
 
-La comparación más favorable para el mejor modelo BERT (RoBERTa-large-BNE) se produce frente a GPT-OSS-20B, con una diferencia positiva de $\Delta = 0.069 \quad [-0.055,\ 0.204]$, lo que indica una ligera ventaja de RoBERTa-large-BNE sobre el LLM open-source en este subconjunto pareado. Sin embargo, el intervalo de confianza incluye el cero y el valor ajustado de significancia es $p = 0.660$ por lo que no existe evidencia estadística suficiente para afirmar una superioridad robusta. 
+Las comparaciones que involucran a RoBERTa-large-BNE reflejan un comportamiento especialmente competitivo del mejor modelo BERT frente a los \acp{LLM}. Las diferencias frente a DeepSeek-V3.2 y Gemini 3.1 Pro son prácticamente nulas (\(\Delta = -0.013\) y \(\Delta = -0.015\), respectivamente), mientras que frente a GPT-5.2 incluso aparece una ligera ventaja positiva para RoBERTa-large-BNE (\(\Delta = 0.028\)). Sin embargo, en todos los casos los intervalos de confianza incluyen el cero, por lo que no existe evidencia estadística suficiente para afirmar diferencias robustas entre estos modelos.
 
-De forma similar, las comparaciones entre los LLMs (GPT-OSS-20B, GPT-5.2 y Gemini 3.1 Pro) muestran diferencias pequeñas, con intervalos amplios y todos ellos atravesando el cero. Esto sugiere que, pese a pequeñas variaciones en F1 macro, los tres modelos presentan un comportamiento estadísticamente equivalente en esta tarea. Aunque algunas de estas comparaciones presentan valores elevados de Cohen’s \(d\), indicando tamaños de efecto moderados o grandes, estos resultados deben interpretarse con cautela, ya que los intervalos de confianza de las diferencias medias incluyen el cero y los p-values ajustados no permiten confirmar una diferencia estadísticamente significativa.
+Entre los \acp{LLM}, Gemini 3.1 Pro presenta la mayor diferencia media frente a GPT-5.2 (\(\Delta = 0.036 \ [0.005,\ 0.064]\)), acompañada además de un tamaño del efecto elevado (\(d = 2.316\)). No obstante, esta diferencia tampoco alcanza significancia estadística tras la corrección \ac{BH} (\(p = 0.180\)). De forma similar, las comparaciones entre DeepSeek-V3.2 y el resto de modelos muestran diferencias reducidas y estadísticamente no concluyentes. En conjunto, estos resultados sugieren que los mejores modelos evaluados presentan un rendimiento muy similar en la tarea de depresión, sin que pueda afirmarse una superioridad estadísticamente significativa entre ellos.
 
 \subsection{Análisis rendimiento-coste}
 
@@ -337,26 +337,23 @@ En conjunto, las matrices de confusión confirman que la tarea de detección de 
 		\hline
 		\textbf{Modelo A} & \textbf{Modelo B} & \textbf{Mean $\Delta$} & \textbf{Cohen's d} & \textbf{Effect size} & \textbf{\textit{p}} \\
 		\hline
-		RoBERTa-large-BNE & GPT-OSS-20B & -0.020 [-0.098, 0.039] & -0.637 & Medium & 0.914 \\
-		RoBERTa-large-BNE & GPT-5.2 & -0.040 [-0.124, 0.000] & -1.468 & Large & 0.914 \\
-		RoBERTa-large-BNE & Gemini 3.1 Pro & -0.020 [-0.099, 0.040] & -0.668 & Medium & 0.914 \\
-		GPT-OSS-20B & GPT-5.2 & -0.020 [-0.099, 0.000] & -1.025 & Large & 0.914 \\
-		GPT-OSS-20B & Gemini 3.1 Pro & 0.000 [-0.059, 0.060] & 0.001 & Negligible & 1.000 \\
-		GPT-5.2 & Gemini 3.1 Pro & 0.020 [0.000, 0.118] & 0.973 & Large & 0.914 \\
+		RoBERTa-large-BNE & GPT-OSS-20B & -0.020 [-0.106, 0.039] & -0.561 & Medium & 0.640 \\
+		RoBERTa-large-BNE & GPT-5.2 & -0.040 [-0.148, 0.000] & -1.410 & Large & 0.420 \\
+		RoBERTa-large-BNE & Gemini 3.1 Pro & -0.020 [-0.103, 0.039] & -0.567 & Medium & 0.640 \\
+		GPT-OSS-20B & GPT-5.2 & -0.031 [-0.063, -0.006] & -2.152 & Large & 0.108 \\
+		GPT-OSS-20B & Gemini 3.1 Pro & -0.018 [-0.048, 0.009] & -1.313 & Large & 0.396 \\
+		GPT-5.2 & Gemini 3.1 Pro & 0.012 [-0.003, 0.032] & 1.430 & Large & 0.282 \\
 		\hline
 	\end{tabular}
 	\caption{Comparación estadística mediante bootstrap pareado para la tarea de TCA.}
 	\label{tab:bootstrap_tca}
 \end{table}
 
-Los resultados de la Tabla~\ref{tab:bootstrap_tca} muestran que las diferencias entre los mejores modelos en la tarea de TCA son considerablemente más reducidas que en ansiedad. Todas las comparaciones presentan diferencias medias de F1 macro muy pequeñas, generalmente próximas a cero, lo que indica un rendimiento muy similar entre los sistemas evaluados, como ya se vio anteriormente en la tabla de métricas principales~\ref{tab:resultados_tca_metricas}.
+Los resultados de la Tabla~\ref{tab:bootstrap_tca} muestran que las diferencias entre los mejores modelos en la tarea de \ac{TCA} son muy reducidas, confirmando el comportamiento ya observado previamente en la Tabla~\ref{tab:resultados_tca_metricas}. Ninguna de las comparaciones alcanza significancia estadística tras aplicar la corrección de Benjamini-Hochberg, ya que todos los \textit{p-values} ajustados permanecen por encima de 0.05.
 
-La comparación más favorable corresponde a RoBERTa-large-BNE frente a GPT-5.2, con $\Delta = -0.040 \quad [-0.124,\ 0.000]$ lo que sugiere una ligera ventaja de GPT-5.2 sobre el mejor modelo BERT. Sin embargo, el intervalo de confianza incluye el cero y el p-value ajustado es $p = 0.914$, por lo que no existe evidencia estadística suficiente para afirmar una superioridad robusta entre ambos modelos. Aunque el tamaño del efecto se clasifica como \textit{Large}, este resultado debe interpretarse con cautela debido a la reducida magnitud absoluta de la diferencia observada.
+Las comparaciones que involucran a RoBERTa-large-BNE reflejan nuevamente el comportamiento altamente competitivo del mejor modelo BERT frente a los \acp{LLM}. Las diferencias frente a GPT-OSS-20B y Gemini 3.1 Pro son prácticamente idénticas (\(\Delta = -0.020\)), mientras que frente a GPT-5.2 aparece la mayor diferencia observada (\(\Delta = -0.040\)), sugiriendo una ligera ventaja del modelo propietario. Sin embargo, todos los intervalos de confianza incluyen el cero, por lo que no existe evidencia estadística suficiente para afirmar diferencias robustas entre estos sistemas.
 
-De forma similar, las comparaciones entre los propios LLMs muestran prácticamente un empate técnico. El caso más claro es GPT-OSS-20B frente a Gemini 3.1 Pro, donde $\Delta = 0.000 \quad [-0.059,\ 0.060]$ acompañado de $d = 0.001$
-y un efecto \textit{Negligible}, confirma que ambos modelos presentan un comportamiento prácticamente idéntico en esta tarea.
-
-En conjunto, los elevados p-values y los intervalos de confianza centrados en cero indican ausencia de diferencias estadísticamente significativas entre los mejores modelos. Esto sugiere que, en la detección de TCA, tanto los mejores BERT como los LLMs alcanzan niveles de rendimiento muy próximos, reduciendo notablemente la ventaja observada de los modelos más avanzados en otras tareas.
+Entre los \acp{LLM}, la comparación más favorable para GPT-5.2 frente a GPT-OSS-20B muestra una diferencia negativa de \(\Delta = -0.031 \ [-0.063,\ -0.006]\), acompañada además de un tamaño del efecto elevado (\(d = -2.152\)). Aun así, tras la corrección \ac{BH} el resultado no alcanza significancia estadística (\(p = 0.108\)). Del mismo modo, las comparaciones restantes entre modelos generativos presentan diferencias pequeñas y estadísticamente no concluyentes. En conjunto, estos resultados sugieren que, en la tarea de clasificación de \ac{TCA}, tanto los mejores modelos BERT como los \acp{LLM} alcanzan niveles de rendimiento muy próximos, sin que puedan identificarse ventajas estadísticamente significativas de unos sobre otros.
 
 \subsection{Análisis rendimiento-coste}
 
@@ -460,11 +457,11 @@ La Figura \ref{fig:cm_multi} muestra tres casos representativos: RoBERTa-large-B
 	\label{tab:bootstrap_multi}
 \end{table}
 
-A diferencia de las tareas binarias, en clasificación multiclase las diferencias entre los mejores modelos son especialmente reducidas. Sin embargo, al igual que ocurría en las tareas anteriores, todas las comparaciones presentan valores de \textit{Mean $\Delta$} pequeños y, además, todos los intervalos de confianza incluyen el valor cero, lo que indica ausencia de evidencia suficiente para afirmar una superioridad consistente entre modelos.
+En clasificación multiclase las diferencias entre los mejores modelos son especialmente reducidas. Sin embargo, al igual que ocurría en las tareas anteriores, todas las comparaciones presentan valores de \textit{Mean $\Delta$} pequeños y, además, todos los intervalos de confianza incluyen el valor cero, lo que indica ausencia de evidencia suficiente para afirmar una superioridad consistente entre modelos.
 
 Por ejemplo, la comparación entre RoBERTa-large-BNE y GPT-5.2 presenta la mayor diferencia observada ($\Delta = 0.044 \quad [-0.052,\ 0.164]$) lo que sugiere una ligera ventaja para el modelo BERT. Sin embargo, el intervalo de confianza atraviesa el cero y el \textit{p-value} ajustado es elevado ($p = 0.818$) por lo que dicha diferencia no puede considerarse estadísticamente significativa.
 
-Aunque algunas comparaciones presentan valores de Cohen’s \(d\) clasificados como \textit{Medium}, la amplitud de los intervalos de confianza y los elevados \textit{p-values} impiden consolidar estas diferencias como robustas desde el punto de vista estadístico. Esto sugiere que las pequeñas variaciones observadas en F1 macro pueden atribuirse principalmente a la variabilidad propia del conjunto de evaluación.
+Aunque algunas comparaciones presentan valores de Cohen’s \(d\) clasificados como \textit{Medium}, la amplitud de los intervalos de confianza y los elevados \textit{p-values} impiden consolidar estas diferencias como robustas desde el punto de vista estadístico. Esto indica que, en el escenario multiclase, al igual que ocurría en las tareas de clasificación binaria, varios modelos presentan un comportamiento muy similar, dificultando establecer una jerarquía clara entre ellos a partir del conjunto de evaluación disponible.
 
 \subsection{Análisis rendimiento-coste}
 
