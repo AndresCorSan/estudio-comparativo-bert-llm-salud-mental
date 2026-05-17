@@ -25,6 +25,8 @@
 \chapter{Estado del arte}
 \label{cha:estado-del-arte}
 
+\section{Evolución del PLN y modelos de lenguaje}
+
 En el contexto descrito anteriormente, donde el lenguaje se plantea como una posible fuente de información para la detección de indicadores de salud mental, el \ac{PLN} se posiciona como la disciplina encargada de abordar este tipo de problemas. A lo largo de las últimas décadas, este campo ha experimentado una evolución significativa, pasando de enfoques basados en representaciones simples a grandes modelos capaces de capturar relaciones semánticas complejas en el texto.
 
 En sus primeras etapas, técnicas como \ac{BOW} \cite{harris_distributional_1954} o \ac{TFIDF} \cite{sparck_jones_statistical_1972} permitían representar documentos mediante vectores numéricos, aunque sin tener en cuenta el orden ni el contexto de las palabras. Posteriormente, la introducción de modelos neuronales, como las \ac{RNN} \cite{rumelhart_learning_1986} y sus variantes \ac{LSTM} \cite{hochreiter_long_1997}, permitió modelar dependencias secuenciales, mejorando el rendimiento en tareas como la traducción automática o el análisis de sentimientos \cite{socher_recursive_2013}, aunque con limitaciones relacionadas con el procesamiento secuencial y la dificultad para capturar dependencias a largo plazo.
@@ -33,11 +35,74 @@ La aparición de la arquitectura \textit{transformer}, introducida en el trabajo
 
 Más recientemente, los \acp{LLM} han ampliado las capacidades del \ac{PLN}, especialmente a partir del paradigma de preentrenamiento generativo introducido por la familia de modelos \acs{GPT} desarrollada por OpenAI \cite{radford_improving_2018} y consolidado con modelos de gran escala como GPT-3, que demostraron la capacidad de resolver tareas en escenarios \textit{zero-shot} y \textit{few-shot} sin necesidad de entrenamiento específico \cite{brown_language_2020}. Estos modelos destacan por su capacidad de generalización y por su flexibilidad para adaptarse a diferentes tareas a partir de instrucciones en lenguaje natural, lo que los convierte en una alternativa a los enfoques tradicionales basados en \textit{fine-tuning} sobre conjuntos de datos etiquetados. Además, técnicas de \textit{prompting} han permitido explotar mejor estas capacidades, mejorando el razonamiento y la alineación con instrucciones humanas \cite{wei_chain--thought_2022}.
 
-En paralelo a estos avances, el uso del \ac{PLN} en el ámbito de la salud mental ha cobrado relevancia en los últimos años. Diversos trabajos han explorado la detección de trastornos como la depresión a partir de textos publicados en redes sociales o foros, abordando el problema como una tarea de clasificación \cite{coppersmith_clpsych_2015}. En este contexto, se han empleado tanto enfoques tradicionales basados en características lingüísticas como modelos más recientes basados en \textit{transformers} \cite{matero_suicide_2019}, obteniendo resultados prometedores. Más recientemente, algunos estudios han comenzado a explorar el uso de grandes modelos de lenguaje en este ámbito. Por ejemplo, Danner et al. \cite{danner_advancing_2023} proponen métodos basados en modelos tipo \acs{GPT} para la detección de depresión, mostrando mejoras respecto a enfoques tradicionales, mientras que Liu et al. \cite{liu_enhanced_2025} presentan un enfoque basado en \acp{LLM} optimizados para el cribado de depresión y ansiedad, evidenciando mejoras en sensibilidad y capacidad de interpretación. No obstante, la mayoría de estas investigaciones se centran principalmente en la depresión, mientras que otros trastornos, como la ansiedad o los trastornos de la conducta alimentaria, han recibido menor atención.
+\section{PLN en el ámbito de la salud mental}
 
-Asimismo, una parte significativa de los trabajos existentes se basa en datasets en inglés, lo que limita la aplicabilidad de los resultados a otros contextos lingüísticos. A esto se suma la falta de estudios que comparen de manera sistemática diferentes enfoques, especialmente en lo que respecta a la comparación entre modelos tradicionales basados en \textit{fine-tuning} y grandes modelos de lenguaje aplicados mediante \textit{prompting}. Aunque los \acsp{LLM} han comenzado a utilizarse en este ámbito, su uso sigue siendo relativamente reciente y todavía existen incertidumbres sobre su rendimiento y sus limitaciones en tareas específicas de detección de trastornos.
+En paralelo a estos avances, el uso del \ac{PLN} en el ámbito de la salud mental ha cobrado relevancia en los últimos años. El crecimiento de plataformas como Reddit, Twitter o TikTok ha convertido las redes sociales en una fuente masiva de información lingüística y emocional, permitiendo estudiar patrones asociados a distintos trastornos psicológicos mediante técnicas de clasificación automática \cite{ge_survey_2025}. Diversos trabajos destacan que las publicaciones realizadas por usuarios pueden contener indicadores relacionados con depresión, ansiedad, ideación suicida, aislamiento social o alteraciones cognitivas, lo que ha favorecido el desarrollo de datasets específicos para tareas de detección automática de trastornos mentales.
 
-En este contexto, el presente trabajo se plantea como una contribución orientada a analizar y comparar distintos enfoques de procesamiento del lenguaje natural aplicados a la detección de ansiedad, depresión y trastornos de la conducta alimentaria en textos escritos en español, con el objetivo de aportar una evaluación comparativa de su rendimiento y analizar su aplicabilidad en este contexto.
+Las primeras aproximaciones en este ámbito se basaban principalmente en modelos clásicos de aprendizaje automático combinados con representaciones lingüísticas superficiales, como TF-IDF o Bag of Words. Posteriormente, la aparición de arquitecturas basadas en transformers permitió mejorar significativamente el modelado contextual del lenguaje y la capacidad para capturar relaciones semánticas complejas. En este contexto, modelos como BERT, RoBERTa o sus variantes adaptadas al dominio clínico comenzaron a utilizarse ampliamente en tareas de clasificación relacionadas con salud mental, obteniendo mejoras consistentes respecto a enfoques tradicionales.
+
+Según Yang et al. \cite{yang_towards_2023}, los modelos basados en transformers especializados en salud mental, como MentalBERT o MentalRoBERTa, alcanzan resultados superiores a modelos clásicos basados en CNN, GRU o BiLSTM en múltiples tareas. En concreto, MentalRoBERTa alcanza valores de hasta 94.23\% de F1-score en detección de depresión, 81.76\% en detección de estrés y 89.01\% en clasificación multiclase, superando consistentemente a las arquitecturas recurrentes tradicionales.
+
+De manera similar, el trabajo \cite{hasan_mental_2025} realiza una comparación entre arquitecturas recurrentes tradicionales y modelos transformer en tareas multiclase de salud mental sobre un dataset grande de publicaciones en Reddit. Los resultados muestran que los transformers ofrecen una mayor capacidad de generalización y mejores métricas de clasificación, alcanzando modelos como RoBERTa valores de entre 91\% y 99\% en F1-score y accuracy según la categoría diagnóstica analizada.
+
+Por su parte, el trabajo \cite{yang_advancing_2025} aborda uno de los principales problemas presentes en este tipo de tareas: el desbalanceo entre clases y la limitada calidad de anotación de muchos datasets de salud mental. Los autores combinan modelos LSTM, transformers preentrenados como BERT y RoBERTa, junto con técnicas de fusión de características y aumento de datos, obteniendo mejoras significativas en clasificación multiclase. En particular, tras aplicar técnicas de resampling y data augmentation, RoBERTa mejora su F1-score de 0.816 a 0.857, mientras que la integración de representaciones locales, globales y TF-IDF permite aumentar el rendimiento de BERT desde un F1-score de 0.766 hasta 0.810. El estudio evidencia la importancia de abordar explícitamente problemas como el desbalanceo y la representación heterogénea del lenguaje en tareas de detección automática de trastornos mentales.
+
+En el contexto específico del español, algunos trabajos han explorado la detección temprana de trastornos mentales utilizando datasets como MentalRiskES \cite{marmol-romero_overview_2023}. Por ejemplo, Pan et al., en \cite{pan_umuteam_nodate}, evalúan distintos transformers monolingües y multilingües sobre tareas de detección de depresión y \ac{TCA} en mensajes de Telegram escritos en español. Los experimentos reflejan que modelos monolingües como BETO o MarIA superan consistentemente a arquitecturas multilingües, alcanzando valores de hasta 0.918 en macro F1 para detección de \ac{TCA} y 0.737 para detección de depresión.
+
+\section{Grandes modelos de lenguaje en salud mental}
+
+Más recientemente, la aparición de los grandes modelos de lenguaje ha supuesto un nuevo cambio de paradigma dentro del área. Modelos como GPT, Gemini o Claude han demostrado capacidades avanzadas de razonamiento y comprensión contextual, despertando un gran interés en aplicaciones relacionadas con salud mental \cite{ge_survey_2025}. Sin embargo, distintos trabajos coinciden en señalar que el prompting directo sobre LLMs generalistas todavía presenta limitaciones importantes en tareas clínicas o sensibles.
+
+En este sentido, Kallstenius et al., en \cite{kallstenius_comparing_2025}, comparan enfoques tradicionales de NLP, prompting sobre GPT-4o-mini y versiones fine-tuned del mismo modelo sobre un dataset multiclase de más de 50.000 publicaciones relacionadas con salud mental. Los autores observan que un modelo tradicional basado en TF-IDF y SVM alcanza una accuracy del 95\%, superando tanto al prompting directo sobre GPT-4o-mini, que obtiene un 65\%, como a la versión fine-tuned del modelo, que alcanza un 91\%. Los autores concluyen que los enfoques especializados y optimizados para clasificación continúan siendo más fiables que los LLMs generalistas en aplicaciones críticas relacionadas con salud mental.
+
+Asimismo, Liu et al., en \cite{liu_enhanced_2025}, exploran el uso de LLMs optimizados específicamente para tareas de cribado de ansiedad y depresión mediante un sistema denominado EmoScan, basado en fine-tuning de Mistral-7B. Sus resultados muestran mejoras respecto a otros LLMs generalistas, alcanzando un F1-score de 0.75 en tareas de clasificación y 0.67 sobre un dataset externo.
+
+En una línea similar, Danner et al., en \cite{danner_advancing_2023}, proponen un enfoque basado en modelos GPT y transformers para la detección automática de depresión a partir de entrevistas clínicas, obteniendo resultados de hasta 0.82 en F1-score mediante modelos BERT entrenados sobre los datasets DAIC-WOZ y Extended-DAIC \cite{gratch_distress_2014}, así como un F1-score de 0.78 utilizando GPT-3.5. Estos resultados destacan el potencial de este modelo GPT, aunque sin alcanzar el rendimiento de los modelos BERT ajustados específicamente para la tarea.
+
+Otro trabajo especialmente relevante es el presentado por Xu et al. en \cite{xu_identifying_2025}. A diferencia de muchos estudios centrados exclusivamente en redes sociales, los autores utilizan entrevistas psiquiátricas reales realizadas a 1160 pacientes ambulatorios diagnosticados con ansiedad y depresión. El sistema propuesto combina LLMs ajustados mediante fine-tuning, características lingüísticas y señales acústicas para identificar síntomas clínicos y predecir diagnósticos psiquiátricos, alcanzando una accuracy del 86.9\% en la identificación de anotaciones clínicas y del 74.7\% y 77.2\% en la detección de síntomas de ansiedad y depresión, respectivamente.
+
+Paralelamente, diversos trabajos recientes han comenzado a centrarse no solo en el rendimiento predictivo de los modelos, sino también en la interpretabilidad de las decisiones generadas. En este contexto, Yang et al., en \cite{yang_mentallama_2024}, proponen una familia de modelos basados en LLaMA2 ajustados específicamente para análisis interpretable de salud mental. Los autores construyen un corpus de más de 105.000 ejemplos relacionados con tareas de detección de trastornos mentales y generación de explicaciones, mostrando que modelos ajustados específicamente al dominio pueden alcanzar F1-scores superiores a 0.80 en múltiples tareas de clasificación, con diferencias inferiores al 5\% respecto a modelos discriminativos tradicionales al mismo tiempo que generan explicaciones comparables a modelos GPT en calidad e interpretabilidad.
+
+En conjunto, estos trabajos reflejan la rápida evolución de las técnicas de \ac{PLN} y \acp{LLM} aplicadas al análisis automático de trastornos de salud mental, así como la creciente diversidad de enfoques, datasets y estrategias de entrenamiento empleadas en este ámbito. La Tabla \ref{tab:sota_mental_health} resume algunos de los trabajos más relevantes y comparables con la metodología seguida en este TFG, incluyendo los modelos evaluados, los datasets utilizados, las tareas consideradas y los principales resultados obtenidos en términos de F1-score.
+
+\begin{table}[H]
+	\centering
+	\caption{Resumen comparativo de trabajos previos sobre detección automática de trastornos de salud mental mediante PLN y LLMs.}
+	\label{tab:sota_mental_health}
+	\resizebox{\textwidth}{!}{
+		\begin{tabular}{
+				>{\raggedright\arraybackslash}p{3.2cm}
+				>{\raggedright\arraybackslash}p{3.6cm}
+				>{\raggedright\arraybackslash}p{3.8cm}
+				>{\raggedright\arraybackslash}p{3.4cm}
+				>{\raggedright\arraybackslash}p{4.8cm}
+			}
+			\toprule
+			\textbf{Trabajo} & \textbf{Modelos} & \textbf{Dataset / Idioma} & \textbf{Tareas evaluadas} & \textbf{Mejor F1-score por tarea} \\
+			\midrule
+			
+			Yang et al. (2023) & MentalBERT, MentalRoBERTa & Reddit / Inglés & Depresión, estrés, multiclase & 0.942, 0.818, 0.890 (MentalRoBERTa) \\
+			\addlinespace[2pt]
+			Yang et al. (2025) & LSTM, BERT, RoBERTa & CounselChat + augmentation / Inglés & Multiclase & 0.857 (RoBERTa) \\
+			\addlinespace[2pt]
+			Pan et al. (2023) & BETO, MarIA & MentalRiskES / Español & Depresión, \ac{TCA} & 0.737 (BETO), 0.918 (MarIA) \\
+			\addlinespace[2pt]
+			Liu et al. (2025) & EmoScan (Mistral-7B) & PsyInterview / Inglés & Ansiedad y depresión & 0.75 (EmoScan) \\
+			\addlinespace[2pt]
+			Danner et al. (2023) & BERT, GPT-3.5 & DAIC / Inglés & Depresión & 0.82 (BERT) y 0.78 (GPT-3.5) \\
+			
+			\bottomrule
+		\end{tabular}
+	}
+\end{table}
+
+\section{Limitaciones de la literatura y motivación del trabajo}
+
+A pesar de los avances obtenidos, la literatura actual continúa presentando diversas limitaciones. En primer lugar, la mayoría de trabajos se centran predominantemente en inglés, existiendo una escasez notable de estudios orientados al español. Además, muchos de los datasets empleados presentan procedimientos de anotación de calidad limitada, basados frecuentemente en autodiagnósticos, participación en comunidades online o etiquetados realizados sin protocolos estrictos ni supervisión especializada. En segundo lugar, gran parte de las investigaciones se focalizan principalmente en depresión, mientras que otros trastornos como la ansiedad o los \ac{TCA} reciben considerablemente menos atención, ya sea por no evaluarse directamente o por corresponder a clases minoritarias dentro de los datasets utilizados.
+
+Finalmente, también resulta limitada la existencia de estudios comparativos que analicen de manera sistemática distintas generaciones de modelos, incluyendo transformers encoder tradicionales, LLMs open-source y modelos frontier de última generación. Del mismo modo, pocos trabajos incorporan análisis estadísticos robustos que permitan determinar si las diferencias observadas entre modelos son realmente significativas, ni evaluaciones que analicen la relación entre coste computacional y rendimiento predictivo para determinar si el incremento de coste asociado a modelos más avanzados se traduce realmente en mejoras relevantes de clasificación. 
+
+En este contexto, el presente trabajo se plantea como una contribución orientada a comparar distintos enfoques de \ac{PLN} aplicados a la detección de ansiedad, depresión y \ac{TCA} en textos escritos en español, utilizando un dataset construido mediante un proceso de anotación guiado y supervisado siguiendo criterios definidos previamente. Asimismo, se analiza no solo el rendimiento predictivo de distintas arquitecturas, sino también la relación entre coste y rendimiento, evaluando hasta qué punto modelos de mayor complejidad y coste computacional justifican las mejoras obtenidas en clasificación.
 
 %%% Local Variables:
 %%% TeX-master: "../book"
