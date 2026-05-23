@@ -120,3 +120,13 @@ El proyecto está diseñado para ejecutarse principalmente en **Google Colab**, 
 ### 🔑 APIs de Modelos (LLMs)
 Para replicar la fase de inferencia con modelos de gran escala, es necesario configurar las API keys de los siguientes proveedores:
 - **OpenAI** | **Anthropic** | **Google AI Studio** | **DeepSeek** | **OpenRouter**
+
+---
+
+## License and Usage
+
+This repository is publicly accessible for academic review and portfolio purposes.
+
+Commercial use is prohibited without explicit written permission.
+
+Academic use requires prior authorization and proper citation of the original work.
